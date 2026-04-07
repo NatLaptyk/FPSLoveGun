@@ -9,9 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9047265493202980069}
+  - component: {fileID: -4323361574282752499}
+  - component: {fileID: 3005114006980815922}
+  - component: {fileID: -1838492295366611715}
   m_Layer: 0
   m_Name: Grenade 1
-  m_TagString: Untagged
+  m_TagString: PlayerProjectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -23,23 +26,90 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6778764985228327200}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4868560297709184450}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &-4323361574282752499
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6778764985228327200}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &3005114006980815922
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6778764985228327200}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &-1838492295366611715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6778764985228327200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 166d0024073cd9548be4d3ebd7515306, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LoveBombProjectile
+  explosionRadius: 1
+  lovePower: 5
+  fuseTime: 3
+  explosionEffect: {fileID: 0}
+  explosionSound: {fileID: 0}
 --- !u!1001 &4907270713087083049
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 9047265493202980069}
     m_Modifications:
     - target: {fileID: -8733946934560461103, guid: 4cf2e55ff61475a41a3d1cfb6c18679c, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: df1dc53705a3c1f42a04e07088987a46, type: 2}
     - target: {fileID: -8679921383154817045, guid: 4cf2e55ff61475a41a3d1cfb6c18679c, type: 3}
@@ -87,19 +157,19 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6683111921738737874, guid: 4cf2e55ff61475a41a3d1cfb6c18679c, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: df1dc53705a3c1f42a04e07088987a46, type: 2}
     - target: {fileID: -629392271669159207, guid: 4cf2e55ff61475a41a3d1cfb6c18679c, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: df1dc53705a3c1f42a04e07088987a46, type: 2}
     - target: {fileID: -576989260839246174, guid: 4cf2e55ff61475a41a3d1cfb6c18679c, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: df1dc53705a3c1f42a04e07088987a46, type: 2}
     - target: {fileID: -125220686826823120, guid: 4cf2e55ff61475a41a3d1cfb6c18679c, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: df1dc53705a3c1f42a04e07088987a46, type: 2}
     - target: {fileID: 919132149155446097, guid: 4cf2e55ff61475a41a3d1cfb6c18679c, type: 3}
@@ -107,22 +177,25 @@ PrefabInstance:
       value: Grenade 1
       objectReference: {fileID: 0}
     - target: {fileID: 1440116976008259256, guid: 4cf2e55ff61475a41a3d1cfb6c18679c, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: df1dc53705a3c1f42a04e07088987a46, type: 2}
     - target: {fileID: 3136841376501902489, guid: 4cf2e55ff61475a41a3d1cfb6c18679c, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: df1dc53705a3c1f42a04e07088987a46, type: 2}
     - target: {fileID: 6263516031064440522, guid: 4cf2e55ff61475a41a3d1cfb6c18679c, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: df1dc53705a3c1f42a04e07088987a46, type: 2}
     - target: {fileID: 8043399194227156538, guid: 4cf2e55ff61475a41a3d1cfb6c18679c, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: df1dc53705a3c1f42a04e07088987a46, type: 2}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4cf2e55ff61475a41a3d1cfb6c18679c, type: 3}
 --- !u!4 &4868560297709184450 stripped
 Transform:

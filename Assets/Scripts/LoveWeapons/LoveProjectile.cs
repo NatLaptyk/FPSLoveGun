@@ -56,8 +56,11 @@ public class LoveProjectile : MonoBehaviour
             return;
         }
 
-        // Hit a wall or ground (not the player)
-        if (!other.CompareTag("Player") && !other.CompareTag("PlayerProjectile"))
+        // Hit a wall or ground (not the player) — check the root too,
+        // because child colliders (like the player's Cube) are often untagged.
+        Transform root = other.transform.root;
+        if (!other.CompareTag("Player") && !other.CompareTag("PlayerProjectile")
+            && !root.CompareTag("Player") && !root.CompareTag("PlayerProjectile"))
         {
             // Spawn hit effect on walls too (smaller)
             if (hitEffect != null)
