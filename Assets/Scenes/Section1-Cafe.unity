@@ -32431,6 +32431,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5225534201591957336, guid: e93c0e61a77689d4ca8232c246f508ce, type: 3}
+      propertyPath: loveBombPrefab
+      value: 
+      objectReference: {fileID: 6778764985228327200, guid: de3b9a08ecdef7f4e90be1fff4538ec2, type: 3}
     - target: {fileID: 6358134983421568371, guid: e93c0e61a77689d4ca8232c246f508ce, type: 3}
       propertyPath: m_Name
       value: Player

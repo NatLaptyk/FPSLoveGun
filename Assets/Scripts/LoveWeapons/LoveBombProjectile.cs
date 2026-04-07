@@ -51,6 +51,7 @@ public class LoveBombProjectile : MonoBehaviour
             if (person != null && converted.Add(person))
             {
                 person.ReceiveLove(lovePower);
+                Debug.Log($"[LoveBomb] Loved {person.name}, isVeryUnhappy={person.isVeryUnhappy}, gave {lovePower}");
             }
         }
 

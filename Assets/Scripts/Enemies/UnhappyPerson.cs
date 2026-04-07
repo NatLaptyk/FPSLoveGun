@@ -223,9 +223,9 @@ public class UnhappyPerson : MonoBehaviour
             cityPeople = GetComponentInChildren<CityPeople.CityPeople>(true);
         if (cityPeople != null)
         {
+            // Just enable it — CityPeople.Start() will run on the next frame
+            // and pick a random clip itself (because AutoPlayAnimations is on).
             cityPeople.enabled = true;
-            // Force an immediate clip in case Start already ran while disabled
-            cityPeople.PlayAnyClip();
         }
 
         // Start happy wandering using the existing NavMeshAgent
