@@ -37,8 +37,16 @@ public class UnhappyPerson : MonoBehaviour
     public float detectionRange = 15f;           // How far they can see the player
     public float attackRange = 12f;              // Range at which they start throwing
     public float throwCooldown = 2f;             // Time between throws
-    public float throwForce = 10f;
+    public float throwForce = 6f;                // Lowered so the sadness is easier to see in flight
     private float nextThrowTime = 0f;
+
+    [Header("Sadness Trail")]
+    [Tooltip("Attach a trail to thrown sadness so it's visible even at speed")]
+    public bool addSadnessTrail = true;
+    public Color sadnessTrailColor = new Color(0.2f, 0.2f, 0.6f, 1f); // Dark blue
+    public float sadnessTrailTime = 0.5f;
+    public float sadnessTrailStartWidth = 0.3f;
+    public float sadnessTrailEndWidth = 0.02f;
 
     [Header("Visuals")]
     public Renderer bodyRenderer;               // To change color when becoming happy
@@ -158,8 +166,32 @@ public class UnhappyPerson : MonoBehaviour
         Rigidbody rb = projectile.GetComponent<Rigidbody>();
         rb.linearVelocity = directionToPlayer * throwForce;
 
+        // Attach a visible trail so the player can see and dodge
+        if (addSadnessTrail)
+            AttachSadnessTrail(projectile);
+
         if (throwSound != null)
             audioSource.PlayOneShot(throwSound);
+    }
+
+    void AttachSadnessTrail(GameObject projectile)
+    {
+        TrailRenderer trail = projectile.GetComponent<TrailRenderer>();
+        if (trail == null)
+            trail = projectile.AddComponent<TrailRenderer>();
+
+        trail.time = sadnessTrailTime;
+        trail.startWidth = sadnessTrailStartWidth;
+        trail.endWidth = sadnessTrailEndWidth;
+        trail.minVertexDistance = 0.05f;
+        trail.numCapVertices = 4;
+        trail.numCornerVertices = 4;
+
+        Material mat = new Material(Shader.Find("Sprites/Default"));
+        mat.color = sadnessTrailColor;
+        trail.material = mat;
+        trail.startColor = sadnessTrailColor;
+        trail.endColor = new Color(sadnessTrailColor.r, sadnessTrailColor.g, sadnessTrailColor.b, 0f);
     }
 
     /// <summary>

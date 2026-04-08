@@ -19,10 +19,17 @@ public class SadnessProjectile : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        // Did we hit the player?
-        if (other.CompareTag("Player"))
+        Debug.Log($"[SadnessProjectile] Hit: {other.name} (root: {other.transform.root.name}, tag={other.tag})");
+
+        // Did we hit the player? Check the root too in case the collider
+        // is on a child object (CharacterController cube, capsule, etc).
+        Transform root = other.transform.root;
+        bool hitPlayer = other.CompareTag("Player") || root.CompareTag("Player");
+
+        if (hitPlayer)
         {
-            PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
+            // Look up the hierarchy so PlayerHealth on the root is found
+            PlayerHealth playerHealth = other.GetComponentInParent<PlayerHealth>();
             if (playerHealth != null)
             {
                 playerHealth.TakeSadness(sadnessDamage);
@@ -36,7 +43,7 @@ public class SadnessProjectile : MonoBehaviour
         }
 
         // Hit a wall or ground (not an NPC)
-        if (!other.CompareTag("NPC"))
+        if (!other.CompareTag("NPC") && !root.CompareTag("NPC"))
         {
             Destroy(gameObject);
         }

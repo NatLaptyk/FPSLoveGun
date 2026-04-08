@@ -35,9 +35,11 @@ public class GameManager : MonoBehaviour
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
 
-        // Count all unhappy people in the scene
-        UnhappyPerson[] allPeople = FindObjectsByType<UnhappyPerson>(FindObjectsSortMode.None);
+        // Count ALL unhappy people in the scene, including disabled ones
+        // (NPCs start disabled and are activated later by EventManager).
+        UnhappyPerson[] allPeople = FindObjectsByType<UnhappyPerson>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         totalUnhappyPeople = allPeople.Length;
+        Debug.Log($"[GameManager] Found {totalUnhappyPeople} unhappy people (including disabled)");
 
         // Hide UI panels
         if (winPanel != null) winPanel.SetActive(false);
@@ -55,6 +57,10 @@ public class GameManager : MonoBehaviour
         // Update HUD with initial count
         HUDManager hud = FindFirstObjectByType<HUDManager>();
         if (hud != null) hud.UpdatePeopleCount(peopleMadeHappy, totalUnhappyPeople);
+
+        // Lock and hide the cursor at game start
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void Update()

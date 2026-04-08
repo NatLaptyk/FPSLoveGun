@@ -73,10 +73,30 @@ public class LoveGun : MonoBehaviour
         nextFireTime = Time.time + fireRate;
         currentAmmo--;
 
-        // Spawn projectile
-        GameObject projectile = Instantiate(loveProjectilePrefab, firePoint.position, firePoint.rotation);
+        // Aim from the camera center (where the crosshair is), not from the gun.
+        // This makes projectiles go exactly where the crosshair points.
+        Camera cam = Camera.main;
+        Vector3 aimDirection;
+        if (cam != null)
+        {
+            Ray centerRay = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+            // Use whatever the crosshair is over as the target point,
+            // or a far point straight ahead if nothing is in range.
+            Vector3 targetPoint = Physics.Raycast(centerRay, out RaycastHit hit, 200f)
+                ? hit.point
+                : centerRay.origin + centerRay.direction * 200f;
+
+            aimDirection = (targetPoint - firePoint.position).normalized;
+        }
+        else
+        {
+            aimDirection = firePoint.forward;
+        }
+
+        // Spawn projectile at gun barrel, rotated toward the crosshair target
+        GameObject projectile = Instantiate(loveProjectilePrefab, firePoint.position, Quaternion.LookRotation(aimDirection));
         Rigidbody rb = projectile.GetComponent<Rigidbody>();
-        rb.linearVelocity = firePoint.forward * projectileSpeed;
+        rb.linearVelocity = aimDirection * projectileSpeed;
 
         // Visual effect
         if (muzzleFlash != null)

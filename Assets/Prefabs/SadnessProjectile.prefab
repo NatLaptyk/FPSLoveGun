@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5985949299209443003}
   - component: {fileID: 4693380455941456594}
   - component: {fileID: 4151205906056156929}
+  - component: {fileID: 1248541433666240327}
   m_Layer: 0
   m_Name: SadnessProjectile
   m_TagString: EnemyProjectile
@@ -68,7 +69,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 527edd9d0a1a9644e89656e1d9431f5d, type: 2}
+  - {fileID: 2100000, guid: c6f8697f4df784e40a860c5ebfb7fac6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -139,4 +140,19 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
+--- !u!114 &1248541433666240327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2021040450435978625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd99a4c16030c924c8ffd7dadf7bd320, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SadnessProjectile
+  sadnessDamage: 10
+  lifetime: 5
+  hitEffect: {fileID: 0}

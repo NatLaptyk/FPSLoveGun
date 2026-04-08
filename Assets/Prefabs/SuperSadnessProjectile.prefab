@@ -8,14 +8,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1248541433666240327, guid: 38f0468503616674280175cff75e26cf, type: 3}
+      propertyPath: hitEffect
+      value: 
+      objectReference: {fileID: 3912242300694112348, guid: 9e59038de397032448cf9b329c247777, type: 3}
     - target: {fileID: 2021040450435978625, guid: 38f0468503616674280175cff75e26cf, type: 3}
       propertyPath: m_Name
-      value: SadnessProjectile Variant
+      value: SuperSadnessProjectile
+      objectReference: {fileID: 0}
+    - target: {fileID: 4151205906056156929, guid: 38f0468503616674280175cff75e26cf, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5985949299209443003, guid: 38f0468503616674280175cff75e26cf, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 4731ed576b153b3448fe1a689f7619b3, type: 2}
+      objectReference: {fileID: 2100000, guid: 527edd9d0a1a9644e89656e1d9431f5d, type: 2}
     - target: {fileID: 8305290925184540211, guid: 38f0468503616674280175cff75e26cf, type: 3}
       propertyPath: m_LocalPosition.x
       value: 4.1170115
