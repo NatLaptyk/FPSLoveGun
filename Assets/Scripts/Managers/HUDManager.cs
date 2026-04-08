@@ -58,7 +58,7 @@ public class HUDManager : MonoBehaviour
     public void UpdateAmmo(int current, int max)
     {
         if (ammoText != null)
-            ammoText.text = current + " / " + max;
+            ammoText.text = "Ammo: " + current + " / " + max;
     }
 
     public void UpdateBombs(int current, int max)
