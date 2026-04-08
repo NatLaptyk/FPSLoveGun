@@ -72,6 +72,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    [Header("Win Mode")]
+    [Tooltip("If true, GameManager triggers WinGame when ALL unhappy people are happy. " +
+             "Turn this OFF if you're using SectionTrackers — let the final section call WinGame() instead.")]
+    public bool useGlobalWinCondition = false;
+
     /// <summary>
     /// Called by UnhappyPerson when they become happy.
     /// </summary>
@@ -85,11 +90,20 @@ public class GameManager : MonoBehaviour
         HUDManager hud = FindFirstObjectByType<HUDManager>();
         if (hud != null) hud.UpdatePeopleCount(peopleMadeHappy, totalUnhappyPeople);
 
-        // Check win condition
-        if (peopleMadeHappy >= totalUnhappyPeople)
+        // Global win — only fires if you haven't switched to per-section tracking
+        if (useGlobalWinCondition && peopleMadeHappy >= totalUnhappyPeople)
         {
             WinGame();
         }
+    }
+
+    /// <summary>
+    /// Public so SectionTrackers (or any other system) can trigger the win screen
+    /// when their own goal is met. Wire this to your final section's onSectionComplete.
+    /// </summary>
+    public void TriggerWin()
+    {
+        WinGame();
     }
 
     void WinGame()
