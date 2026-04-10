@@ -22,7 +22,7 @@ public class PopupController : MonoBehaviour
         }
 
         // Toggle pause panel on P (only when intro popup is closed)
-        if (!popupPanel.activeSelf && Input.GetKeyDown(KeyCode.P))
+        if (!popupPanel.activeSelf && Input.GetKeyDown(KeyCode.Escape))
         {
             if (pausePanel.activeSelf)
                 ResumeGame();
