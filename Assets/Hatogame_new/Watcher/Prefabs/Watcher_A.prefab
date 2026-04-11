@@ -53,7 +53,7 @@ PrefabInstance:
       value: Watcher_A
       objectReference: {fileID: 0}
     - target: {fileID: 7692026817905738519, guid: b91187a9debded54988c89438ac8b3f6, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 4973ad056749a5c49ad60dacc581b405, type: 2}
     m_RemovedComponents: []
@@ -63,6 +63,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b91187a9debded54988c89438ac8b3f6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4836807200928277003}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b91187a9debded54988c89438ac8b3f6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -1977208887242062014}
   m_SourcePrefab: {fileID: 100100000, guid: b91187a9debded54988c89438ac8b3f6, type: 3}
 --- !u!1 &7035340801813807993 stripped
 GameObject:
@@ -71,7 +74,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &4836807200928277003
 Animator:
-  serializedVersion: 5
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -85,8 +88,28 @@ Animator:
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-1977208887242062014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7035340801813807993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a774c6e0b06060459625d790e6f6c92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WatcherAI
+  maxHealth: 500
+  runSpeed: 6
+  attackRange: 4
+  attackCooldown: 3
+  stunDuration: 3
+  attackAnimationLength: 1.5
+  player: {fileID: 0}
