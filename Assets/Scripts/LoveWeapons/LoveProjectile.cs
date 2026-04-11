@@ -55,6 +55,15 @@ public class LoveProjectile : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+        // Did we hit the boss?
+        WatcherAI boss = other.GetComponentInParent<WatcherAI>();
+        if (boss != null)
+        {
+            boss.ReceiveLove(lovePower, false); // false = not a bomb
+            if (hitEffect != null) Instantiate(hitEffect, transform.position, Quaternion.identity);
+            Destroy(gameObject);
+            return;
+        }
 
         // Hit a wall or ground (not the player) — check the root too,
         // because child colliders (like the player's Cube) are often untagged.
