@@ -247,7 +247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02c83cafb9f724b45b337228250edc35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenu
-  sceneToLoad: Section1-Cafe
+  sceneToLoad: MainScene
 --- !u!114 &447008772
 MonoBehaviour:
   m_ObjectHideFlags: 0
