@@ -20836,6 +20836,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Large Floor
       objectReference: {fileID: 0}
+    - target: {fileID: 4931211098279084, guid: ee987da6efab07d49bc9fc59e287f08b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -20
+      objectReference: {fileID: 0}
     - target: {fileID: 4994620815285460, guid: ee987da6efab07d49bc9fc59e287f08b, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -45635,72 +45639,6 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 400002, guid: 0b6fafa63b69b174584365f2641586a4, type: 3}
   m_PrefabInstance: {fileID: 989467892}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &989724434
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1724181163}
-    m_Modifications:
-    - target: {fileID: 100000, guid: d34e8533c8de8ec45869f9144584d929, type: 3}
-      propertyPath: m_Name
-      value: Road Concrete Tile (3)
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: d34e8533c8de8ec45869f9144584d929, type: 3}
-      propertyPath: m_RootOrder
-      value: 683
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: d34e8533c8de8ec45869f9144584d929, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: d34e8533c8de8ec45869f9144584d929, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: d34e8533c8de8ec45869f9144584d929, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: d34e8533c8de8ec45869f9144584d929, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 90
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: d34e8533c8de8ec45869f9144584d929, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -1
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: d34e8533c8de8ec45869f9144584d929, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: d34e8533c8de8ec45869f9144584d929, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: d34e8533c8de8ec45869f9144584d929, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.000000021855694
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: d34e8533c8de8ec45869f9144584d929, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: d34e8533c8de8ec45869f9144584d929, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: d34e8533c8de8ec45869f9144584d929, type: 3}
---- !u!4 &989724435 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 400000, guid: d34e8533c8de8ec45869f9144584d929, type: 3}
-  m_PrefabInstance: {fileID: 989724434}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &990008261
 PrefabInstance:
@@ -79887,7 +79825,6 @@ Transform:
   - {fileID: 1661857673}
   - {fileID: 1808124890}
   - {fileID: 1811050233}
-  - {fileID: 989724435}
   - {fileID: 1832339260}
   - {fileID: 1900636850}
   - {fileID: 1656832339}
