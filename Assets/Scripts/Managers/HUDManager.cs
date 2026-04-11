@@ -105,6 +105,15 @@ public class HUDManager : MonoBehaviour
             peopleCounterText.text = happy + " / " + total + " people made happy";
     }
 
+    /// <summary>
+    /// One-parameter overload so UnityEvents can call this from the Inspector.
+    /// Uses a default 3-second display duration.
+    /// </summary>
+    public void ShowMessage(string message)
+    {
+        ShowMessage(message, 3f);
+    }
+
     public void ShowMessage(string message, float duration)
     {
         if (messageText == null) return;

@@ -85,7 +85,9 @@ public class MusicController : MonoBehaviour
     /// </summary>
     public void FadeOut(float duration)
     {
-        if (!audioSource.isPlaying) return;
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+        if (audioSource == null || !audioSource.isPlaying) return;
         isFading = true;
         fadeSpeed = audioSource.volume / Mathf.Max(0.01f, duration);
     }

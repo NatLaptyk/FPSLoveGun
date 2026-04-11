@@ -119,9 +119,12 @@ public class LoveGun : MonoBehaviour
             audioSource.PlayOneShot(reloadSound);
 
         // Update HUD to show reloading
+        
         HUDManager hud = FindFirstObjectByType<HUDManager>();
+        Debug.Log("[LoveGun] Reload started");
         if (hud != null) hud.ShowReloading(true);
-
+        else Debug.LogWarning("[LoveGun] HUDManager not found!");
+     
         yield return new WaitForSeconds(reloadTime);
 
         currentAmmo = maxAmmo;
