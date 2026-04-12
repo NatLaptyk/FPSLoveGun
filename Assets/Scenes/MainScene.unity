@@ -51558,6 +51558,81 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6166584487648029287, guid: cc2c18e189d423749bcb27809650683d, type: 3}
   m_PrefabInstance: {fileID: 1874144084}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1153905384
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1153905385}
+  - component: {fileID: 1153905387}
+  - component: {fileID: 1153905386}
+  m_Layer: 5
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1153905385
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153905384}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 25.7, y: 15.834598, z: 25.7}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 1301872542}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 316, y: 108}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1153905386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153905384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 54782c5580e874529a00736dd73e2693, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1153905387
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153905384}
+  m_CullTransparentMesh: 1
 --- !u!4 &1155531226 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5838439550256664009, guid: 75c16d4794f25e84ea8d82ee45dd1937, type: 3}
@@ -58903,19 +58978,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2683283809011546593, guid: f9fe96f64abf54228afbc6bd0cc38aa3, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.1225
+      value: 1.5972238
       objectReference: {fileID: 0}
     - target: {fileID: 2683283809011546593, guid: f9fe96f64abf54228afbc6bd0cc38aa3, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2.1225
+      value: 1.5972238
       objectReference: {fileID: 0}
     - target: {fileID: 2683283809011546593, guid: f9fe96f64abf54228afbc6bd0cc38aa3, type: 3}
       propertyPath: m_LocalScale.z
-      value: 2.1225
+      value: 1.5972238
       objectReference: {fileID: 0}
     - target: {fileID: 2683283809011546593, guid: f9fe96f64abf54228afbc6bd0cc38aa3, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -94
+      value: -99
       objectReference: {fileID: 0}
     - target: {fileID: 2683283809011546593, guid: f9fe96f64abf54228afbc6bd0cc38aa3, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -59102,11 +59177,15 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 735274317792026601, guid: f9fe96f64abf54228afbc6bd0cc38aa3, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 3268477846091168264, guid: f9fe96f64abf54228afbc6bd0cc38aa3, type: 3}
       insertIndex: 1
       addedObject: {fileID: 1464172382}
+    - targetCorrespondingSourceObject: {fileID: 7249415538249552317, guid: f9fe96f64abf54228afbc6bd0cc38aa3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1153905385}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2958588314177815637, guid: f9fe96f64abf54228afbc6bd0cc38aa3, type: 3}
       insertIndex: -1
@@ -59135,6 +59214,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SectionCompletePopup
   sectionCompletePanel: {fileID: 1464172379}
+--- !u!224 &1301872542 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 7249415538249552317, guid: f9fe96f64abf54228afbc6bd0cc38aa3, type: 3}
+  m_PrefabInstance: {fileID: 1301872538}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1302686004 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 961081019932393342, guid: d3ff576f6131e91448d4d670d0b55bc0, type: 3}
