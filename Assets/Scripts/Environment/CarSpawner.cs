@@ -64,19 +64,36 @@ public class CarSpawner : MonoBehaviour
 
     void SpawnCar()
     {
-        if (carPrefabs == null || carPrefabs.Length == 0 || path == null) return;
+        if (carPrefabs == null || carPrefabs.Length == 0)
+        {
+            Debug.LogWarning("[CarSpawner] No car prefabs assigned!");
+            return;
+        }
+        if (path == null)
+        {
+            Debug.LogWarning("[CarSpawner] No CarPath assigned!");
+            return;
+        }
+        if (path.waypoints == null || path.waypoints.Length < 2)
+        {
+            Debug.LogWarning("[CarSpawner] CarPath needs at least 2 waypoints!");
+            return;
+        }
 
         // Check car limit
         if (maxCars > 0)
         {
-            // Count active CarFollowers on this path
             CarFollower[] followers = FindObjectsByType<CarFollower>(FindObjectsSortMode.None);
             int count = 0;
             foreach (var f in followers)
             {
                 if (f.path == path) count++;
             }
-            if (count >= maxCars) return;
+            if (count >= maxCars)
+            {
+                Debug.Log($"[CarSpawner] Max cars ({maxCars}) reached, skipping spawn.");
+                return;
+            }
         }
 
         // Pick a random prefab
@@ -98,5 +115,6 @@ public class CarSpawner : MonoBehaviour
 
         follower.path = path;
         follower.speed = Random.Range(minSpeed, maxSpeed);
+        Debug.Log($"[CarSpawner] Spawned {prefab.name} at {startPos}, speed={follower.speed:F1}");
     }
 }

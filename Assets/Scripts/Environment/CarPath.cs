@@ -1,135 +1,147 @@
 using UnityEngine;
 
 /// <summary>
-/// Defines a smooth Catmull-Rom spline path for cars to follow.
+/// Defines a waypoint path for cars to follow.
+/// Uses simple linear interpolation between waypoints — no spline math,
+/// no looping, no overshoot. Just place one waypoint at each road corner.
 ///
 /// SETUP:
 /// 1. Create an empty GameObject named "CarPath"
 /// 2. Add this script
 /// 3. Create child empty GameObjects as waypoints along the road
-/// 4. Drag them into the "waypoints" array (order matters!)
-/// 5. The yellow spline appears in Scene view when selected
-///
-/// Cars interpolate smoothly between waypoints — no sharp corners.
+/// 4. Drag them into the "waypoints" array in order
+/// 5. The yellow path appears in Scene view when selected
 /// </summary>
 public class CarPath : MonoBehaviour
 {
-    [Tooltip("Ordered waypoints the car will follow. Place these along the road.")]
+    [Tooltip("Ordered waypoints the car will follow. One per corner is enough.")]
     public Transform[] waypoints;
 
-    [Tooltip("If true, the path loops back to the first waypoint")]
-    public bool loop = false;
+    [Tooltip("How much to round off corners (0 = sharp 90 degree turn, 0.3 = gentle curve).")]
+    [Range(0f, 0.49f)]
+    public float cornerSmoothing = 0.2f;
+
+    private float[] segmentLengths;
+    private float totalLength;
+
+    void Awake()
+    {
+        BuildCache();
+    }
+
+    void BuildCache()
+    {
+        if (waypoints == null || waypoints.Length < 2) return;
+
+        segmentLengths = new float[waypoints.Length - 1];
+        totalLength = 0f;
+        for (int i = 0; i < segmentLengths.Length; i++)
+        {
+            segmentLengths[i] = Vector3.Distance(waypoints[i].position, waypoints[i + 1].position);
+            totalLength += segmentLengths[i];
+        }
+    }
 
     /// <summary>
-    /// Returns a world-space position on the spline.
-    /// t ranges from 0 (start) to 1 (end).
+    /// Returns a world-space position on the path. t ranges from 0 to 1.
     /// </summary>
     public Vector3 GetPointAtTime(float t)
     {
         if (waypoints == null || waypoints.Length < 2)
             return transform.position;
 
-        // Map t to a segment index + local t
-        float totalSegments = loop ? waypoints.Length : waypoints.Length - 1;
-        float scaledT = Mathf.Clamp01(t) * totalSegments;
-        int segment = Mathf.FloorToInt(scaledT);
-        float localT = scaledT - segment;
+        if (segmentLengths == null) BuildCache();
 
-        // Clamp segment for non-looping paths
-        if (!loop && segment >= waypoints.Length - 1)
+        t = Mathf.Clamp01(t);
+
+        float distanceAlong = t * totalLength;
+        float accumulated = 0f;
+
+        for (int i = 0; i < segmentLengths.Length; i++)
         {
-            segment = waypoints.Length - 2;
-            localT = 1f;
+            float segLen = segmentLengths[i];
+            if (distanceAlong <= accumulated + segLen || i == segmentLengths.Length - 1)
+            {
+                float localT = (distanceAlong - accumulated) / Mathf.Max(0.001f, segLen);
+                localT = Mathf.Clamp01(localT);
+
+                Vector3 a = waypoints[i].position;
+                Vector3 b = waypoints[i + 1].position;
+
+                if (cornerSmoothing <= 0f)
+                    return Vector3.Lerp(a, b, localT);
+
+                // Smooth the corner using a cubic bezier
+                Vector3 inDir = (i > 0)
+                    ? (b - waypoints[i - 1].position).normalized
+                    : (b - a).normalized;
+                Vector3 outDir = (i < waypoints.Length - 2)
+                    ? (waypoints[i + 2].position - a).normalized
+                    : (b - a).normalized;
+
+                float s = cornerSmoothing * segLen;
+                return CubicBezier(a, a + inDir * s, b - outDir * s, b, localT);
+            }
+            accumulated += segLen;
         }
 
-        // Get four control points for Catmull-Rom
-        Vector3 p0 = GetWaypointPosition(segment - 1);
-        Vector3 p1 = GetWaypointPosition(segment);
-        Vector3 p2 = GetWaypointPosition(segment + 1);
-        Vector3 p3 = GetWaypointPosition(segment + 2);
-
-        return CatmullRom(p0, p1, p2, p3, localT);
+        return waypoints[waypoints.Length - 1].position;
     }
 
     /// <summary>
-    /// Returns the forward direction on the spline at time t.
+    /// Returns the forward direction on the path at time t.
     /// </summary>
     public Vector3 GetDirectionAtTime(float t)
     {
-        float delta = 0.001f;
-        Vector3 a = GetPointAtTime(t - delta);
-        Vector3 b = GetPointAtTime(t + delta);
-        return (b - a).normalized;
+        float delta = 0.005f;
+        Vector3 a = GetPointAtTime(Mathf.Max(0f, t - delta));
+        Vector3 b = GetPointAtTime(Mathf.Min(1f, t + delta));
+        Vector3 dir = b - a;
+        return dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector3.forward;
     }
 
     /// <summary>
-    /// Approximate total length of the spline (for speed normalization).
+    /// Total world-space length of the path.
     /// </summary>
-    public float GetApproximateLength(int samples = 50)
+    public float GetApproximateLength()
     {
-        float length = 0f;
-        Vector3 prev = GetPointAtTime(0f);
-        for (int i = 1; i <= samples; i++)
-        {
-            float t = (float)i / samples;
-            Vector3 curr = GetPointAtTime(t);
-            length += Vector3.Distance(prev, curr);
-            prev = curr;
-        }
-        return length;
+        if (segmentLengths == null) BuildCache();
+        return totalLength > 0f ? totalLength : 1f;
     }
 
-    Vector3 GetWaypointPosition(int index)
+    static Vector3 CubicBezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
     {
-        if (loop)
-        {
-            index = ((index % waypoints.Length) + waypoints.Length) % waypoints.Length;
-        }
-        else
-        {
-            index = Mathf.Clamp(index, 0, waypoints.Length - 1);
-        }
-        return waypoints[index].position;
+        float u = 1f - t;
+        return u * u * u * p0
+             + 3f * u * u * t * p1
+             + 3f * u * t * t * p2
+             + t * t * t * p3;
     }
 
-    /// <summary>
-    /// Catmull-Rom spline interpolation between p1 and p2.
-    /// </summary>
-    static Vector3 CatmullRom(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
-    {
-        float t2 = t * t;
-        float t3 = t2 * t;
-
-        return 0.5f * (
-            (2f * p1) +
-            (-p0 + p2) * t +
-            (2f * p0 - 5f * p1 + 4f * p2 - p3) * t2 +
-            (-p0 + 3f * p1 - 3f * p2 + p3) * t3
-        );
-    }
-
-    // Draw the spline in Scene view
     void OnDrawGizmosSelected()
     {
         if (waypoints == null || waypoints.Length < 2) return;
 
-        Gizmos.color = Color.yellow;
-        Vector3 prev = GetPointAtTime(0f);
+        // Rebuild cache in editor
+        BuildCache();
 
-        for (int i = 1; i <= 100; i++)
+        Gizmos.color = Color.yellow;
+        int steps = 60 * (waypoints.Length - 1);
+        Vector3 prev = GetPointAtTime(0f);
+        for (int i = 1; i <= steps; i++)
         {
-            float t = (float)i / 100f;
-            Vector3 curr = GetPointAtTime(t);
+            Vector3 curr = GetPointAtTime((float)i / steps);
             Gizmos.DrawLine(prev, curr);
             prev = curr;
         }
 
-        // Draw waypoint spheres
-        Gizmos.color = new Color(1f, 0.6f, 0f, 0.8f);
-        foreach (var wp in waypoints)
+        Gizmos.color = new Color(1f, 0.6f, 0f);
+        for (int i = 0; i < waypoints.Length; i++)
         {
-            if (wp != null)
-                Gizmos.DrawWireSphere(wp.position, 0.4f);
+            if (waypoints[i] == null) continue;
+            Gizmos.DrawWireSphere(waypoints[i].position, 0.5f);
+            if (i < waypoints.Length - 1 && waypoints[i + 1] != null)
+                Gizmos.DrawLine(waypoints[i].position, waypoints[i + 1].position);
         }
     }
 }
