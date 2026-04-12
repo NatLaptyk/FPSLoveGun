@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Sadness Projectile — thrown by Unhappy People at the player.
+/// Sadness Projectile — thrown by Unhappy People or the Watcher boss at the player.
 /// Reduces the player's happiness on hit.
 /// Create a Prefab: small dark blue/grey sphere with Rigidbody, Collider (Is Trigger), and this script.
 /// </summary>
@@ -12,23 +12,45 @@ public class SadnessProjectile : MonoBehaviour
     public float lifetime = 5f;
     public GameObject hitEffect;         // Dark/sad particle burst
 
+    /// <summary>
+    /// The root Transform of whoever fired this projectile.
+    /// Set by the shooter so the projectile ignores its own creator.
+    /// </summary>
+    [HideInInspector]
+    public Transform owner;
+
     void Start()
     {
         Destroy(gameObject, lifetime);
+
+        // Safety: if owner wasn't set, try to detect overlap with shooter
+        // and ignore it by physics
+        if (owner != null)
+        {
+            Collider[] ownerColliders = owner.GetComponentsInChildren<Collider>();
+            Collider myCol = GetComponent<Collider>();
+            if (myCol != null)
+            {
+                foreach (Collider oc in ownerColliders)
+                    Physics.IgnoreCollision(myCol, oc);
+            }
+        }
     }
 
     void OnTriggerEnter(Collider other)
     {
+        // Ignore the shooter
+        if (owner != null && other.transform.root == owner.root)
+            return;
+
         Debug.Log($"[SadnessProjectile] Hit: {other.name} (root: {other.transform.root.name}, tag={other.tag})");
 
-        // Did we hit the player? Check the root too in case the collider
-        // is on a child object (CharacterController cube, capsule, etc).
+        // Did we hit the player?
         Transform root = other.transform.root;
         bool hitPlayer = other.CompareTag("Player") || root.CompareTag("Player");
 
         if (hitPlayer)
         {
-            // Look up the hierarchy so PlayerHealth on the root is found
             PlayerHealth playerHealth = other.GetComponentInParent<PlayerHealth>();
             if (playerHealth != null)
             {
@@ -42,10 +64,11 @@ public class SadnessProjectile : MonoBehaviour
             return;
         }
 
-        // Hit a wall or ground (not an NPC)
-        if (!other.CompareTag("NPC") && !root.CompareTag("NPC"))
-        {
-            Destroy(gameObject);
-        }
+        // Ignore other NPCs and Watchers — only destroy on walls/floor
+        if (other.GetComponentInParent<UnhappyPerson>() != null) return;
+        if (other.GetComponentInParent<WatcherAI>() != null) return;
+
+        // Hit a wall or ground
+        Destroy(gameObject);
     }
 }

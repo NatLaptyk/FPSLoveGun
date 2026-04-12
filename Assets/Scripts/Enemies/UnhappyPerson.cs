@@ -163,6 +163,11 @@ public class UnhappyPerson : MonoBehaviour
         Vector3 directionToPlayer = (playerTransform.position + Vector3.up * 1.2f - throwPoint.position).normalized;
 
         GameObject projectile = Instantiate(sadnessProjectilePrefab, throwPoint.position, Quaternion.identity);
+
+        // Tell the projectile who fired it so it ignores our collider
+        SadnessProjectile sp = projectile.GetComponent<SadnessProjectile>();
+        if (sp != null) sp.owner = transform;
+
         Rigidbody rb = projectile.GetComponent<Rigidbody>();
         rb.linearVelocity = directionToPlayer * throwForce;
 

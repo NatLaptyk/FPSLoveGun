@@ -3,58 +3,40 @@ using UnityEngine;
 /// <summary>
 /// Defines a strict contract for entities that can receive love within the game ecosystem.
 /// </summary>
-/// <typeparam name="T">The data type used to identify the source or type of love (e.g., is from bomb).</typeparam>
 public interface ILovable<T>
 {
-    /// <summary>
-    /// Applies love to the implementing entity.
-    /// </summary>
-    /// <param name="loveAmount">The raw integer love to apply.</param>
-    /// <param name="sourceModifier">An identifier representing the attack type, matching <typeparamref name="T"/>.</param>
     void ReceiveLove(int loveAmount, T sourceModifier);
 }
 
-/// <include file='ExternalDocs.xml' path='docs/members[@name="BossAI"]/*' />
 /// <summary>
-/// Controls the behavior, state machine, and combat logic for the giant flying eye boss.
+/// Controls the behavior, state machine, and combat logic for the Watcher flying boss.
+/// Moves freely in 3D space — does NOT use NavMeshAgent (flying enemy, not ground-based).
 /// </summary>
-/// <remarks>
-/// <para>
-/// This component utilizes internal <c>Time.time</c> trackers to ensure zero garbage collection.
-/// The boss now calculates distance to determine whether to use a projectile or bite attack, 
-/// takes extra love while stunned, and spawns saved NPCs upon conversion.
-/// </para>
-/// </remarks>
 public class WatcherAI : MonoBehaviour, ILovable<bool>
 {
-    /// <summary>
-    /// Represents the various behavioral states of the boss.
-    /// </summary>
     public enum BossState { Idle, Chasing, Attacking, Stunned, Converted }
 
-    /// <summary>
-    /// Gets the current operational state of the AI.
-    /// </summary>
-    /// <value>A <see cref="BossState"/> enum representing what the AI is currently executing.</value>
     public BossState CurrentState { get; private set; } = BossState.Idle;
-
-    /// <summary>
-    /// Gets the current love received by the boss.
-    /// </summary>
-    /// <value>An integer representing the current love points. Hits max upon conversion.</value>
     public int CurrentLove { get; private set; }
 
-    [Header("Boss Stats (Happiness)")]
-    public int loveNeededToConvert = 500;
-    public float runSpeed = 6f;
-    [Tooltip("Multiplier applied to love received while the boss is stunned.")]
+    [Header("Boss Stats")]
+    public int loveNeededToConvert = 10;
+    public float runSpeed = 4f;
+    [Tooltip("Multiplier applied to love received while stunned.")]
     public int stunnedLoveMultiplier = 2;
     public float stunDuration = 3f;
 
+    [Header("Flight")]
+    [Tooltip("Height the Watcher hovers above the ground.")]
+    public float hoverHeight = 3f;
+    [Tooltip("How quickly the Watcher adjusts its hover height.")]
+    public float hoverSpeed = 3f;
+
+    [Header("Detection")]
+    public float aggroRange = 30f;
+
     [Header("Attack Ranges")]
-    [Tooltip("If the player is within this range, the boss will use the physical bite attack.")]
     public float biteAttackRange = 4f;
-    [Tooltip("If the player is outside bite range but inside this range, the boss fires projectiles.")]
     public float projectileAttackRange = 20f;
     public float attackCooldown = 3f;
     public float attackAnimationLength = 1.5f;
@@ -63,7 +45,7 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
     public GameObject bossProjectilePrefab;
     public Transform eyeFirePoint;
     public float projectileForce = 20f;
-    [Tooltip("How high above the player's pivot to aim. Increase this if it hits the floor.")]
+    [Tooltip("How high above the player's pivot to aim.")]
     public float playerAimOffsetY = 1.5f;
 
     [Header("Defeat / Saved NPCs")]
@@ -77,118 +59,129 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
     private Animator animator;
     private Collider bossCollider;
 
-    // Internal GC-Free Timers
     private float stateEndTime = 0f;
     private float nextAttackTime = 0f;
     private bool isDoingBiteAttack = false;
 
-    /// <summary>
-    /// Initializes required component references and caches necessary data.
-    /// </summary>
     private void Start()
     {
         CurrentLove = 0;
-        animator = GetRequiredComponent<Animator>(true);
-        bossCollider = GetRequiredComponent<Collider>(false);
+        animator = GetComponent<Animator>();
+        bossCollider = GetComponent<Collider>();
+
+        // Disable the Rigidbody if one exists — flying enemies don't need physics.
+        // The projectile's Rigidbody is enough for OnTriggerEnter to work.
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.useGravity = false;
+            Debug.LogWarning("[WatcherAI] Rigidbody found — consider removing it. Flying enemies don't need one.");
+        }
 
         if (player == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
             if (playerObj != null) player = playerObj.transform;
         }
+
+        if (player == null)
+            Debug.LogError("[WatcherAI] No player found! Tag your player as 'Player'.");
     }
 
-    /// <summary>
-    /// Executes the AI logic on a frame-by-frame basis based on the <see cref="CurrentState"/>.
-    /// </summary>
     private void Update()
     {
-        if (CurrentState == BossState.Converted) return;
+        if (CurrentState == BossState.Converted || player == null) return;
+
+        // Always correct Y toward hover height, regardless of state
+        float targetY = GetHoverTargetY();
+        Vector3 pos = transform.position;
+        pos.y = Mathf.Lerp(pos.y, targetY, Time.deltaTime * hoverSpeed);
+        transform.position = pos;
 
         switch (CurrentState)
         {
-            case BossState.Idle:
-                HandleIdle();
-                break;
-            case BossState.Chasing:
-                HandleChasing();
-                break;
-            case BossState.Attacking:
-                HandleAttacking();
-                break;
-            case BossState.Stunned:
-                HandleStunned();
-                break;
+            case BossState.Idle:     HandleIdle();      break;
+            case BossState.Chasing:  HandleChasing();   break;
+            case BossState.Attacking:HandleAttacking(); break;
+            case BossState.Stunned:  HandleStunned();   break;
         }
     }
 
     /// <summary>
-    /// Manages the resting state until the player enters the aggro radius.
+    /// Returns the target Y position the Watcher should hover at.
+    /// Raycasts down to find the ground surface.
     /// </summary>
+    private float GetHoverTargetY()
+    {
+        if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out RaycastHit hit, 30f, ~0, QueryTriggerInteraction.Ignore))
+            return hit.point.y + hoverHeight;
+
+        return hoverHeight; // fallback
+    }
+
     private void HandleIdle()
     {
-        animator.SetFloat("Speed", 0f);
-        if ((transform.position - player.position).sqrMagnitude < 900f) // 30 units squared
+        if (animator != null) animator.SetFloat("Speed", 0f);
+
+        float sqrDist = (transform.position - player.position).sqrMagnitude;
+        if (sqrDist < aggroRange * aggroRange)
         {
             CurrentState = BossState.Chasing;
+            Debug.Log("[WatcherAI] Player detected! Chasing.");
         }
     }
 
-    /// <summary>
-    /// Updates the boss's position and determines which attack to use based on distance.
-    /// </summary>
     private void HandleChasing()
     {
         float sqrDistance = (transform.position - player.position).sqrMagnitude;
-        float sqrBiteRange = biteAttackRange * biteAttackRange;
-        float sqrProjRange = projectileAttackRange * projectileAttackRange;
 
-        Vector3 direction = (player.position - transform.position).normalized;
+        // Face the player
+        FacePlayer();
 
-        if (direction != Vector3.zero)
-        {
-            Quaternion lookRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
-        }
-
-        if (sqrDistance <= sqrBiteRange)
+        if (sqrDistance <= biteAttackRange * biteAttackRange && Time.time >= nextAttackTime)
         {
             CurrentState = BossState.Attacking;
             isDoingBiteAttack = true;
-            animator.SetFloat("Speed", 0f);
         }
-        else if (sqrDistance <= sqrProjRange)
+        else if (sqrDistance <= projectileAttackRange * projectileAttackRange && Time.time >= nextAttackTime)
         {
             CurrentState = BossState.Attacking;
             isDoingBiteAttack = false;
-            animator.SetFloat("Speed", 0f);
         }
         else
         {
-            transform.position = Vector3.MoveTowards(transform.position, player.position, runSpeed * Time.deltaTime);
-            animator.SetFloat("Speed", runSpeed);
+            // Fly toward player horizontally — Y is handled by hover above
+            Vector3 targetPos = new Vector3(player.position.x, transform.position.y, player.position.z);
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, runSpeed * Time.deltaTime);
+
+
+            if (animator != null) animator.SetFloat("Speed", runSpeed);
         }
     }
 
-    /// <summary>
-    /// Triggers the appropriate attack logic based on the distance calculated in <see cref="HandleChasing"/>.
-    /// </summary>
     private void HandleAttacking()
     {
+        FacePlayer();
+
         if (Time.time >= nextAttackTime)
         {
             if (isDoingBiteAttack)
             {
-                animator.SetTrigger("Attack2"); // Assuming Attack2 is the Bite
+                if (animator != null) animator.SetTrigger("Attack2");
+                Debug.Log("[WatcherAI] Bite attack!");
             }
             else
             {
-                animator.SetTrigger("Attack1"); // Assuming Attack1 is the Eye Projectile
+                if (animator != null) animator.SetTrigger("Attack1");
                 FireProjectile();
+                Debug.Log("[WatcherAI] Projectile attack!");
             }
 
             stateEndTime = Time.time + attackAnimationLength;
             nextAttackTime = Time.time + attackCooldown;
+
+            if (animator != null) animator.SetFloat("Speed", 0f);
         }
         else if (Time.time >= stateEndTime)
         {
@@ -196,48 +189,57 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
         }
     }
 
-    /// <summary>
-    /// Instantiates and fires the sadness projectile toward the player.
-    /// </summary>
     private void FireProjectile()
     {
         if (bossProjectilePrefab == null || eyeFirePoint == null) return;
 
-        // Now using playerAimOffsetY to aim at the chest/head!
         Vector3 targetPos = player.position + (Vector3.up * playerAimOffsetY);
         Vector3 dirToPlayer = (targetPos - eyeFirePoint.position).normalized;
 
         GameObject proj = Instantiate(bossProjectilePrefab, eyeFirePoint.position, Quaternion.LookRotation(dirToPlayer));
 
+        SadnessProjectile sp = proj.GetComponent<SadnessProjectile>();
+        if (sp != null) sp.owner = transform;
+
         if (proj.TryGetComponent(out Rigidbody rb))
         {
+            rb.useGravity = false;
             rb.linearVelocity = dirToPlayer * projectileForce;
         }
+
+        Debug.Log($"[WatcherAI] Fired projectile toward {targetPos}, dir={dirToPlayer}");
     }
 
-    /// <summary>
-    /// Handles the internal timer for recovering from the stunned state.
-    /// </summary>
     private void HandleStunned()
     {
+        if (animator != null) animator.SetFloat("Speed", 0f);
+
         if (Time.time >= stateEndTime)
         {
             CurrentState = BossState.Chasing;
         }
     }
 
-    /// <inheritdoc/>
+    private void FacePlayer()
+    {
+        Vector3 lookDir = player.position - transform.position;
+        lookDir.y = 0f;
+        if (lookDir.sqrMagnitude > 0.01f)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(lookDir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 8f);
+        }
+    }
+
     public void ReceiveLove(int loveAmount, bool isFromBomb)
     {
         if (CurrentState == BossState.Converted) return;
 
-        // Apply stun vulnerability multiplier if it's a regular shot while stunned
         if (CurrentState == BossState.Stunned && !isFromBomb)
-        {
             loveAmount *= stunnedLoveMultiplier;
-        }
 
         CurrentLove += loveAmount;
+        Debug.Log($"[WatcherAI] Received {loveAmount} love (total: {CurrentLove}/{loveNeededToConvert})");
 
         if (CurrentLove >= loveNeededToConvert)
         {
@@ -249,56 +251,33 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
         {
             CurrentState = BossState.Stunned;
             stateEndTime = Time.time + stunDuration;
-            animator.SetTrigger("Stun");
+            if (animator != null) animator.SetTrigger("Stun");
         }
         else if (CurrentState != BossState.Stunned)
         {
-            animator.SetTrigger("Hit");
+            if (animator != null) animator.SetTrigger("Hit");
         }
     }
 
-    /// <summary>
-    /// Processes the boss's conversion sequence and explodes saved NPCs outward.
-    /// </summary>
     private void BecomeHappy()
     {
         CurrentState = BossState.Converted;
-        animator.SetTrigger("Die"); // Using your death animation as the defeat/collapse
+        if (animator != null) animator.SetTrigger("Die");
+        if (bossCollider != null) bossCollider.enabled = false;
 
-        if (bossCollider != null)
-            bossCollider.enabled = false;
-
-        // Eject the saved NPCs
         if (npcPrefab != null)
         {
             for (int i = 0; i < npcsToEject; i++)
             {
-                GameObject npc = Instantiate(npcPrefab, transform.position + (Vector3.up * 2f), Random.rotation);
-
-                // Add physical explosion force
+                GameObject npc = Instantiate(npcPrefab, transform.position + Vector3.up * 2f, Random.rotation);
                 if (npc.TryGetComponent(out Rigidbody rb))
-                {
                     rb.AddExplosionForce(ejectForce, transform.position, 10f, 3f);
-                }
-
-                // Immediately convert them so they spawn happy
                 if (npc.TryGetComponent(out UnhappyPerson person))
-                {
                     person.ReceiveLove(999);
-                }
             }
         }
 
+        Debug.Log("[WatcherAI] Converted! Boss defeated.");
         Destroy(gameObject, 8f);
-    }
-
-    /// <summary>
-    /// Retrieves a component securely using <c>TryGetComponent</c>, with an option to force an error.
-    /// </summary>
-    private TComponent GetRequiredComponent<TComponent>(bool throwOnFail) where TComponent : Component
-    {
-        if (TryGetComponent(out TComponent comp)) return comp;
-        if (throwOnFail) throw new MissingComponentException($"Missing {typeof(TComponent).Name} on Boss.");
-        return null;
     }
 }
