@@ -81,7 +81,17 @@ public class MusicController : MonoBehaviour
     }
 
     /// <summary>
-    /// Call externally to fade out early (e.g. on section complete).
+    /// Fade out using the fadeDuration set in the Inspector.
+    /// Use this overload when wiring from a UnityEvent (onSectionComplete etc.)
+    /// so there's no risk of accidentally passing 0.
+    /// </summary>
+    public void FadeOut()
+    {
+        FadeOut(fadeDuration);
+    }
+
+    /// <summary>
+    /// Call externally to fade out over a specific duration.
     /// </summary>
     public void FadeOut(float duration)
     {
