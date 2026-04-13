@@ -1,25 +1,18 @@
 using UnityEngine;
 
 /// <summary>
-/// Orchestrates the multi-phase stadium finale event.
+/// Orchestrates the multi-phase stadium finale event by coordinating with <see cref="SectionTracker"/> components.
 /// </summary>
 /// <remarks>
 /// <para>
-/// This controller handles closing the arena doors, enabling waves of enemies, 
-/// and tracking their conversion to happiness to progress the fight. It uses 
-/// zero-GC loops in its <c>Update</c> method to monitor enemy states.
+/// This controller delegates wave tracking and HUD management to individual <see cref="SectionTracker"/>s. 
+/// It acts as the master director: locking doors, waking up dormant enemies via the trackers' arrays, 
+/// and progressing the fight from snipers, to rushers, to the final boss.
 /// </para>
-/// <example>
-/// To trigger this event from a <see cref="TriggerZone"/>:
-/// <code>
-/// // Assuming trigger is hooked up via Unity Events or direct reference:
-/// stadiumEventController.StartStadiumEvent();
-/// </code>
-/// </example>
-/// <list type="bullet">
-/// <item><term>Phase 1</term><description>Seat snipers (<see cref="UnhappyPerson"/> without NavMesh paths).</description></item>
-/// <item><term>Phase 2</term><description>Ground rushers (<see cref="UnhappyPerson"/> waves).</description></item>
-/// <item><term>Phase 3</term><description>The final boss (<see cref="WatcherAI"/>).</description></item>
+/// <list type="table">
+/// <item><term>Phase 1</term><description>Wakes up dormant seat snipers and triggers the Phase 1 <see cref="SectionTracker"/>.</description></item>
+/// <item><term>Phase 2</term><description>Wakes up ground rushers and triggers the Phase 2 <see cref="SectionTracker"/>.</description></item>
+/// <item><term>Phase 3</term><description>Activates the <see cref="WatcherAI"/> and monitors it for the final victory condition.</description></item>
 /// </list>
 /// </remarks>
 public class StadiumEventController : MonoBehaviour
@@ -39,54 +32,101 @@ public class StadiumEventController : MonoBehaviour
     [Tooltip("The door GameObjects that will close when the event starts.")]
     public GameObject[] stadiumDoors;
 
-    [Header("Phase 1: Seat Snipers")]
-    [Tooltip("Enemies already active in the seats at the start of the event.")]
-    public UnhappyPerson[] seatEnemies;
+    [Header("Wave Tracking Integrations")]
+    [Tooltip("The SectionTracker responsible for the seat snipers.")]
+    public SectionTracker phase1Tracker;
 
-    [Header("Phase 2: Ground Rush")]
-    [Tooltip("Enemies that will be enabled when Phase 2 begins.")]
-    public UnhappyPerson[] rushEnemies;
+    [Tooltip("The SectionTracker responsible for the ground rushers.")]
+    public SectionTracker phase2Tracker;
 
     [Header("Phase 3: The Boss")]
     [Tooltip("The boss that will be enabled for the final phase.")]
     public WatcherAI stadiumBoss;
 
+    private HUDManager hud;
+
     /// <summary>
-    /// Initiates the stadium event, locks the doors, and begins Phase 1.
+    /// Prepares the stadium by forcing the dormant seat enemies (found via the <see cref="phase1Tracker"/>) to appear happy initially.
     /// </summary>
-    /// <remarks>
-    /// <para>Call this method from your <see cref="TriggerZone"/> or EventManager when the player enters.</para>
-    /// </remarks>
+    private void Start()
+    {
+        hud = FindFirstObjectByType<HUDManager>();
+
+        if (phase1Tracker != null && phase1Tracker.sectionPeople != null)
+        {
+            for (int i = 0; i < phase1Tracker.sectionPeople.Length; i++)
+            {
+                UnhappyPerson spectator = phase1Tracker.sectionPeople[i];
+                if (spectator != null)
+                {
+                    // Keep AI disabled so they don't move or attack
+                    spectator.enabled = false;
+
+                    // Paint them happy for the ambush
+                    if (spectator.bodyRenderer != null)
+                        spectator.bodyRenderer.material.color = spectator.happyColor;
+
+                    if (spectator.happyIndicator != null)
+                        spectator.happyIndicator.SetActive(true);
+
+                    if (spectator.unhappyIndicator != null)
+                        spectator.unhappyIndicator.SetActive(false);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Initiates the stadium event, locks the doors, shocks the crowd into unhappiness, and tells Phase 1 Tracker to begin.
+    /// </summary>
     public void StartStadiumEvent()
     {
         if (CurrentPhase != ArenaPhase.Waiting) return;
 
-        // Close the doors behind the player
+        // Lock the doors
         for (int i = 0; i < stadiumDoors.Length; i++)
         {
             if (stadiumDoors[i] != null) stadiumDoors[i].SetActive(true);
         }
 
+        // Wake up Phase 1 enemies
+        if (phase1Tracker != null && phase1Tracker.sectionPeople != null)
+        {
+            for (int i = 0; i < phase1Tracker.sectionPeople.Length; i++)
+            {
+                if (phase1Tracker.sectionPeople[i] != null)
+                {
+                    // Enabling the script runs UnhappyPerson.Start(), reverting them to hostile
+                    phase1Tracker.sectionPeople[i].enabled = true;
+                }
+            }
+
+            // Tell the SectionTracker to start updating the HUD
+            phase1Tracker.BeginSection();
+        }
+
         CurrentPhase = ArenaPhase.Phase1_Seats;
-        Debug.Log("[StadiumEvent] Doors locked. Phase 1: Snipers started.");
+        Debug.Log("[StadiumEvent] Doors locked. Phase 1 Tracker started!");
+
+        if (hud != null) hud.ShowMessage("Survive the Snipers!", 3f);
     }
 
     /// <summary>
-    /// Checks the conditions required to advance the arena phases frame-by-frame.
+    /// Monitors the progress of the <see cref="SectionTracker"/>s to advance the arena phases.
     /// </summary>
     private void Update()
     {
         switch (CurrentPhase)
         {
             case ArenaPhase.Phase1_Seats:
-                if (AreAllEnemiesHappy(seatEnemies))
+                if (phase1Tracker != null && phase1Tracker.IsComplete)
                 {
                     StartPhase2();
                 }
                 break;
 
             case ArenaPhase.Phase2_Rush:
-                if (AreAllEnemiesHappy(rushEnemies))
+                if (phase2Tracker != null && phase2Tracker.IsComplete)
                 {
                     StartPhase3();
                 }
@@ -102,22 +142,29 @@ public class StadiumEventController : MonoBehaviour
     }
 
     /// <summary>
-    /// Activates the ground rush enemies for the second phase of the battle.
+    /// Activates the ground rush enemies and hands HUD control over to the Phase 2 <see cref="SectionTracker"/>.
     /// </summary>
     private void StartPhase2()
     {
         CurrentPhase = ArenaPhase.Phase2_Rush;
 
-        for (int i = 0; i < rushEnemies.Length; i++)
+        if (phase2Tracker != null && phase2Tracker.sectionPeople != null)
         {
-            if (rushEnemies[i] != null) rushEnemies[i].gameObject.SetActive(true);
+            for (int i = 0; i < phase2Tracker.sectionPeople.Length; i++)
+            {
+                if (phase2Tracker.sectionPeople[i] != null)
+                    phase2Tracker.sectionPeople[i].gameObject.SetActive(true);
+            }
+
+            phase2Tracker.BeginSection();
         }
 
-        Debug.Log("[StadiumEvent] Phase 1 cleared. Phase 2: Rush started.");
+        Debug.Log("[StadiumEvent] Phase 1 cleared. Phase 2 Tracker started.");
+        if (hud != null) hud.ShowMessage("Incoming Rush!", 3f);
     }
 
     /// <summary>
-    /// Activates the boss for the final phase of the battle.
+    /// Activates the <see cref="WatcherAI"/> for the final phase and clears the standard wave HUD.
     /// </summary>
     private void StartPhase3()
     {
@@ -128,40 +175,35 @@ public class StadiumEventController : MonoBehaviour
             stadiumBoss.gameObject.SetActive(true);
         }
 
+        if (hud != null)
+        {
+            hud.ShowMessage("Defeat the Watcher!", 4f);
+
+            // Clear the SectionTracker numbers from the screen during the boss fight
+            hud.UpdatePeopleCount(0, 0);
+        }
+
         Debug.Log("[StadiumEvent] Phase 2 cleared. Phase 3: Boss started.");
     }
 
     /// <summary>
-    /// Triggers the final victory conditions for the game.
+    /// Triggers the final victory conditions for the game by interfacing with the <see cref="GameManager"/>.
     /// </summary>
     private void CompleteEvent()
     {
         CurrentPhase = ArenaPhase.Completed;
         Debug.Log("[StadiumEvent] Boss defeated! You win!");
 
-        // Assuming your GameManager has a GameWon method. 
         GameManager gm = FindFirstObjectByType<GameManager>();
         if (gm != null)
         {
-            // gm.GameWon(); 
+            gm.TriggerWin();
         }
-    }
 
-    /// <summary>
-    /// Evaluates whether an entire array of enemies has been converted to the Happy state.
-    /// </summary>
-    /// <param name="enemies">An array of <see cref="UnhappyPerson"/> to evaluate.</param>
-    /// <returns><c>true</c> if all valid enemies have a MoodState of Happy; otherwise, <c>false</c>.</returns>
-    private bool AreAllEnemiesHappy(UnhappyPerson[] enemies)
-    {
-        for (int i = 0; i < enemies.Length; i++)
+        if (hud != null)
         {
-            if (enemies[i] != null && enemies[i].currentMood != UnhappyPerson.MoodState.Happy)
-            {
-                return false; // Found an unhappy person, wave is not over
-            }
+            hud.ShowMessage("The stadium is full of love! You win!", 5f);
         }
-        return true; // Everyone is happy (or array is empty/null)
     }
 
     /// <summary>
@@ -170,7 +212,6 @@ public class StadiumEventController : MonoBehaviour
     /// <returns><c>true</c> if the boss is null or in the Converted state; otherwise, <c>false</c>.</returns>
     private bool IsBossDefeated()
     {
-        // Check if boss was destroyed or successfully converted
         if (stadiumBoss == null) return true;
         return stadiumBoss.CurrentState == WatcherAI.BossState.Converted;
     }
