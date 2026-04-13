@@ -65,6 +65,9 @@ public class Section2Spawner : MonoBehaviour
     private UnhappyPerson[] spawnedNPCs;
     private Coroutine shrinkCoroutine;
 
+    /// <summary>Current active wave (1-based). 0 = not started. Read by CatVisionEvent.</summary>
+    [HideInInspector] public int currentWave = 0;
+
     void OnTriggerEnter(Collider other)
     {
         if (hasTriggered) return;
@@ -100,6 +103,7 @@ public class Section2Spawner : MonoBehaviour
 
         for (int wave = 1; wave <= totalWaves; wave++)
         {
+            currentWave = wave;
             Debug.Log($"[Section2Spawner] Starting wave {wave}/{totalWaves}.");
 
             yield return StartCoroutine(SpawnWave(wave));

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cat Vision Canvas — Unity Hierarchy</title>
+<style>
+  body {
+    background: #1e1e1e;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 24px;
+    color: #d4d4d4;
+  }
+
+  h2 {
+    color: #9cdcfe;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    letter-spacing: 0.5px;
+  }
+
+  .panel {
+    background: #252526;
+    border: 1px solid #3c3c3c;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 20px;
+    max-width: 540px;
+  }
+
+  .panel-title {
+    font-size: 11px;
+    color: #858585;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #3c3c3c;
+    padding-bottom: 6px;
+  }
+
+  .tree-row {
+    display: flex;
+    align-items: center;
+    padding: 3px 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .tree-row:hover {
+    background: #2a2d2e;
+    border-radius: 3px;
+  }
+
+  .indent { display: inline-block; width: 20px; flex-shrink: 0; }
+
+  .arrow {
+    color: #858585;
+    font-size: 10px;
+    margin-right: 4px;
+    flex-shrink: 0;
+  }
+
+  .icon { margin-right: 6px; font-size: 14px; }
+
+  .name { flex: 1; }
+
+  .tag {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-left: 8px;
+    font-weight: 500;
+  }
+
+  .tag-canvas   { background: #264f78; color: #9cdcfe; }
+  .tag-image    { background: #1e3a2f; color: #4ec9b0; }
+  .tag-group    { background: #3a2f1e; color: #dcdcaa; }
+  .tag-text     { background: #3a1e2f; color: #c586c0; }
+  .tag-script   { background: #2f1e3a; color: #ce9178; }
+  .tag-inactive { background: #3c3c3c; color: #858585; }
+
+  .note {
+    font-size: 11px;
+    color: #6a9955;
+    margin-left: 8px;
+    font-style: italic;
+  }
+
+  /* Inspector panel */
+  .inspector {
+    max-width: 540px;
+    background: #252526;
+    border: 1px solid #3c3c3c;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .field-row {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 12px;
+    border-bottom: 1px solid #2d2d2d;
+  }
+
+  .field-label {
+    color: #9cdcfe;
+    width: 200px;
+    flex-shrink: 0;
+  }
+
+  .field-value {
+    color: #ce9178;
+    flex: 1;
+  }
+
+  .field-note {
+    color: #6a9955;
+    font-size: 11px;
+    font-style: italic;
+    margin-left: 8px;
+  }
+
+  .section-header {
+    font-size: 11px;
+    color: #858585;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 10px 0 4px 0;
+  }
+
+  .arrow-down { color: #858585; }
+</style>
+</head>
+<body>
+
+<h2>🐱 Cat Vision Event — Unity Setup</h2>
+
+<!-- HIERARCHY -->
+<div class="panel">
+  <div class="panel-title">Hierarchy</div>
+
+  <!-- Canvas -->
+  <div class="tree-row">
+    <span class="icon">🎬</span>
+    <span class="name"><strong>CatVisionCanvas</strong></span>
+    <span class="tag tag-canvas">Canvas</span>
+    <span class="tag tag-script">CanvasScaler</span>
+    <span class="note">Sort Order 99</span>
+  </div>
+
+  <!-- Vignette -->
+  <div class="tree-row">
+    <span class="indent"></span>
+    <span class="arrow">▶</span>
+    <span class="icon">⬛</span>
+    <span class="name">Vignette</span>
+    <span class="tag tag-image">Image</span>
+    <span class="tag tag-group">CanvasGroup</span>
+    <span class="tag tag-inactive">inactive</span>
+  </div>
+
+  <!-- CatVisionPanel -->
+  <div class="tree-row">
+    <span class="indent"></span>
+    <span class="arrow">▼</span>
+    <span class="icon">📋</span>
+    <span class="name"><strong>CatVisionPanel</strong></span>
+    <span class="tag tag-group">CanvasGroup</span>
+    <span class="tag tag-inactive">inactive</span>
+  </div>
+
+  <!-- Background -->
+  <div class="tree-row">
+    <span class="indent"></span><span class="indent"></span>
+    <span class="arrow">▶</span>
+    <span class="icon">🟫</span>
+    <span class="name">Background</span>
+    <span class="tag tag-image">Image</span>
+    <span class="note">dark colour, alpha 180</span>
+  </div>
+
+  <!-- CatImage -->
+  <div class="tree-row">
+    <span class="indent"></span><span class="indent"></span>
+    <span class="arrow">▶</span>
+    <span class="icon">🐱</span>
+    <span class="name">CatImage</span>
+    <span class="tag tag-image">Image</span>
+    <span class="note">your cat sprite, ~400×400 px, centred</span>
+  </div>
+
+  <!-- Caption -->
+  <div class="tree-row">
+    <span class="indent"></span><span class="indent"></span>
+    <span class="arrow">▶</span>
+    <span class="icon">✏️</span>
+    <span class="name">Caption</span>
+    <span class="tag tag-text">TextMeshProUGUI</span>
+    <span class="note">"You are not alone…"</span>
+  </div>
+
+  <!-- Flash -->
+  <div class="tree-row">
+    <span class="indent"></span>
+    <span class="arrow">▶</span>
+    <span class="icon">⬜</span>
+    <span class="name">Flash</span>
+    <span class="tag tag-image">Image</span>
+    <span class="tag tag-inactive">inactive</span>
+    <span class="note">white, full-screen, alpha 0</span>
+  </div>
+
+</div>
+
+<!-- INSPECTOR ASSIGNMENTS -->
+<div class="inspector">
+  <div class="panel-title">CatVisionEvent — Inspector Assignments</div>
+
+  <div class="section-header">Scene References</div>
+  <div class="field-row">
+    <span class="field-label">Section 2 Spawner</span>
+    <span class="field-value">Section2Spawner (GameObject)</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Player Health</span>
+    <span class="field-value">Player (PlayerHealth component)</span>
+  </div>
+
+  <div class="section-header">Cat Vision UI</div>
+  <div class="field-row">
+    <span class="field-label">Cat Vision Group</span>
+    <span class="field-value">CatVisionPanel → CanvasGroup</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Cat Image</span>
+    <span class="field-value">CatImage → Image</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Caption Text</span>
+    <span class="field-value">Caption → TextMeshProUGUI</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Vignette Group</span>
+    <span class="field-value">Vignette → CanvasGroup</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Flash Image</span>
+    <span class="field-value">Flash → Image</span>
+  </div>
+
+  <div class="section-header">Canvas Settings (on CatVisionCanvas)</div>
+  <div class="field-row">
+    <span class="field-label">Render Mode</span>
+    <span class="field-value">Screen Space — Overlay</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Sort Order</span>
+    <span class="field-value">99</span>
+    <span class="field-note">renders on top of everything</span>
+  </div>
+  <div class="field-row">
+    <span class="field-label">CanvasScaler UI Scale Mode</span>
+    <span class="field-value">Scale With Screen Size</span>
+  </div>
+
+  <div class="section-header">All full-screen Images</div>
+  <div class="field-row">
+    <span class="field-label">Rect Transform</span>
+    <span class="field-value">Anchor: stretch-stretch, Left/Right/Top/Bottom: 0</span>
+  </div>
+</div>
+
+</body>
+</html>
