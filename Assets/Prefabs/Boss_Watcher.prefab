@@ -62,7 +62,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: b91187a9debded54988c89438ac8b3f6, type: 3}
       propertyPath: m_Name
-      value: Watcher_A
+      value: Boss_Watcher
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: b91187a9debded54988c89438ac8b3f6, type: 3}
       propertyPath: m_TagString
@@ -166,8 +166,9 @@ MonoBehaviour:
   eyeFirePoint: {fileID: 0}
   projectileForce: 2
   playerAimOffsetY: 1.5
-  npcPrefab: {fileID: 0}
-  npcsToEject: 5
+  savedNPCsToEject:
+  - npcPrefab: {fileID: 0}
+    spawnCount: 0
   ejectForce: 500
   player: {fileID: 0}
 --- !u!54 &3299149122435864782
