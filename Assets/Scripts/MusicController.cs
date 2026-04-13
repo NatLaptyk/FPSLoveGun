@@ -97,8 +97,18 @@ public class MusicController : MonoBehaviour
     {
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
-        if (audioSource == null || !audioSource.isPlaying) return;
+
+        Debug.Log($"[MusicController] FadeOut called on '{gameObject.name}'. " +
+                  $"isPlaying={audioSource?.isPlaying}, volume={audioSource?.volume:F2}, duration={duration}");
+
+        if (audioSource == null || !audioSource.isPlaying)
+        {
+            Debug.LogWarning($"[MusicController] FadeOut aborted — audioSource is " +
+                             (audioSource == null ? "NULL" : "not playing") + ".");
+            return;
+        }
         isFading = true;
         fadeSpeed = audioSource.volume / Mathf.Max(0.01f, duration);
+        Debug.Log($"[MusicController] Fading out over {duration}s (fadeSpeed={fadeSpeed:F2})");
     }
 }
