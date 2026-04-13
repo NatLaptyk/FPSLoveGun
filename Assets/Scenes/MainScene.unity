@@ -22647,6 +22647,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6764481740032142718, guid: e93c0e61a77689d4ca8232c246f508ce, type: 3}
+      propertyPath: jumpForce
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 7626458230429396777, guid: e93c0e61a77689d4ca8232c246f508ce, type: 3}
       propertyPath: healSound
       value: 
