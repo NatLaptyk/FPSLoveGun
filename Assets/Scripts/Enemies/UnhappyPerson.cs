@@ -16,12 +16,16 @@ using UnityEngine.AI;
 public class UnhappyPerson : MonoBehaviour
 {
     public enum MoodState { Unhappy, Happy }
+    public enum BehaviourMode { Patrol, Stadium }
 
     [Header("Mood")]
     public int unhappinessLevel = 3;        // How much love needed to become happy (1-5)
     public bool isVeryUnhappy = false;       // If true, requires love bomb (resists normal shots)
     private int currentLoveReceived = 0;
     public MoodState currentMood = MoodState.Unhappy;
+
+    [Header("Behaviour Mode")]
+    public BehaviourMode behaviourMode = BehaviourMode.Patrol;
 
     [Header("Patrol")]
     public Transform[] patrolPoints;         // Assign waypoints in Inspector
@@ -30,6 +34,24 @@ public class UnhappyPerson : MonoBehaviour
     private int currentPatrolIndex = 0;
     private float waitTimer = 0f;
     private bool isWaiting = false;
+
+    [Header("Stadium Behaviour")]
+    [Tooltip("Where this NPC should walk to on the field after descending from seats.")]
+    public Transform fieldTarget;
+    [Tooltip("Speed when walking down to the field.")]
+    public float descentSpeed = 3.5f;
+    [Tooltip("Radius of the circle NPCs form around the player.")]
+    public float crowdRadius = 4f;
+    [Tooltip("Speed when crowding toward the player on the field.")]
+    public float crowdSpeed = 2f;
+    [Tooltip("This NPC's index in the crowd ring (set by Section2Spawner).")]
+    public int crowdSlotIndex = 0;
+    [Tooltip("Total number of NPCs sharing the crowd ring (set by Section2Spawner).")]
+    public int totalCrowdSlots = 1;
+
+    private enum StadiumPhase { Descending, Crowding }
+    private StadiumPhase stadiumPhase = StadiumPhase.Descending;
+    private bool stadiumActivated = false;
 
     [Header("Combat — Throwing Sadness")]
     public GameObject sadnessProjectilePrefab;  // Assign SadnessProjectile prefab
@@ -85,48 +107,149 @@ public class UnhappyPerson : MonoBehaviour
         // Set initial visual
         UpdateVisuals();
 
-        // Start patrolling
-        if (patrolPoints.Length > 0)
+        // Start patrolling (only in Patrol mode)
+        if (behaviourMode == BehaviourMode.Patrol && patrolPoints != null && patrolPoints.Length > 0)
             agent.SetDestination(patrolPoints[0].position);
     }
 
     void Update()
     {
-        if (currentMood == MoodState.Happy)
+        if (currentMood == MoodState.Happy) return;
+
+        if (behaviourMode == BehaviourMode.Stadium)
         {
-            // Happy people are controlled by HappyWanderRoutine + CityPeople animations.
-            // Skip all the unhappy update logic.
+            UpdateStadium();
             return;
         }
 
+        // ── Default patrol behaviour ──────────────────────────────────────────
         float distanceToPlayer = playerTransform != null
             ? Vector3.Distance(transform.position, playerTransform.position)
             : float.MaxValue;
 
-        // If player is in detection range, face them and attack
         if (distanceToPlayer <= detectionRange && playerTransform != null)
         {
-            // Look at the player
             Vector3 lookDir = playerTransform.position - transform.position;
-            lookDir.y = 0; // Keep upright
+            lookDir.y = 0;
             if (lookDir != Vector3.zero)
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(lookDir), 5f * Time.deltaTime);
+                transform.rotation = Quaternion.Slerp(transform.rotation,
+                    Quaternion.LookRotation(lookDir), 5f * Time.deltaTime);
 
-            // Stop patrolling and face the player
             agent.isStopped = true;
 
-            // Throw sadness if in attack range
             if (distanceToPlayer <= attackRange && Time.time >= nextThrowTime)
-            {
                 ThrowSadness();
-            }
         }
         else
         {
-            // Resume patrolling
             agent.isStopped = false;
             Patrol();
         }
+    }
+
+    void UpdateStadium()
+    {
+        if (!stadiumActivated) return;
+
+        float distToPlayer = playerTransform != null
+            ? Vector3.Distance(transform.position, playerTransform.position)
+            : float.MaxValue;
+
+        // Always throw sadness at the player if in range
+        if (distToPlayer <= attackRange && Time.time >= nextThrowTime && playerTransform != null)
+        {
+            FacePlayer();
+            ThrowSadness();
+        }
+
+        // Stadium movement uses pure transform (no NavMesh).
+        // Seats are elevated geometry not covered by the NavMesh bake, so
+        // NavMeshAgent would teleport NPCs to the floor on spawn.
+        switch (stadiumPhase)
+        {
+            case StadiumPhase.Descending:
+                if (fieldTarget != null)
+                {
+                    Vector3 target = fieldTarget.position;
+
+                    // Face direction of travel (horizontal only so they don't tip forward)
+                    Vector3 flatDir = new Vector3(
+                        target.x - transform.position.x, 0f,
+                        target.z - transform.position.z);
+                    if (flatDir.sqrMagnitude > 0.01f)
+                        transform.rotation = Quaternion.Slerp(transform.rotation,
+                            Quaternion.LookRotation(flatDir), 8f * Time.deltaTime);
+
+                    transform.position = Vector3.MoveTowards(
+                        transform.position, target, descentSpeed * Time.deltaTime);
+
+                    if (Vector3.Distance(transform.position, target) < 1f)
+                    {
+                        stadiumPhase = StadiumPhase.Crowding;
+                        Debug.Log($"[StadiumNPC] {gameObject.name} reached the field — crowding.");
+                    }
+                }
+                else
+                {
+                    stadiumPhase = StadiumPhase.Crowding;
+                }
+                break;
+
+            case StadiumPhase.Crowding:
+                if (playerTransform == null) break;
+
+                // Each NPC gets a unique angle slot so they spread into a ring
+                // rather than piling on top of each other.
+                float slotAngle = crowdSlotIndex * (360f / Mathf.Max(1, totalCrowdSlots));
+                Vector3 slotOffset = Quaternion.Euler(0, slotAngle, 0) * Vector3.forward * crowdRadius;
+                Vector3 slotTarget = playerTransform.position + slotOffset;
+
+                // Flatten Y so NPCs don't try to sink into or float above the floor
+                slotTarget.y = transform.position.y;
+
+                float distToSlot = Vector3.Distance(transform.position, slotTarget);
+                if (distToSlot > 0.3f)
+                {
+                    Vector3 dir = (slotTarget - transform.position).normalized;
+                    transform.rotation = Quaternion.Slerp(transform.rotation,
+                        Quaternion.LookRotation(dir), 8f * Time.deltaTime);
+                    transform.position += dir * crowdSpeed * Time.deltaTime;
+                }
+                else
+                {
+                    // At assigned slot — face the player
+                    FacePlayer();
+                }
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Call this to activate a stadium NPC (e.g. from Section2Spawner after spawn).
+    /// </summary>
+    public void ActivateStadiumBehaviour()
+    {
+        // Cache agent in case Start() hasn't run yet
+        if (agent == null) agent = GetComponent<NavMeshAgent>();
+
+        behaviourMode = BehaviourMode.Stadium;
+        stadiumActivated = true;
+        stadiumPhase = StadiumPhase.Descending;
+        // Note: agent is already disabled by Section2Spawner right after Instantiate
+        // to prevent NavMesh snapping from elevated seat positions.
+        // Stadium movement uses direct transform — no NavMesh needed.
+
+        Debug.Log($"[StadiumNPC] {gameObject.name} activated — descending to field.");
+    }
+
+    void FacePlayer()
+    {
+        if (playerTransform == null) return;
+        Vector3 lookDir = playerTransform.position - transform.position;
+        lookDir.y = 0;
+        if (lookDir != Vector3.zero)
+            transform.rotation = Quaternion.Slerp(transform.rotation,
+                Quaternion.LookRotation(lookDir), 8f * Time.deltaTime);
     }
 
     void Patrol()

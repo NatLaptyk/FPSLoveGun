@@ -78,6 +78,18 @@ public class GameManager : MonoBehaviour
     public bool useGlobalWinCondition = false;
 
     /// <summary>
+    /// Call this when NPCs are spawned at runtime (e.g. stadium waves) so the
+    /// total count stays accurate and the win condition doesn't fire too early.
+    /// </summary>
+    public void RegisterAdditionalPeople(int count)
+    {
+        totalUnhappyPeople += count;
+        HUDManager hud = FindFirstObjectByType<HUDManager>();
+        if (hud != null) hud.UpdatePeopleCount(peopleMadeHappy, totalUnhappyPeople);
+        Debug.Log($"[GameManager] +{count} runtime NPCs registered. Total: {totalUnhappyPeople}");
+    }
+
+    /// <summary>
     /// Called by UnhappyPerson when they become happy.
     /// </summary>
     public void PersonMadeHappy()
