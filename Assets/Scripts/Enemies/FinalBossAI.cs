@@ -397,6 +397,13 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
         if (bossCollider != null) bossCollider.enabled = false;
         PlaySound(defeatSound);
 
+        // Kill all Watchers the boss summoned — they fall with their master
+        activeWatchers.RemoveAll(w => w == null);
+        foreach (GameObject watcher in activeWatchers)
+            Destroy(watcher);
+        activeWatchers.Clear();
+        Debug.Log("[FinalBoss] Summoned Watchers destroyed.");
+
         onDefeated?.Invoke();
         Debug.Log("[FinalBoss] Defeated — playing death animation.");
 

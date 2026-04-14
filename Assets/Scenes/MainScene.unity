@@ -20750,7 +20750,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1279813592687140799, guid: b8843047d1a19eb479e32502acbd8c82, type: 3}
       propertyPath: m_Name
-      value: Mutated1_V3 Variant
+      value: Boss
       objectReference: {fileID: 0}
     - target: {fileID: 1279813592687140799, guid: b8843047d1a19eb479e32502acbd8c82, type: 3}
       propertyPath: m_IsActive
@@ -20840,6 +20840,14 @@ PrefabInstance:
       propertyPath: pulseEffectPrefab
       value: 
       objectReference: {fileID: 3912242300694112348, guid: 9e59038de397032448cf9b329c247777, type: 3}
+    - target: {fileID: 4321083247262722387, guid: b8843047d1a19eb479e32502acbd8c82, type: 3}
+      propertyPath: loveNeededToDefeat
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 4321083247262722387, guid: b8843047d1a19eb479e32502acbd8c82, type: 3}
+      propertyPath: watcherSpawnCooldown
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4321083247262722387, guid: b8843047d1a19eb479e32502acbd8c82, type: 3}
       propertyPath: savedNPCsToEject.Array.size
       value: 7
@@ -43083,6 +43091,53 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: e0e851c58997b9c438fae494e3412749, type: 3}
   m_PrefabInstance: {fileID: 918622301}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &918869199
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 918869200}
+  - component: {fileID: 918869201}
+  m_Layer: 0
+  m_Name: Objective_BossFight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &918869200
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918869199}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 76.2, y: 0.2099983, z: 140.2}
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &918869201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918869199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2899767a086ae0c40b84e019d82069f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinimapMarker
+  markerType: 3
+  heightOffset: 15
+  iconSize: 2.5
 --- !u!4 &919035760 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6956242403280161063, guid: b813d19c40ec4bc43890e91f97b087d3, type: 3}
@@ -78477,6 +78532,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 1235123286}
+        m_TargetAssemblyTypeName: MinimapMarker, Assembly-CSharp
+        m_MethodName: Hide
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
   currentWave: 0
 --- !u!65 &1685250782
 BoxCollider:
@@ -92721,6 +92788,7 @@ MonoBehaviour:
   cameraDownAngle: 65
   teleportDestination: {fileID: 254779156}
   bossToActivate: {fileID: 1492554705}
+  bossObjectiveMarker: {fileID: 918869201}
   catVisionGroup: {fileID: 2043327811}
   catImage: {fileID: 742718933}
   captionText: {fileID: 546376717}
@@ -104335,5 +104403,6 @@ SceneRoots:
   - {fileID: 1034838210}
   - {fileID: 484557121}
   - {fileID: 1215595976}
+  - {fileID: 918869200}
   - {fileID: 459088309}
   - {fileID: 254779156}

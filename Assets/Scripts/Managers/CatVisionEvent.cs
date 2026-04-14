@@ -65,6 +65,11 @@ public class CatVisionEvent : MonoBehaviour
              "before the player arrives.")]
     public GameObject bossToActivate;
 
+    [Tooltip("MinimapMarker (Objective type) placed at the boss spawn location. " +
+             "Keep it on a separate always-active GameObject — not on the boss itself, " +
+             "since the boss starts disabled. Call Hide() on it when the boss is defeated.")]
+    public MinimapMarker bossObjectiveMarker;
+
     // ── UI ─────────────────────────────────────────────────────────────────────
     [Header("Cat Vision UI")]
     public CanvasGroup catVisionGroup;
@@ -265,6 +270,13 @@ public class CatVisionEvent : MonoBehaviour
             bossToActivate.SetActive(true);
         else
             Debug.LogWarning("[CatVision] No boss assigned to activate!");
+
+        // Show the boss location as the new minimap objective.
+        // MinimapDirectionArrow will auto-switch to it within 0.5s.
+        if (bossObjectiveMarker != null)
+            bossObjectiveMarker.Show();
+        else
+            Debug.LogWarning("[CatVision] No boss objective marker assigned!");
 
         // ── 12. Restore player controls (camera rotation, movement) ───────────
         RestorePlayerControls();

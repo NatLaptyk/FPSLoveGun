@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &898101296116939512
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8636087434848359277}
+  m_Layer: 0
+  m_Name: FirePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8636087434848359277
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 898101296116939512}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.584, y: 2.698, z: 0.564}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3989693665702744553}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &3518582607827432962
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -94,7 +125,10 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 4973ad056749a5c49ad60dacc581b405, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: b91187a9debded54988c89438ac8b3f6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8636087434848359277}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b91187a9debded54988c89438ac8b3f6, type: 3}
       insertIndex: -1
@@ -112,6 +146,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 6700357952179132595}
   m_SourcePrefab: {fileID: 100100000, guid: b91187a9debded54988c89438ac8b3f6, type: 3}
+--- !u!4 &3989693665702744553 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: b91187a9debded54988c89438ac8b3f6, type: 3}
+  m_PrefabInstance: {fileID: 3518582607827432962}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4329628217614191443 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: b91187a9debded54988c89438ac8b3f6, type: 3}
@@ -163,13 +202,16 @@ MonoBehaviour:
   attackCooldown: 2
   attackAnimationLength: 1.5
   bossProjectilePrefab: {fileID: 7026195717630135985, guid: 38f0468503616674280175cff75e26cf, type: 3}
-  eyeFirePoint: {fileID: 0}
+  eyeFirePoint: {fileID: 8636087434848359277}
   projectileForce: 2
   playerAimOffsetY: 1.5
-  npcPrefab: {fileID: 0}
-  npcsToEject: 5
+  savedNPCsToEject: []
   ejectForce: 500
   player: {fileID: 0}
+  onDefeated:
+    m_PersistentCalls:
+      m_Calls: []
+  bossPhaseTracker: {fileID: 0}
 --- !u!54 &3299149122435864782
 Rigidbody:
   m_ObjectHideFlags: 0
