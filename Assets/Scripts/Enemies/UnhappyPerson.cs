@@ -91,8 +91,7 @@ public class UnhappyPerson : MonoBehaviour
     private AudioSource audioSource;
 
     [Header("UI — Love Bar")]
-    public UnhappyLoveBar loveBarPrefab;                 // assign in Inspector
-    private UnhappyLoveBar loveBarInstance;
+    [SerializeField] private UnhappyLoveBar loveBarInstance; // drag the CHILD bar here in Inspector
 
     void Start()
     {
@@ -115,12 +114,11 @@ public class UnhappyPerson : MonoBehaviour
         if (behaviourMode == BehaviourMode.Patrol && patrolPoints != null && patrolPoints.Length > 0)
             agent.SetDestination(patrolPoints[0].position);
 
-        if (loveBarPrefab != null)
-    {
-        loveBarInstance = Instantiate(loveBarPrefab);
-        loveBarInstance.Init(transform, unhappinessLevel); // THIS sets the follow target
-        UpdateLoveBar();
-    }
+     if (loveBarInstance != null)
+{
+    loveBarInstance.Init(transform, unhappinessLevel);
+    UpdateLoveBar();
+}
     }
 
     void Update()
@@ -348,35 +346,24 @@ public class UnhappyPerson : MonoBehaviour
     /// Called when this person is hit by a love projectile or love bomb.
     /// </summary>
     public void ReceiveLove(int amount)
+{
+    if (currentMood == MoodState.Happy) return; // already happy
+
+    // Very unhappy people resist normal love shots (love power = 1)
+    if (isVeryUnhappy && amount < 3)
     {
-        if (currentMood == MoodState.Happy) return; // Already happy
+        Debug.Log(gameObject.name + " is very unhappy! Needs a Love Bomb!");
+        return;
+    }
 
-        // Very unhappy people resist normal love shots (love power = 1)
-        if (isVeryUnhappy && amount < 3)
-        {
-            // Show a "needs more love!" indicator or just absorb without effect
-            // Small visual feedback — they flinch but don't convert
-            Debug.Log(gameObject.name + " is very unhappy! Needs a Love Bomb!");
-            return;
-        }
+    currentLoveReceived = Mathf.Clamp(currentLoveReceived + amount, 0, unhappinessLevel);
 
-        currentLoveReceived += amount;
-
-        if (currentLoveReceived >= unhappinessLevel)
-        {
-            BecomeHappy();
-        }
-
-        if (currentMood == MoodState.Happy) return;
-
-    currentLoveReceived += amount;
-    currentLoveReceived = Mathf.Clamp(currentLoveReceived, 0, unhappinessLevel);
-
-    
+    // UPDATE THE BAR every time love changes
+    UpdateLoveBar();
 
     if (currentLoveReceived >= unhappinessLevel)
-        BecomeHappy(); // make sure this exists in your UnhappyPerson
-    }
+        BecomeHappy();
+}
 
     [Header("Happy Behavior")]
     [Tooltip("Speed at which happy people wander around")]
@@ -389,6 +376,8 @@ public class UnhappyPerson : MonoBehaviour
     void BecomeHappy()
     {
         currentMood = MoodState.Happy;
+        if (loveBarInstance != null)
+        loveBarInstance.gameObject.SetActive(false);
 
         // ── Permanently remove all physics obstacles so happy NPCs are fully passthrough.
         // Destroy() is used instead of disable because an animation system or other
