@@ -1,5 +1,7 @@
 using UnityEngine;
+using UnityEngine.AI;
 using System;
+using System.Collections;
 using Random = UnityEngine.Random;
 
 /// <summary>
@@ -299,11 +301,15 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
         if (savedNPCsToEject == null || savedNPCsToEject.Length == 0)
             return new UnhappyPerson[0];
 
-        // Pre-count so we can allocate the result array
+        // Pre-count total NPCs so we can assign unique ring slots
         int total = 0;
         foreach (var cfg in savedNPCsToEject) total += cfg.spawnCount;
 
         var result = new System.Collections.Generic.List<UnhappyPerson>(total);
+
+        // Spread radius — NPCs are placed in a circle around the boss position
+        float spreadRadius = 3f;
+        int spawnIndex = 0;
 
         foreach (var cfg in savedNPCsToEject)
         {
@@ -311,17 +317,31 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
 
             for (int j = 0; j < cfg.spawnCount; j++)
             {
-                GameObject npc = Instantiate(cfg.npcPrefab,
-                    transform.position + Vector3.up * 2f, Random.rotation);
+                // Place each NPC at a unique angle in the ring so none overlap
+                float angle = spawnIndex * (360f / Mathf.Max(1, total));
+                Vector3 offset = Quaternion.Euler(0, angle, 0) * Vector3.forward * spreadRadius;
+                Vector3 spawnPos = transform.position + offset;
+                spawnPos.y = transform.position.y; // keep at boss ground level
 
-                if (npc.TryGetComponent(out Rigidbody rb))
-                    rb.AddExplosionForce(ejectForce, transform.position, 10f, 3f);
+                GameObject npc = Instantiate(cfg.npcPrefab, spawnPos, Quaternion.identity);
+
+                // Use NavMeshAgent.Warp() to snap the NPC to the nearest NavMesh
+                // surface at its ring position — no Rigidbody or gravity needed.
+                NavMeshAgent npcAgent = npc.GetComponent<NavMeshAgent>();
+                if (npcAgent != null)
+                {
+                    npcAgent.enabled = true;
+                    npcAgent.Warp(spawnPos);
+                }
 
                 if (npc.TryGetComponent(out UnhappyPerson person))
                     result.Add(person);
+
+                spawnIndex++;
             }
         }
 
+        Debug.Log($"[WatcherAI] Ejected {result.Count} NPCs in a ring.");
         return result.ToArray();
     }
 }

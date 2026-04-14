@@ -358,11 +358,21 @@ public class UnhappyPerson : MonoBehaviour
     {
         currentMood = MoodState.Happy;
 
+        // ── Permanently remove all physics obstacles so happy NPCs are fully passthrough.
+        // Destroy() is used instead of disable because an animation system or other
+        // component could re-enable a disabled component on the next frame.
+        // CharacterController is NOT a Collider subclass — must be handled separately.
+        foreach (Collider col in GetComponentsInChildren<Collider>(true))
+            Destroy(col);
+        foreach (CharacterController cc in GetComponentsInChildren<CharacterController>(true))
+            Destroy(cc);
+        // If there is a Rigidbody, make it kinematic so it can't push other objects.
+        Rigidbody rb = GetComponentInChildren<Rigidbody>(true);
+        if (rb != null) rb.isKinematic = true;
+
         // Update visuals
         if (bodyRenderer != null)
-        {
             bodyRenderer.material.color = happyColor;
-        }
 
         // Show happy effect
         if (happyEffect != null)
@@ -382,16 +392,19 @@ public class UnhappyPerson : MonoBehaviour
         if (cityPeople == null)
             cityPeople = GetComponentInChildren<CityPeople.CityPeople>(true);
         if (cityPeople != null)
-        {
-            // Just enable it — CityPeople.Start() will run on the next frame
-            // and pick a random clip itself (because AutoPlayAnimations is on).
             cityPeople.enabled = true;
-        }
 
-        // Start happy wandering using the existing NavMeshAgent
-        agent.isStopped = false;
-        agent.speed = happyWanderSpeed;
-        StartCoroutine(HappyWanderRoutine());
+        // ── Happy wandering — only if the NavMeshAgent is active.
+        // Stadium NPCs have their agent disabled (pure transform movement);
+        // trying to call agent.SetDestination on a disabled agent throws errors.
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        {
+            agent.isStopped = false;
+            agent.speed = happyWanderSpeed;
+            StartCoroutine(HappyWanderRoutine());
+        }
+        // else: stadium NPC — CityPeople will play a dance animation in place,
+        // which is exactly what we want for the surrounded-player crowd.
 
         // Notify the GameManager
         GameManager gm = FindFirstObjectByType<GameManager>();

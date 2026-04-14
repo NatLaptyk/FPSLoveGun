@@ -118,11 +118,19 @@ public class LoveProjectile : MonoBehaviour
             return true;
         }
 
-        WatcherAI boss = col.GetComponentInParent<WatcherAI>();
-        if (boss != null)
+        WatcherAI watcher = col.GetComponentInParent<WatcherAI>();
+        if (watcher != null)
         {
-            boss.ReceiveLove(lovePower, false);
-            Debug.Log($"[LoveProjectile] Hit Watcher! Love: {boss.CurrentLove}/{boss.loveNeededToConvert}");
+            watcher.ReceiveLove(lovePower, false);
+            Debug.Log($"[LoveProjectile] Hit Watcher! Love: {watcher.CurrentLove}/{watcher.loveNeededToConvert}");
+            return true;
+        }
+
+        FinalBossAI finalBoss = col.GetComponentInParent<FinalBossAI>();
+        if (finalBoss != null)
+        {
+            finalBoss.ReceiveLove(lovePower, false);
+            Debug.Log($"[LoveProjectile] Hit Final Boss! Love: {finalBoss.CurrentLove}/{finalBoss.loveNeededToDefeat}");
             return true;
         }
 

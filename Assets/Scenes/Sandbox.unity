@@ -6886,10 +6886,17 @@ MonoBehaviour:
   unhappinessLevel: 5
   isVeryUnhappy: 1
   currentMood: 0
+  behaviourMode: 0
   patrolPoints:
   - {fileID: 1484999024}
   patrolSpeed: 2.5
   waitTimeAtPoint: 1
+  fieldTarget: {fileID: 0}
+  descentSpeed: 3.5
+  crowdRadius: 4
+  crowdSpeed: 2
+  crowdSlotIndex: 0
+  totalCrowdSlots: 1
   sadnessProjectilePrefab: {fileID: 4867852567457385698, guid: 82d682d7b5095e44caac399f4a33df93, type: 3}
   throwPoint: {fileID: 1712518085}
   detectionRange: 15
@@ -7958,11 +7965,18 @@ MonoBehaviour:
   unhappinessLevel: 4
   isVeryUnhappy: 0
   currentMood: 0
+  behaviourMode: 0
   patrolPoints:
   - {fileID: 810730353}
   - {fileID: 792649717}
   patrolSpeed: 2.5
   waitTimeAtPoint: 1
+  fieldTarget: {fileID: 0}
+  descentSpeed: 3.5
+  crowdRadius: 4
+  crowdSpeed: 2
+  crowdSlotIndex: 0
+  totalCrowdSlots: 1
   sadnessProjectilePrefab: {fileID: 2021040450435978625, guid: 38f0468503616674280175cff75e26cf, type: 3}
   throwPoint: {fileID: 2047742045}
   detectionRange: 15
@@ -18165,12 +18179,19 @@ MonoBehaviour:
   unhappinessLevel: 3
   isVeryUnhappy: 0
   currentMood: 0
+  behaviourMode: 0
   patrolPoints:
   - {fileID: 810730353}
   - {fileID: 792649717}
   - {fileID: 0}
   patrolSpeed: 2.5
   waitTimeAtPoint: 1
+  fieldTarget: {fileID: 0}
+  descentSpeed: 3.5
+  crowdRadius: 4
+  crowdSpeed: 2
+  crowdSlotIndex: 0
+  totalCrowdSlots: 1
   sadnessProjectilePrefab: {fileID: 2021040450435978625, guid: 38f0468503616674280175cff75e26cf, type: 3}
   throwPoint: {fileID: 844966777}
   detectionRange: 15
@@ -24287,10 +24308,17 @@ MonoBehaviour:
   unhappinessLevel: 3
   isVeryUnhappy: 0
   currentMood: 0
+  behaviourMode: 0
   patrolPoints:
   - {fileID: 810730353}
   patrolSpeed: 2.5
   waitTimeAtPoint: 1
+  fieldTarget: {fileID: 0}
+  descentSpeed: 3.5
+  crowdRadius: 4
+  crowdSpeed: 2
+  crowdSlotIndex: 0
+  totalCrowdSlots: 1
   sadnessProjectilePrefab: {fileID: 2021040450435978625, guid: 38f0468503616674280175cff75e26cf, type: 3}
   throwPoint: {fileID: 200491019}
   detectionRange: 15
@@ -24680,11 +24708,18 @@ MonoBehaviour:
   unhappinessLevel: 5
   isVeryUnhappy: 1
   currentMood: 0
+  behaviourMode: 0
   patrolPoints:
   - {fileID: 792649717}
   - {fileID: 1484999024}
   patrolSpeed: 2.5
   waitTimeAtPoint: 1
+  fieldTarget: {fileID: 0}
+  descentSpeed: 3.5
+  crowdRadius: 4
+  crowdSpeed: 2
+  crowdSlotIndex: 0
+  totalCrowdSlots: 1
   sadnessProjectilePrefab: {fileID: 4867852567457385698, guid: 82d682d7b5095e44caac399f4a33df93, type: 3}
   throwPoint: {fileID: 1593989817}
   detectionRange: 15
@@ -28679,10 +28714,17 @@ MonoBehaviour:
   unhappinessLevel: 3
   isVeryUnhappy: 0
   currentMood: 0
+  behaviourMode: 0
   patrolPoints:
   - {fileID: 810730353}
   patrolSpeed: 2.5
   waitTimeAtPoint: 1
+  fieldTarget: {fileID: 0}
+  descentSpeed: 3.5
+  crowdRadius: 4
+  crowdSpeed: 2
+  crowdSlotIndex: 0
+  totalCrowdSlots: 1
   sadnessProjectilePrefab: {fileID: 2021040450435978625, guid: 38f0468503616674280175cff75e26cf, type: 3}
   throwPoint: {fileID: 1433278717}
   detectionRange: 15
@@ -34732,11 +34774,18 @@ MonoBehaviour:
   unhappinessLevel: 3
   isVeryUnhappy: 0
   currentMood: 0
+  behaviourMode: 0
   patrolPoints:
   - {fileID: 792649717}
   - {fileID: 66490135}
   patrolSpeed: 2.5
   waitTimeAtPoint: 1
+  fieldTarget: {fileID: 0}
+  descentSpeed: 3.5
+  crowdRadius: 4
+  crowdSpeed: 2
+  crowdSlotIndex: 0
+  totalCrowdSlots: 1
   sadnessProjectilePrefab: {fileID: 2021040450435978625, guid: 38f0468503616674280175cff75e26cf, type: 3}
   throwPoint: {fileID: 1036976790}
   detectionRange: 15
@@ -39413,10 +39462,17 @@ MonoBehaviour:
   unhappinessLevel: 3
   isVeryUnhappy: 0
   currentMood: 0
+  behaviourMode: 0
   patrolPoints:
   - {fileID: 1484999024}
   patrolSpeed: 2.5
   waitTimeAtPoint: 1
+  fieldTarget: {fileID: 0}
+  descentSpeed: 3.5
+  crowdRadius: 4
+  crowdSpeed: 2
+  crowdSlotIndex: 0
+  totalCrowdSlots: 1
   sadnessProjectilePrefab: {fileID: 2021040450435978625, guid: 38f0468503616674280175cff75e26cf, type: 3}
   throwPoint: {fileID: 547901669}
   detectionRange: 15

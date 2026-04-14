@@ -22,6 +22,20 @@ public class PlayerHealth : MonoBehaviour
 
     private AudioSource audioSource;
 
+    /// <summary>
+    /// While true, sadness damage is absorbed — health cannot drop to 0 and
+    /// GameOver cannot fire. Set by CatVisionEvent during the scripted sequence.
+    /// </summary>
+    [HideInInspector] public bool invincible = false;
+
+    /// <summary>
+    /// Fires synchronously inside TakeSadness the first time health crosses
+    /// below the near-death threshold (10 %). CatVisionEvent subscribes to this
+    /// so it triggers in the same frame as the lethal hit, before GameOver runs.
+    /// </summary>
+    public System.Action onNearDeath;
+    private bool nearDeathFired = false;
+
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -36,6 +50,9 @@ public class PlayerHealth : MonoBehaviour
     /// </summary>
     public void TakeSadness(int amount)
     {
+        if (invincible) return;
+
+        bool wasAbove = currentHappiness > maxHappiness * 0.1f;
         currentHappiness -= amount;
         currentHappiness = Mathf.Max(currentHappiness, 0);
 
@@ -47,8 +64,16 @@ public class PlayerHealth : MonoBehaviour
         HUDManager hud = FindFirstObjectByType<HUDManager>();
         if (hud != null) hud.UpdateHappiness(currentHappiness, maxHappiness);
 
-        // Check for game over
-        if (currentHappiness <= 0)
+        // Fire the near-death callback the first time health drops to ≤ 10 %.
+        // This lets CatVisionEvent intercept synchronously — before GameOver runs.
+        if (wasAbove && currentHappiness <= maxHappiness * 0.1f && !nearDeathFired)
+        {
+            nearDeathFired = true;
+            onNearDeath?.Invoke();
+        }
+
+        // Check for game over — skipped if CatVisionEvent set invincible above
+        if (currentHappiness <= 0 && !invincible)
         {
             GameManager gm = FindFirstObjectByType<GameManager>();
             if (gm != null) gm.GameOver();

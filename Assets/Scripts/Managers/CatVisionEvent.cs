@@ -4,22 +4,29 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Scripted event: when the player is surrounded in wave 3 and their happiness
-/// drops to 10%, they see a vision of their cat — gaining a burst of joy that
-/// radiates outward as a shockwave, instantly converting every NPC it touches.
+/// Scripted event: when the player is surrounded in wave 3 and happiness drops
+/// to 10%, they see a vision of their cat. A shockwave radiates outward converting
+/// every NPC while the player is lifted into the air to watch from above. The
+/// screen then fades to black and the player is teleported to the street for the
+/// final boss fight.
 ///
 /// SETUP:
-/// 1. Attach this script to any persistent GameObject (e.g. GameManager or a
-///    dedicated "CatVisionEvent" empty object).
+/// 1. Attach to any persistent GameObject (e.g. "CatVisionEvent" empty).
 /// 2. Build the Cat Vision Canvas (see instructions at bottom of this file).
 /// 3. Assign all Inspector references.
-/// 4. Assign the cat sprite to the CatImage component.
+/// 4. Teleport Destination — empty GameObject in the street where the boss fight
+///    happens. Player arrives at its position facing its forward direction.
+/// 5. Boss To Activate — the FinalBoss GameObject, DISABLED in the scene.
+/// 6. Player Movement Script — drag your FPS movement script here so input is
+///    blocked while the player is being lifted.
+/// 7. Player Camera — drag the Transform that handles vertical look (usually
+///    the child camera pivot, or the Main Camera itself).
 /// </summary>
 public class CatVisionEvent : MonoBehaviour
 {
     // ── Trigger ────────────────────────────────────────────────────────────────
     [Header("Trigger")]
-    [Tooltip("Which wave the event can fire on.")]
+    [Tooltip("Which wave the event fires on.")]
     public int triggerOnWave = 3;
 
     [Tooltip("Health fraction (0–1) at which the event fires. 0.1 = 10 %.")]
@@ -29,62 +36,73 @@ public class CatVisionEvent : MonoBehaviour
     // ── Scene References ───────────────────────────────────────────────────────
     [Header("Scene References")]
     public Section2Spawner section2Spawner;
-    public PlayerHealth playerHealth;       // The player's happiness/health component
+    public PlayerHealth     playerHealth;
+
+    // ── Player Lift ────────────────────────────────────────────────────────────
+    [Header("Player Lift")]
+    [Tooltip("Your FPS movement/look script — disabled during lift so input is ignored.")]
+    public MonoBehaviour playerMovementScript;
+
+    [Tooltip("The Transform whose X rotation controls vertical camera look. " +
+             "Usually the Main Camera or a child camera pivot.")]
+    public Transform playerCamera;
+
+    [Tooltip("How many world units the player rises during the shockwave.")]
+    public float liftHeight = 14f;
+
+    [Tooltip("Degrees the camera tilts downward at the peak of the lift. " +
+             "60–75 gives a nice bird's-eye view without full 90°.")]
+    [Range(30f, 90f)]
+    public float cameraDownAngle = 65f;
+
+    // ── Teleport & Boss ────────────────────────────────────────────────────────
+    [Header("Teleport & Boss")]
+    [Tooltip("Empty GameObject in the street. Player arrives at its position " +
+             "facing its forward direction.")]
+    public Transform teleportDestination;
+
+    [Tooltip("FinalBoss GameObject — DISABLED in the scene. Activated just " +
+             "before the player arrives.")]
+    public GameObject bossToActivate;
 
     // ── UI ─────────────────────────────────────────────────────────────────────
     [Header("Cat Vision UI")]
-    [Tooltip("Root CanvasGroup of the cat vision overlay panel.")]
     public CanvasGroup catVisionGroup;
-
-    [Tooltip("The cat image inside the panel.")]
-    public Image catImage;
-
-    [Tooltip("Optional caption text (e.g. 'You are not alone…').")]
+    public Image       catImage;
     public TMPro.TextMeshProUGUI captionText;
 
-    [Tooltip("A full-screen dark Image used for the closing-in vignette.")]
+    [Tooltip("Full-screen BLACK image — used for vignette AND teleport blackout.")]
     public CanvasGroup vignetteGroup;
 
-    [Tooltip("A full-screen white Image for the flash just before the shockwave.")]
+    [Tooltip("Full-screen WHITE image for the flash before the shockwave.")]
     public Image flashImage;
 
     // ── Shockwave ──────────────────────────────────────────────────────────────
     [Header("Shockwave")]
-    [Tooltip("Maximum radius the happiness shockwave reaches.")]
     public float shockwaveMaxRadius = 25f;
-
-    [Tooltip("Seconds for the shockwave to expand to max radius.")]
-    public float shockwaveDuration = 2.5f;
-
-    [Tooltip("Love applied to each NPC the shockwave touches. 999 = instant convert.")]
-    public int shockwaveLovePower = 999;
-
-    [Tooltip("Width of the visual shockwave ring line.")]
-    public float ringWidth = 0.4f;
-
-    [Tooltip("Color of the expanding ring.")]
-    public Color ringColor = new Color(1f, 0.9f, 0.3f, 1f);
+    public float shockwaveDuration  = 3f;
+    [Tooltip("Love given to each NPC the wave touches. 999 = instant convert.")]
+    public int   shockwaveLovePower = 999;
+    public float ringWidth          = 0.4f;
+    public Color ringColor          = new Color(1f, 0.9f, 0.3f, 1f);
 
     // ── Timing ─────────────────────────────────────────────────────────────────
     [Header("Timing")]
-    public float vignetteFadeIn    = 0.8f;   // seconds to darken the screen
-    public float catFadeIn         = 0.6f;   // seconds for cat image to appear
-    public float catHoldDuration   = 2.8f;   // seconds the vision is held
-    public float flashDuration     = 0.35f;  // white flash before shockwave
-    public float catFadeOut        = 0.4f;   // seconds for cat image to disappear
+    public float vignetteFadeIn  = 0.8f;
+    public float catFadeIn       = 0.6f;
+    public float catHoldDuration = 2.8f;
+    public float flashDuration   = 0.35f;
+    public float catFadeOut      = 0.4f;
+    public float teleportFadeOut = 0.6f;
+    public float teleportFadeIn  = 0.8f;
 
     // ── Audio ──────────────────────────────────────────────────────────────────
     [Header("Audio")]
-    [Tooltip("Soft sound when the vision begins (heartbeat, purring, etc.)")]
     public AudioClip visionStartSound;
-
-    [Tooltip("Impact sound for the shockwave burst.")]
     public AudioClip shockwaveSound;
 
     private AudioSource audioSource;
-
-    // ── State ──────────────────────────────────────────────────────────────────
-    private bool hasTriggered = false;
+    private bool        hasTriggered = false;
 
     // ──────────────────────────────────────────────────────────────────────────
     void Start()
@@ -93,36 +111,46 @@ public class CatVisionEvent : MonoBehaviour
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
 
-        // Hide all UI elements at start
-        if (catVisionGroup  != null) { catVisionGroup.alpha  = 0f; catVisionGroup.gameObject.SetActive(false); }
-        if (vignetteGroup   != null) { vignetteGroup.alpha   = 0f; vignetteGroup.gameObject.SetActive(false); }
-        if (flashImage      != null) { SetAlpha(flashImage, 0f);   flashImage.gameObject.SetActive(false); }
-        if (captionText     != null) SetAlpha(captionText, 0f);
+        if (catVisionGroup != null) { catVisionGroup.alpha = 0f; catVisionGroup.gameObject.SetActive(false); }
+        if (vignetteGroup  != null) { vignetteGroup.alpha  = 0f; vignetteGroup.gameObject.SetActive(false); }
+        if (flashImage     != null) { SetAlpha(flashImage, 0f);  flashImage.gameObject.SetActive(false); }
+        if (captionText    != null) SetAlpha(captionText, 0f);
+
+        if (playerHealth != null)
+            playerHealth.onNearDeath += TriggerCatVision;
+        else
+            Debug.LogError("[CatVision] PlayerHealth reference not assigned!");
     }
 
-    void Update()
+    void OnDestroy()
+    {
+        if (playerHealth != null)
+            playerHealth.onNearDeath -= TriggerCatVision;
+    }
+
+    void TriggerCatVision()
     {
         if (hasTriggered) return;
-        if (section2Spawner == null || playerHealth == null) return;
 
-        // Wait for wave 3
-        if (section2Spawner.currentWave < triggerOnWave) return;
-
-        // Check health threshold
-        float healthPct = playerHealth.currentHappiness / (float)playerHealth.maxHappiness;
-        if (healthPct <= healthThreshold)
+        if (section2Spawner != null && section2Spawner.currentWave < triggerOnWave)
         {
-            hasTriggered = true;
-            StartCoroutine(CatVisionSequence());
+            Debug.Log($"[CatVision] Near-death on wave {section2Spawner.currentWave} — not wave {triggerOnWave} yet.");
+            return;
         }
+
+        hasTriggered = true;
+        playerHealth.invincible = true;
+        if (playerHealth.currentHappiness <= 0)
+            playerHealth.currentHappiness = 1;
+
+        Debug.Log("[CatVision] Triggered — starting vision sequence.");
+        StartCoroutine(CatVisionSequence());
     }
 
     // ──────────────────────────────────────────────────────────────────────────
     IEnumerator CatVisionSequence()
     {
-        Debug.Log("[CatVision] Event triggered — player needs their cat.");
-
-        // ── 1. Slow time & play vision sound ──────────────────────────────────
+        // ── 1. Slow time ──────────────────────────────────────────────────────
         Time.timeScale = 0.15f;
         PlaySound(visionStartSound);
 
@@ -140,21 +168,24 @@ public class CatVisionEvent : MonoBehaviour
             yield return StartCoroutine(FadeCanvasGroup(catVisionGroup, 0f, 1f, catFadeIn));
         }
 
-        // ── 4. Caption appears ────────────────────────────────────────────────
+        // ── 4. Caption ────────────────────────────────────────────────────────
         if (captionText != null)
             yield return StartCoroutine(FadeGraphic(captionText, 0f, 1f, 0.4f));
 
-        // ── 5. Hold the vision ────────────────────────────────────────────────
+        // ── 5. Hold ───────────────────────────────────────────────────────────
         yield return new WaitForSecondsRealtime(catHoldDuration);
 
-        // ── 6. Caption fades out, cat image fades out ─────────────────────────
+        // ── 6. Caption + cat fade out ─────────────────────────────────────────
         if (captionText != null)
             yield return StartCoroutine(FadeGraphic(captionText, 1f, 0f, 0.25f));
 
         if (catVisionGroup != null)
+        {
             yield return StartCoroutine(FadeCanvasGroup(catVisionGroup, 1f, 0f, catFadeOut));
+            catVisionGroup.gameObject.SetActive(false);
+        }
 
-        // ── 7. Restore time & heal the player to full ─────────────────────────
+        // ── 7. Restore time + heal ────────────────────────────────────────────
         Time.timeScale = 1f;
         playerHealth.Heal(playerHealth.maxHappiness);
 
@@ -167,69 +198,128 @@ public class CatVisionEvent : MonoBehaviour
             flashImage.gameObject.SetActive(false);
         }
 
-        // Hide vignette
+        // Partially clear vignette so the player can see the shockwave
+        if (vignetteGroup != null)
+            yield return StartCoroutine(FadeCanvasGroup(vignetteGroup, 0.75f, 0.0f, 0.3f));
+
+        // ── 9. Shockwave + player lift + NPC conversion ───────────────────────
+        PlaySound(shockwaveSound);
+        yield return StartCoroutine(ShockwaveAndLift());
+
+        // ── 10. Fade to full black for teleport ───────────────────────────────
         if (vignetteGroup != null)
         {
-            yield return StartCoroutine(FadeCanvasGroup(vignetteGroup, 0.75f, 0f, 0.3f));
+            vignetteGroup.gameObject.SetActive(true);
+            yield return StartCoroutine(FadeCanvasGroup(vignetteGroup, 0f, 1f, teleportFadeOut));
+        }
+
+        // ── 11. Teleport player + activate boss ───────────────────────────────
+        if (teleportDestination != null)
+            TeleportPlayer(teleportDestination.position, teleportDestination.rotation);
+        else
+            Debug.LogWarning("[CatVision] No teleport destination assigned!");
+
+        if (bossToActivate != null)
+            bossToActivate.SetActive(true);
+        else
+            Debug.LogWarning("[CatVision] No boss assigned to activate!");
+
+        // ── 12. Restore player controls (camera rotation, movement) ───────────
+        RestorePlayerControls();
+
+        yield return new WaitForSecondsRealtime(0.2f);
+
+        // ── 13. Fade from black ───────────────────────────────────────────────
+        if (vignetteGroup != null)
+        {
+            yield return StartCoroutine(FadeCanvasGroup(vignetteGroup, 1f, 0f, teleportFadeIn));
             vignetteGroup.gameObject.SetActive(false);
         }
-        if (catVisionGroup != null)
-            catVisionGroup.gameObject.SetActive(false);
 
-        // ── 9. Shockwave bursts outward ───────────────────────────────────────
-        PlaySound(shockwaveSound);
-        yield return StartCoroutine(ExpandShockwave());
+        // ── 14. Re-enable normal damage ───────────────────────────────────────
+        playerHealth.invincible = false;
 
-        Debug.Log("[CatVision] Event complete.");
+        Debug.Log("[CatVision] Complete — player is in the street, boss is active.");
     }
 
     // ──────────────────────────────────────────────────────────────────────────
-    IEnumerator ExpandShockwave()
+    /// <summary>
+    /// Simultaneously expands the shockwave ring (converting NPCs as it goes)
+    /// and lifts the player upward so they can watch the conversion from above.
+    /// </summary>
+    IEnumerator ShockwaveAndLift()
     {
-        // Build a procedural LineRenderer ring
+        // ── Disable player input so they float freely ─────────────────────────
+        CharacterController cc = playerHealth.GetComponentInChildren<CharacterController>();
+        if (cc != null) cc.enabled = false;
+        if (playerMovementScript != null) playerMovementScript.enabled = false;
+
+        // Cache original camera angle so we can restore it after teleport
+        Quaternion originalCamRotation = playerCamera != null
+            ? playerCamera.localRotation
+            : Quaternion.identity;
+
+        // Target camera rotation: tilt downward by cameraDownAngle degrees
+        Quaternion downRotation = Quaternion.Euler(cameraDownAngle, 0f, 0f);
+
+        // ── Build procedural shockwave ring ───────────────────────────────────
         GameObject ringObj = new GameObject("HappinessShockwaveRing");
         LineRenderer ring = ringObj.AddComponent<LineRenderer>();
         ring.useWorldSpace = true;
-        ring.loop = true;
+        ring.loop          = true;
         ring.positionCount = 64;
-        ring.startWidth = ringWidth;
-        ring.endWidth = ringWidth * 0.2f;
+        ring.startWidth    = ringWidth;
+        ring.endWidth      = ringWidth * 0.2f;
 
         Material ringMat = new Material(Shader.Find("Sprites/Default"));
-        ringMat.color = ringColor;
-        ring.material = ringMat;
-        ring.startColor = ringColor;
-        ring.endColor = new Color(ringColor.r, ringColor.g, ringColor.b, 0f);
+        ringMat.color    = ringColor;
+        ring.material    = ringMat;
+        ring.startColor  = ringColor;
+        ring.endColor    = new Color(ringColor.r, ringColor.g, ringColor.b, 0f);
 
-        Vector3 origin = playerHealth.transform.position;
-        float ringY = origin.y + 0.1f;  // just above ground
+        // Ring expands from where the PLAYER started (before they rise)
+        Vector3 shockwaveOrigin = playerHealth.transform.position;
+        float   ringY           = shockwaveOrigin.y + 0.1f;
 
-        HashSet<UnhappyPerson> alreadyConverted = new HashSet<UnhappyPerson>();
+        Vector3 liftStart = playerHealth.transform.position;
+        Vector3 liftEnd   = liftStart + Vector3.up * liftHeight;
+
+        HashSet<UnhappyPerson> converted = new HashSet<UnhappyPerson>();
 
         float elapsed = 0f;
         while (elapsed < shockwaveDuration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / shockwaveDuration;
+            float t = Mathf.Clamp01(elapsed / shockwaveDuration);
+
+            // ── Lift player smoothly upward ───────────────────────────────────
+            // Use SmoothStep for a natural ease-out feel at the top
+            float liftT = Mathf.SmoothStep(0f, 1f, t);
+            playerHealth.transform.position = Vector3.Lerp(liftStart, liftEnd, liftT);
+
+            // ── Tilt camera to look down as player rises ──────────────────────
+            if (playerCamera != null)
+                playerCamera.localRotation = Quaternion.Slerp(
+                    originalCamRotation, downRotation, liftT);
+
+            // ── Expand ring from original ground position ─────────────────────
             float radius = Mathf.Lerp(0f, shockwaveMaxRadius, t);
+            UpdateRingPositions(ring, shockwaveOrigin, ringY, radius);
 
-            // Update ring positions
-            UpdateRingPositions(ring, origin, ringY, radius);
-
-            // Fade ring out as it expands
-            Color c = Color.Lerp(ringColor, new Color(ringColor.r, ringColor.g, ringColor.b, 0f), t);
+            Color c = Color.Lerp(ringColor,
+                new Color(ringColor.r, ringColor.g, ringColor.b, 0f), t);
             ring.startColor = c;
-            ring.endColor = new Color(c.r, c.g, c.b, 0f);
+            ring.endColor   = new Color(c.r, c.g, c.b, 0f);
 
-            // Hit any NPC the wave has reached that hasn't been converted yet
-            Collider[] hits = Physics.OverlapSphere(origin, radius);
+            // ── Convert NPCs as the ring sweeps over them ─────────────────────
+            Collider[] hits = Physics.OverlapSphere(shockwaveOrigin, radius);
             foreach (var col in hits)
             {
                 UnhappyPerson npc = col.GetComponentInParent<UnhappyPerson>();
-                if (npc != null && !alreadyConverted.Contains(npc)
+                if (npc != null && !converted.Contains(npc)
                     && npc.currentMood == UnhappyPerson.MoodState.Unhappy)
                 {
-                    alreadyConverted.Add(npc);
+                    converted.Add(npc);
                     npc.ReceiveLove(shockwaveLovePower);
                 }
             }
@@ -238,8 +328,45 @@ public class CatVisionEvent : MonoBehaviour
         }
 
         Destroy(ringObj);
+
+        // Hold at the top for a moment so the player can appreciate the view
+        yield return new WaitForSeconds(0.8f);
     }
 
+    // ──────────────────────────────────────────────────────────────────────────
+    void TeleportPlayer(Vector3 position, Quaternion rotation)
+    {
+        CharacterController cc = playerHealth.GetComponentInChildren<CharacterController>();
+        if (cc != null) cc.enabled = false;
+
+        playerHealth.transform.position = position;
+        playerHealth.transform.rotation = rotation;
+
+        if (cc != null) cc.enabled = true;
+
+        Rigidbody rb = playerHealth.GetComponentInChildren<Rigidbody>();
+        if (rb != null)
+        {
+            rb.linearVelocity  = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+
+        Debug.Log($"[CatVision] Player teleported to {position}.");
+    }
+
+    void RestorePlayerControls()
+    {
+        // Re-enable movement script
+        if (playerMovementScript != null)
+            playerMovementScript.enabled = true;
+
+        // Reset camera to level (horizontal) so the player doesn't arrive
+        // staring at the ground
+        if (playerCamera != null)
+            playerCamera.localRotation = Quaternion.identity;
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
     void UpdateRingPositions(LineRenderer lr, Vector3 center, float y, float radius)
     {
         int count = lr.positionCount;
@@ -253,16 +380,13 @@ public class CatVisionEvent : MonoBehaviour
         }
     }
 
-    // ── Helpers ────────────────────────────────────────────────────────────────
-
-    // Uses unscaled time so the fade works even while Time.timeScale is 0.15
     IEnumerator FadeCanvasGroup(CanvasGroup group, float from, float to, float duration)
     {
         float elapsed = 0f;
         group.alpha = from;
         while (elapsed < duration)
         {
-            elapsed += Time.unscaledDeltaTime;
+            elapsed    += Time.unscaledDeltaTime;
             group.alpha = Mathf.Lerp(from, to, elapsed / duration);
             yield return null;
         }
@@ -285,7 +409,7 @@ public class CatVisionEvent : MonoBehaviour
     void SetAlpha(Graphic graphic, float alpha)
     {
         Color c = graphic.color;
-        c.a = alpha;
+        c.a     = alpha;
         graphic.color = c;
     }
 
@@ -298,28 +422,38 @@ public class CatVisionEvent : MonoBehaviour
 
 /*
 ════════════════════════════════════════════════════════
-  CANVAS SETUP INSTRUCTIONS
+  CANVAS SETUP
 ════════════════════════════════════════════════════════
 
-Create a new Canvas (Screen Space — Overlay, Sort Order 99):
+Canvas (Screen Space – Overlay, Sort Order 99):
 
   ┌─ CatVisionCanvas
-  │   ├─ Vignette          (Image, black, full-screen, alpha 0)
-  │   │                      → assign to "Vignette Group" (CanvasGroup)
+  │   ├─ Vignette          (Image, solid BLACK, full-screen, alpha 0)
+  │   │                      + CanvasGroup → "Vignette Group"
+  │   │                      Used for both the vision darkening AND the
+  │   │                      black teleport transition. Must be solid black.
   │   │
   │   ├─ CatVisionPanel    (CanvasGroup, alpha 0)
-  │   │   ├─ Background    (Image, soft dark colour, full-screen, alpha ~0.6)
-  │   │   ├─ CatImage      (Image, your cat sprite, centred, ~400×400 px)
-  │   │   └─ Caption       (TextMeshPro, "You are not alone…", centred below cat)
+  │   │   ├─ Background    (Image, dark colour, full-screen, alpha ~0.6)
+  │   │   ├─ CatImage      (Image, cat sprite, centred, ~400×400 px)
+  │   │   └─ Caption       (TextMeshPro – "You are not alone…")
   │   │
-  │   └─ Flash             (Image, white, full-screen, alpha 0)
+  │   └─ Flash             (Image, solid WHITE, full-screen, alpha 0)
 
-Assign:
-  • CatVisionGroup  →  CatVisionPanel's CanvasGroup
-  • CatImage        →  CatImage's Image component
-  • CaptionText     →  Caption's TextMeshProUGUI
-  • VignetteGroup   →  Vignette's CanvasGroup
-  • FlashImage      →  Flash's Image component
+════════════════════════════════════════════════════════
+  INSPECTOR CHECKLIST
+════════════════════════════════════════════════════════
+
+  Section2Spawner       → your Section2Spawner component
+  Player Health         → PlayerHealth on the Player GameObject
+  Player Movement Script→ your FPS movement/look script (e.g. FirstPersonController)
+  Player Camera         → the Transform that handles vertical look
+                          (drag the Main Camera, or its camera-pivot parent)
+  Teleport Destination  → empty GameObject placed in the street
+  Boss To Activate      → FinalBoss GameObject (must be DISABLED in the scene)
+  Cat Vision Group      → CatVisionPanel CanvasGroup
+  Vignette Group        → Vignette CanvasGroup
+  Flash Image           → Flash Image component
 
 ════════════════════════════════════════════════════════
 */
