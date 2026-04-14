@@ -81,6 +81,19 @@ public class MusicController : MonoBehaviour
     }
 
     /// <summary>
+    /// Start playback from code without needing to enable/disable the GameObject.
+    /// Safe to call even if already playing — restarts from startTimeSeconds.
+    /// </summary>
+    public void Play()
+    {
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+
+        isFading = false;
+        StartPlayback();
+    }
+
+    /// <summary>
     /// Fade out using the fadeDuration set in the Inspector.
     /// Use this overload when wiring from a UnityEvent (onSectionComplete etc.)
     /// so there's no risk of accidentally passing 0.
