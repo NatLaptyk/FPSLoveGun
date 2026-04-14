@@ -90,6 +90,10 @@ public class UnhappyPerson : MonoBehaviour
     private Transform playerTransform;
     private AudioSource audioSource;
 
+    [Header("UI — Love Bar")]
+    public UnhappyLoveBar loveBarPrefab;                 // assign in Inspector
+    private UnhappyLoveBar loveBarInstance;
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -110,6 +114,13 @@ public class UnhappyPerson : MonoBehaviour
         // Start patrolling (only in Patrol mode)
         if (behaviourMode == BehaviourMode.Patrol && patrolPoints != null && patrolPoints.Length > 0)
             agent.SetDestination(patrolPoints[0].position);
+
+        if (loveBarPrefab != null)
+    {
+        loveBarInstance = Instantiate(loveBarPrefab);
+        loveBarInstance.Init(transform, unhappinessLevel); // THIS sets the follow target
+        UpdateLoveBar();
+    }
     }
 
     void Update()
@@ -147,6 +158,17 @@ public class UnhappyPerson : MonoBehaviour
         }
     }
 
+     private void UpdateLoveBar()
+    {
+    if (loveBarInstance != null)
+        loveBarInstance.SetValues(currentLoveReceived, unhappinessLevel);
+    }
+
+    private void OnDestroy()
+{
+    if (loveBarInstance != null)
+        Destroy(loveBarInstance.gameObject);
+}
     void UpdateStadium()
     {
         if (!stadiumActivated) return;
@@ -344,6 +366,16 @@ public class UnhappyPerson : MonoBehaviour
         {
             BecomeHappy();
         }
+
+        if (currentMood == MoodState.Happy) return;
+
+    currentLoveReceived += amount;
+    currentLoveReceived = Mathf.Clamp(currentLoveReceived, 0, unhappinessLevel);
+
+    
+
+    if (currentLoveReceived >= unhappinessLevel)
+        BecomeHappy(); // make sure this exists in your UnhappyPerson
     }
 
     [Header("Happy Behavior")]
