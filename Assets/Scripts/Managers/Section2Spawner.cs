@@ -57,6 +57,10 @@ public class Section2Spawner : MonoBehaviour
              "blocking the stadium entrance). They are deactivated once all waves are cleared.")]
     public GameObject[] exitBlockers;
 
+    [Header("Music")]
+    [Tooltip("MusicController for the stadium section. Played the moment the player enters.")]
+    public MusicController stadiumMusic;
+
     [Header("Events")]
     public UnityEngine.Events.UnityEvent onAllWavesComplete;
 
@@ -74,6 +78,7 @@ public class Section2Spawner : MonoBehaviour
         if (!other.CompareTag("Player") && !other.transform.root.CompareTag("Player")) return;
 
         hasTriggered = true;
+        if (stadiumMusic != null) stadiumMusic.gameObject.SetActive(true);
         Debug.Log("[Section2Spawner] Player entered stadium — starting wave sequence.");
 
         // Lock the exit so the player can't leave until all waves are cleared

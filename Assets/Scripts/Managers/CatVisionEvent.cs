@@ -35,8 +35,10 @@ public class CatVisionEvent : MonoBehaviour
 
     // ── Scene References ───────────────────────────────────────────────────────
     [Header("Scene References")]
-    public Section2Spawner section2Spawner;
+    public Section2Spawner  section2Spawner;
     public PlayerHealth     playerHealth;
+    [Tooltip("The stadium MusicController. It will be faded out as soon as the cat vision starts.")]
+    public MusicController  stadiumMusic;
 
     // ── Player Lift ────────────────────────────────────────────────────────────
     [Header("Player Lift")]
@@ -197,8 +199,9 @@ public class CatVisionEvent : MonoBehaviour
     // ──────────────────────────────────────────────────────────────────────────
     IEnumerator CatVisionSequence()
     {
-        // ── 1. Slow time ──────────────────────────────────────────────────────
+        // ── 1. Slow time + fade out stadium music ─────────────────────────────
         Time.timeScale = 0.15f;
+        if (stadiumMusic != null) stadiumMusic.FadeOut();
         PlaySound(visionStartSound);
 
         // ── 2. Vignette closes in ─────────────────────────────────────────────

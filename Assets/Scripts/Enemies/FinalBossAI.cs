@@ -49,6 +49,9 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     [Tooltip("Distance at which the boss jumps toward the player to close the gap.")]
     public float jumpTriggerDistance = 10f;
     public float jumpCooldown = 5f;
+    [Tooltip("How many units the boss rises at the peak of the jump arc. " +
+             "Increase this to clear taller obstacles.")]
+    public float jumpArcHeight = 3f;
 
     // ── Attacks ───────────────────────────────────────────────────────────────
     [Header("Quick Attack (Attack1)")]
@@ -108,6 +111,12 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
              "so the section completes once they are all converted.")]
     public SectionTracker bossPhaseTracker;
 
+    // ── Music ─────────────────────────────────────────────────────────────────
+    [Header("Music")]
+    [Tooltip("MusicController for the boss fight track. " +
+             "Played the moment the boss first aggros onto the player.")]
+    public MusicController bossFightMusic;
+
     // ── Events ────────────────────────────────────────────────────────────────
     [Header("Events")]
     [Tooltip("Fires the moment the boss is defeated (before the die animation finishes). " +
@@ -121,13 +130,18 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     public AudioClip hitSound;
     public AudioClip defeatSound;
 
+    [Range(0f, 1f)]
+    [Tooltip("Master volume for all boss sound effects.")]
+    public float sfxVolume = 1f;
+
     // ── Privates ──────────────────────────────────────────────────────────────
     private NavMeshAgent agent;
     private Animator     animator;
     private Collider     bossCollider;
     private AudioSource  audioSource;
 
-    private bool  isAggroed = false;   // once true, boss never returns to Idle
+    private bool  isAggroed     = false;   // once true, boss never returns to Idle
+    private bool  musicStarted  = false;   // guard against double-play
     private float nextQuickAttackTime;
     private float nextHeavyAttackTime;
     private float nextPulseTime;
@@ -145,6 +159,11 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
             audioSource = gameObject.AddComponent<AudioSource>();
 
         agent.speed = walkSpeed;
+
+        // Prevent the music from auto-starting if its GO is a child of this prefab.
+        // We'll enable it manually the moment the boss first aggros the player.
+        if (bossFightMusic != null)
+            bossFightMusic.gameObject.SetActive(false);
 
         if (player == null)
         {
@@ -193,6 +212,12 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
             isAggroed = true;
             CurrentState = BossState.Chasing;
             agent.isStopped = false;
+
+            if (bossFightMusic != null && !musicStarted)
+            {
+                musicStarted = true;
+                bossFightMusic.gameObject.SetActive(true); // triggers OnEnable → StartPlayback
+            }
             Debug.Log("[FinalBoss] Player spotted — now permanently aggroed.");
         }
     }
@@ -397,6 +422,9 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
         if (bossCollider != null) bossCollider.enabled = false;
         PlaySound(defeatSound);
 
+        // Fade out boss fight music
+        if (bossFightMusic != null) bossFightMusic.FadeOut();
+
         // Kill all Watchers the boss summoned — they fall with their master
         activeWatchers.RemoveAll(w => w == null);
         foreach (GameObject watcher in activeWatchers)
@@ -456,7 +484,9 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
                 Vector3 offset    = Quaternion.Euler(0, angle, 0) * Vector3.forward * spreadRadius;
                 Vector3 spawnPos  = transform.position + offset;
 
-                GameObject obj = Instantiate(cfg.npcPrefab, spawnPos, Quaternion.identity);
+                // Preserve the prefab's own root rotation so models that need
+                // a baked X-offset (e.g. FBX exports lying flat) stand upright.
+                GameObject obj = Instantiate(cfg.npcPrefab, spawnPos, cfg.npcPrefab.transform.rotation);
 
                 NavMeshAgent npcAgent = obj.GetComponent<NavMeshAgent>();
                 if (npcAgent != null)
@@ -490,10 +520,14 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
             animator.SetFloat("Speed", 0f);
         }
 
-        // Sprint toward the player for the jump animation duration
-        float elapsed = 0f;
+        // Sprint toward the player while arcing upward then back down.
+        // agent.baseOffset lifts the visual mesh above the NavMesh surface,
+        // letting the boss clear obstacles with raised edges without any
+        // physics or NavMesh rebaking needed.
+        float elapsed      = 0f;
         float dashDuration = 0.7f;
-        float dashSpeed = runSpeed * 2f;
+        float dashSpeed    = runSpeed * 2f;
+        float baseOffset   = agent.baseOffset;  // remember original (usually 0)
 
         while (elapsed < dashDuration)
         {
@@ -503,10 +537,17 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
                 agent.speed = dashSpeed;
                 agent.SetDestination(player.position);
             }
+
+            // Sin arc: 0 → peak at mid-dash → 0
+            // Mathf.Sin(t * PI) gives a perfect single hump between 0 and 1
+            float t = elapsed / dashDuration;
+            agent.baseOffset = baseOffset + Mathf.Sin(t * Mathf.PI) * jumpArcHeight;
+
             elapsed += Time.deltaTime;
             yield return null;
         }
 
+        agent.baseOffset = baseOffset;  // restore so normal movement isn't affected
         agent.speed = runSpeed;
         CurrentState = BossState.Chasing;
         Debug.Log("[FinalBoss] Jump complete.");
@@ -557,7 +598,7 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     void PlaySound(AudioClip clip)
     {
         if (clip != null && audioSource != null)
-            audioSource.PlayOneShot(clip);
+            audioSource.PlayOneShot(clip, sfxVolume);
     }
 
     void OnDrawGizmosSelected()

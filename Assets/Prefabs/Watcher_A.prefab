@@ -203,7 +203,7 @@ MonoBehaviour:
   attackAnimationLength: 1.5
   bossProjectilePrefab: {fileID: 7026195717630135985, guid: 38f0468503616674280175cff75e26cf, type: 3}
   eyeFirePoint: {fileID: 8636087434848359277}
-  projectileForce: 2
+  projectileForce: 10
   playerAimOffsetY: 1.5
   savedNPCsToEject: []
   ejectForce: 500
