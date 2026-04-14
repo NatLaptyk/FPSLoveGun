@@ -74,6 +74,27 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     [Tooltip("Optional particle/effect spawned at the boss position during the pulse.")]
     public GameObject pulseEffectPrefab;
 
+    // ── Watcher Summons ───────────────────────────────────────────────────────
+    [Header("Watcher Summons")]
+    [Tooltip("The WatcherAI prefab to spawn during combat.")]
+    public GameObject watcherPrefab;
+
+    [Tooltip("Maximum number of Watchers alive at the same time. " +
+             "Boss won't summon more until one is defeated.")]
+    public int maxWatchersAlive = 2;
+
+    [Tooltip("Seconds between summons (when below the max).")]
+    public float watcherSpawnCooldown = 18f;
+
+    [Tooltip("Radius around the boss where Watchers appear.")]
+    public float watcherSpawnRadius = 6f;
+
+    [Tooltip("How high above the boss the Watcher spawns (they hover, so start them elevated).")]
+    public float watcherSpawnHeight = 4f;
+
+    private float nextWatcherSpawnTime;
+    private List<GameObject> activeWatchers = new List<GameObject>();
+
     // ── NPC ejection ──────────────────────────────────────────────────────────
     [Header("Defeat — NPC Ejection")]
     [Tooltip("NPC prefabs and counts to burst out of the boss on defeat.")]
@@ -150,6 +171,9 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
             case BossState.Jumping:   /* driven by JumpDash coroutine */ break;
             case BossState.Stunned:   HandleStunned();                break;
         }
+
+        // Watcher summon — runs independently of the attack state machine
+        if (isAggroed) TrySummonWatcher();
     }
 
     // ── State handlers ────────────────────────────────────────────────────────
@@ -479,6 +503,37 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
         agent.speed = runSpeed;
         CurrentState = BossState.Chasing;
         Debug.Log("[FinalBoss] Jump complete.");
+    }
+
+    // ── Watcher Summon ────────────────────────────────────────────────────────
+
+    void TrySummonWatcher()
+    {
+        if (watcherPrefab == null) return;
+        if (Time.time < nextWatcherSpawnTime) return;
+
+        // Remove destroyed / converted Watchers from the tracking list
+        activeWatchers.RemoveAll(w => w == null);
+
+        if (activeWatchers.Count >= maxWatchersAlive) return;
+
+        nextWatcherSpawnTime = Time.time + watcherSpawnCooldown;
+
+        // Pick a random horizontal angle around the boss
+        float   angle    = Random.Range(0f, 360f);
+        Vector3 offset   = Quaternion.Euler(0, angle, 0) * Vector3.forward * watcherSpawnRadius;
+        offset.y         = watcherSpawnHeight;
+        Vector3 spawnPos = transform.position + offset;
+
+        GameObject watcher = Instantiate(watcherPrefab, spawnPos, Quaternion.identity);
+        activeWatchers.Add(watcher);
+
+        // Point the new Watcher straight at the player so it aggros immediately
+        WatcherAI ai = watcher.GetComponent<WatcherAI>();
+        if (ai != null && player != null)
+            ai.player = player;
+
+        Debug.Log($"[FinalBoss] Summoned Watcher at {spawnPos}. Active: {activeWatchers.Count}/{maxWatchersAlive}");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

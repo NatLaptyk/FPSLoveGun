@@ -96,10 +96,20 @@ public class CatVisionEvent : MonoBehaviour
     public float teleportFadeOut = 0.6f;
     public float teleportFadeIn  = 0.8f;
 
+    // ── Low-health Warning ─────────────────────────────────────────────────────
+    [Header("Low Health Warning")]
+    [Tooltip("CanvasGroup containing the 'Happiness level dangerously low!' text. " +
+             "Flashes on screen when health first drops to 25%.")]
+    public CanvasGroup warningGroup;
+
+    [Tooltip("How many times the warning flashes.")]
+    public int warningFlashCount = 3;
+
     // ── Audio ──────────────────────────────────────────────────────────────────
     [Header("Audio")]
     public AudioClip visionStartSound;
     public AudioClip shockwaveSound;
+    public AudioClip warningSound;   // optional sting/alarm for the warning
 
     private AudioSource audioSource;
     private bool        hasTriggered = false;
@@ -115,9 +125,13 @@ public class CatVisionEvent : MonoBehaviour
         if (vignetteGroup  != null) { vignetteGroup.alpha  = 0f; vignetteGroup.gameObject.SetActive(false); }
         if (flashImage     != null) { SetAlpha(flashImage, 0f);  flashImage.gameObject.SetActive(false); }
         if (captionText    != null) SetAlpha(captionText, 0f);
+        if (warningGroup   != null) { warningGroup.alpha   = 0f; warningGroup.gameObject.SetActive(false); }
 
         if (playerHealth != null)
+        {
+            playerHealth.onLowHealth += ShowLowHealthWarning;
             playerHealth.onNearDeath += TriggerCatVision;
+        }
         else
             Debug.LogError("[CatVision] PlayerHealth reference not assigned!");
     }
@@ -125,7 +139,35 @@ public class CatVisionEvent : MonoBehaviour
     void OnDestroy()
     {
         if (playerHealth != null)
+        {
+            playerHealth.onLowHealth -= ShowLowHealthWarning;
             playerHealth.onNearDeath -= TriggerCatVision;
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    void ShowLowHealthWarning()
+    {
+        if (warningGroup == null) return;
+        PlaySound(warningSound);
+        StartCoroutine(FlashWarning());
+    }
+
+    IEnumerator FlashWarning()
+    {
+        warningGroup.gameObject.SetActive(true);
+
+        for (int i = 0; i < warningFlashCount; i++)
+        {
+            // Fade in
+            yield return StartCoroutine(FadeCanvasGroup(warningGroup, 0f, 1f, 0.25f));
+            yield return new WaitForSecondsRealtime(0.5f);
+            // Fade out
+            yield return StartCoroutine(FadeCanvasGroup(warningGroup, 1f, 0f, 0.25f));
+            yield return new WaitForSecondsRealtime(0.2f);
+        }
+
+        warningGroup.gameObject.SetActive(false);
     }
 
     void TriggerCatVision()

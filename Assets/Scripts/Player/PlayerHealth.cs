@@ -29,6 +29,14 @@ public class PlayerHealth : MonoBehaviour
     [HideInInspector] public bool invincible = false;
 
     /// <summary>
+    /// Fires synchronously the first time health drops to ≤ lowHealthThreshold (25 %).
+    /// Used to show the "Happiness level dangerously low!" warning.
+    /// </summary>
+    public System.Action onLowHealth;
+    [HideInInspector] public float lowHealthThreshold = 0.25f;
+    private bool lowHealthFired = false;
+
+    /// <summary>
     /// Fires synchronously inside TakeSadness the first time health crosses
     /// below the near-death threshold (10 %). CatVisionEvent subscribes to this
     /// so it triggers in the same frame as the lethal hit, before GameOver runs.
@@ -52,7 +60,9 @@ public class PlayerHealth : MonoBehaviour
     {
         if (invincible) return;
 
-        bool wasAbove = currentHappiness > maxHappiness * 0.1f;
+        bool wasAboveWarning  = currentHappiness > maxHappiness * lowHealthThreshold;
+        bool wasAboveNearDeath = currentHappiness > maxHappiness * 0.1f;
+
         currentHappiness -= amount;
         currentHappiness = Mathf.Max(currentHappiness, 0);
 
@@ -64,9 +74,16 @@ public class PlayerHealth : MonoBehaviour
         HUDManager hud = FindFirstObjectByType<HUDManager>();
         if (hud != null) hud.UpdateHappiness(currentHappiness, maxHappiness);
 
+        // Fire low-health warning the first time health drops to ≤ 25 %
+        if (wasAboveWarning && currentHappiness <= maxHappiness * lowHealthThreshold && !lowHealthFired)
+        {
+            lowHealthFired = true;
+            onLowHealth?.Invoke();
+        }
+
         // Fire the near-death callback the first time health drops to ≤ 10 %.
         // This lets CatVisionEvent intercept synchronously — before GameOver runs.
-        if (wasAbove && currentHappiness <= maxHappiness * 0.1f && !nearDeathFired)
+        if (wasAboveNearDeath && currentHappiness <= maxHappiness * 0.1f && !nearDeathFired)
         {
             nearDeathFired = true;
             onNearDeath?.Invoke();
