@@ -20770,7 +20770,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1912093610520937733, guid: b8843047d1a19eb479e32502acbd8c82, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 76.2
+      value: 221.84
       objectReference: {fileID: 0}
     - target: {fileID: 1912093610520937733, guid: b8843047d1a19eb479e32502acbd8c82, type: 3}
       propertyPath: m_LocalPosition.y
@@ -20778,7 +20778,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1912093610520937733, guid: b8843047d1a19eb479e32502acbd8c82, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 140.2
+      value: 28.86
       objectReference: {fileID: 0}
     - target: {fileID: 1912093610520937733, guid: b8843047d1a19eb479e32502acbd8c82, type: 3}
       propertyPath: m_LocalRotation.w
@@ -20847,7 +20847,7 @@ PrefabInstance:
     - target: {fileID: 4321083247262722387, guid: b8843047d1a19eb479e32502acbd8c82, type: 3}
       propertyPath: pulseEffectPrefab
       value: 
-      objectReference: {fileID: 3078418161505831189, guid: 297cf31c711ca9248b85a518b208516b, type: 3}
+      objectReference: {fileID: 4593184484909914552, guid: 8a2da01db4045b346a745aa1bfd9f632, type: 3}
     - target: {fileID: 4321083247262722387, guid: b8843047d1a19eb479e32502acbd8c82, type: 3}
       propertyPath: loveNeededToDefeat
       value: 50
@@ -43288,7 +43288,7 @@ Transform:
   m_GameObject: {fileID: 918869199}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 76.2, y: 0.2099983, z: 140.2}
+  m_LocalPosition: {x: 221.84, y: 0.2099983, z: 28.859999}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
