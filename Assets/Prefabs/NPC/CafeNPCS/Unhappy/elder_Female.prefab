@@ -227,8 +227,9 @@ MonoBehaviour:
   throwPoint: {fileID: 6393011588558000589}
   detectionRange: 15
   attackRange: 12
-  throwCooldown: 12
+  throwCooldown: 5
   throwForce: 10
+  throwAimOffsetY: 1.5
   addSadnessTrail: 1
   sadnessTrailColor: {r: 0.2, g: 0.2, b: 0.6, a: 1}
   sadnessTrailTime: 0.5
@@ -244,6 +245,7 @@ MonoBehaviour:
   throwSound: {fileID: 8300000, guid: 60bdc8a4755cb9c41a87f4bd574181e4, type: 3}
   unhappyIndicator: {fileID: 0}
   happyIndicator: {fileID: 0}
+  loveBarInstance: {fileID: 0}
   happyWanderSpeed: 1.5
   happyWanderRadius: 6
   happyWanderInterval: 5

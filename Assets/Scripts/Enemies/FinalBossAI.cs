@@ -77,6 +77,24 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     [Tooltip("Optional particle/effect spawned at the boss position during the pulse.")]
     public GameObject pulseEffectPrefab;
 
+    [Header("Ring Shot (Attack4)")]
+    [Tooltip("Number of projectiles fired evenly spread around the full 360°.")]
+    public int   ringProjectileCount = 12;
+    [Tooltip("Projectile prefab for the ring shot. Reuses bossProjectilePrefab if left empty.")]
+    public GameObject ringProjectilePrefab;
+    [Tooltip("Fallback single-shot projectile prefab (used by ring shot if ringProjectilePrefab is empty).")]
+    public GameObject bossProjectilePrefab;
+    [Tooltip("How fast each ring projectile travels.")]
+    public float ringProjectileForce = 14f;
+    [Tooltip("Distance at which the ring shot triggers (medium range).")]
+    public float ringShotRange = 14f;
+    public float ringShotCooldown = 7f;
+    public float ringShotAnimLength = 1.0f;
+    [Tooltip("Radius around the boss body from which each projectile spawns.")]
+    public float ringShotSpawnRadius = 0.8f;
+    [Tooltip("Y offset from the boss pivot where projectiles spawn (waist / chest height).")]
+    public float ringShotHeightOffset = 1.2f;
+
     // ── Watcher Summons ───────────────────────────────────────────────────────
     [Header("Watcher Summons")]
     [Tooltip("The WatcherAI prefab to spawn during combat.")]
@@ -99,6 +117,18 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     private List<GameObject> activeWatchers = new List<GameObject>();
 
     // ── NPC ejection ──────────────────────────────────────────────────────────
+    [Header("Defeat — Explosion")]
+    [Tooltip("Particle / VFX prefab instantiated at the boss position on defeat, " +
+             "before NPCs are ejected. Leave empty to skip.")]
+    public GameObject explosionEffectPrefab;
+    [Tooltip("Seconds to wait after the explosion spawns before ejecting NPCs. " +
+             "Match this to the peak of your explosion effect.")]
+    public float explosionDuration = 1.2f;
+
+    [Tooltip("MinimapMarker (Objective type) for the boss location. " +
+             "Hidden automatically when the boss is defeated.")]
+    public MinimapMarker bossObjectiveMarker;
+
     [Header("Defeat — NPC Ejection")]
     [Tooltip("NPC prefabs and counts to burst out of the boss on defeat.")]
     public SavedNPCConfig[] savedNPCsToEject;
@@ -140,11 +170,13 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     private Collider     bossCollider;
     private AudioSource  audioSource;
 
-    private bool  isAggroed     = false;   // once true, boss never returns to Idle
-    private bool  musicStarted  = false;   // guard against double-play
+    private bool        isAggroed     = false;   // once true, boss never returns to Idle
+    private bool        musicStarted  = false;   // guard against double-play
+    private GameObject  activePulseEffect;       // tracked so it can be destroyed after the attack
     private float nextQuickAttackTime;
     private float nextHeavyAttackTime;
     private float nextPulseTime;
+    private float nextRingShotTime;
     private float nextJumpTime;
     private float stateEndTime;
 
@@ -226,10 +258,15 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     {
         if (animator != null) animator.SetBool("InCombat", true);
 
-        // Priority order: pulse > heavy > quick > jump > walk/run
+        // Priority order: pulse > ring shot > heavy > quick > jump > walk/run
         if (Time.time >= nextPulseTime && distToPlayer <= pulseRadius)
         {
             StartAttack(BossAttackType.Pulse);
+            return;
+        }
+        if (Time.time >= nextRingShotTime && distToPlayer <= ringShotRange)
+        {
+            StartAttack(BossAttackType.RingShot);
             return;
         }
         if (Time.time >= nextHeavyAttackTime && distToPlayer <= heavyAttackRange)
@@ -293,7 +330,7 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
 
     // ── Attack logic ──────────────────────────────────────────────────────────
 
-    enum BossAttackType { Quick, Heavy, Pulse }
+    enum BossAttackType { Quick, Heavy, Pulse, RingShot }
 
     void StartAttack(BossAttackType type)
     {
@@ -322,9 +359,17 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
             case BossAttackType.Pulse:
                 if (animator != null) animator.SetTrigger("Attack3");
                 StartCoroutine(DelaySadnessPulse(pulseAnimLength * 0.5f));
-                stateEndTime = Time.time + pulseAnimLength;
+                stateEndTime  = Time.time + pulseAnimLength;
                 nextPulseTime = Time.time + pulseCooldown;
                 PlaySound(pulseSound);
+                break;
+
+            case BossAttackType.RingShot:
+                if (animator != null) animator.SetTrigger("Attack3"); // reuse pulse anim or add Attack4
+                StartCoroutine(DelayRingShot(ringShotAnimLength * 0.4f));
+                stateEndTime      = Time.time + ringShotAnimLength;
+                nextRingShotTime  = Time.time + ringShotCooldown;
+                PlaySound(attackSound);
                 break;
         }
     }
@@ -352,11 +397,65 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
             if (ph != null) ph.TakeSadness(pulseDamage);
         }
 
-        // Spawn visual effect
+        // Spawn visual effect — destroy any leftover from a previous pulse first,
+        // then schedule destruction after the attack animation finishes.
         if (pulseEffectPrefab != null)
-            Instantiate(pulseEffectPrefab, transform.position, Quaternion.identity);
+        {
+            if (activePulseEffect != null) Destroy(activePulseEffect);
+            activePulseEffect = Instantiate(pulseEffectPrefab, transform.position, Quaternion.identity);
+            Destroy(activePulseEffect, pulseAnimLength);
+        }
 
         Debug.Log($"[FinalBoss] Sadness pulse — radius {pulseRadius}.");
+    }
+
+    IEnumerator DelayRingShot(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        FireRingShot();
+    }
+
+    void FireRingShot()
+    {
+        // Pick the prefab — fall back to the single-shot projectile if ring one not set
+        GameObject prefab = ringProjectilePrefab != null ? ringProjectilePrefab : bossProjectilePrefab;
+        if (prefab == null)
+        {
+            Debug.LogWarning("[FinalBoss] Ring shot has no projectile prefab assigned!");
+            return;
+        }
+
+        int count       = Mathf.Max(1, ringProjectileCount);
+        float angleStep = 360f / count;
+        // Spawn height — waist/chest level so projectiles fly horizontally
+        float spawnY    = transform.position.y + ringShotHeightOffset;
+
+        for (int i = 0; i < count; i++)
+        {
+            float   angle     = i * angleStep;
+            Vector3 direction = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
+
+            // Spawn position: on the ring around the boss body
+            Vector3 spawnPos  = new Vector3(
+                transform.position.x + direction.x * ringShotSpawnRadius,
+                spawnY,
+                transform.position.z + direction.z * ringShotSpawnRadius);
+
+            GameObject proj = Instantiate(prefab, spawnPos,
+                                          Quaternion.LookRotation(direction));
+
+            // Ignore the boss's own collider
+            SadnessProjectile sp = proj.GetComponent<SadnessProjectile>();
+            if (sp != null) sp.owner = transform;
+
+            if (proj.TryGetComponent(out Rigidbody rb))
+            {
+                rb.useGravity    = false;
+                rb.linearVelocity = direction * ringProjectileForce;
+            }
+        }
+
+        Debug.Log($"[FinalBoss] Ring shot — {count} projectiles fired.");
     }
 
     // ── ILovable ──────────────────────────────────────────────────────────────
@@ -422,8 +521,14 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
         if (bossCollider != null) bossCollider.enabled = false;
         PlaySound(defeatSound);
 
+        // Hide the boss objective marker from the minimap
+        if (bossObjectiveMarker != null) bossObjectiveMarker.Hide();
+
         // Fade out boss fight music
         if (bossFightMusic != null) bossFightMusic.FadeOut();
+
+        // Kill any active pulse VFX immediately
+        if (activePulseEffect != null) { Destroy(activePulseEffect); activePulseEffect = null; }
 
         // Kill all Watchers the boss summoned — they fall with their master
         activeWatchers.RemoveAll(w => w == null);
@@ -432,14 +537,45 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
         activeWatchers.Clear();
         Debug.Log("[FinalBoss] Summoned Watchers destroyed.");
 
-        onDefeated?.Invoke();
         Debug.Log("[FinalBoss] Defeated — playing death animation.");
 
         // Wait for the death animation to finish before ejecting NPCs.
         // Increase this if the dle00 clip is longer than 2.5 seconds.
         yield return new WaitForSeconds(2.5f);
 
+        // ── Explosion effect — plays exactly once at the boss position
+        if (explosionEffectPrefab != null)
+        {
+            GameObject explosion = Instantiate(explosionEffectPrefab,
+                                               transform.position, Quaternion.identity);
+
+            // Force loop off so the effect plays exactly once regardless of prefab settings
+            ParticleSystem ps = explosion.GetComponent<ParticleSystem>();
+            if (ps != null)
+            {
+                var main  = ps.main;
+                main.loop = false;
+                ps.Play();
+            }
+
+            // Auto-destroy after the effect has finished
+            Destroy(explosion, explosionDuration + 2f);
+            yield return new WaitForSeconds(explosionDuration);
+        }
+
         UnhappyPerson[] ejected = EjectNPCs();
+
+        // Register with GameManager BEFORE converting so the total is correct first
+        GameManager gm = FindFirstObjectByType<GameManager>();
+        if (gm != null && ejected.Length > 0)
+            gm.RegisterAdditionalPeople(ejected.Length);
+
+        // Auto-convert every ejected NPC to happy — they burst out already saved,
+        // so the HUD and minimap should reflect them as happy immediately.
+        foreach (UnhappyPerson npc in ejected)
+        {
+            if (npc != null) npc.ReceiveLove(999);
+        }
 
         if (bossPhaseTracker != null && ejected.Length > 0)
         {
@@ -447,9 +583,9 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
             Debug.Log($"[FinalBoss] Registered {ejected.Length} NPCs with SectionTracker.");
         }
 
-        GameManager gm = FindFirstObjectByType<GameManager>();
-        if (gm != null && ejected.Length > 0)
-            gm.RegisterAdditionalPeople(ejected.Length);
+        // Fire AFTER count is updated so any win-condition listener sees the
+        // correct happy/total numbers (e.g. GameManager.TriggerWin).
+        onDefeated?.Invoke();
 
         // Destroy after a further delay so ejected NPC coroutines can start
         Destroy(gameObject, 0.5f);

@@ -26,6 +26,11 @@ public class GameManager : MonoBehaviour
     public AudioClip loseMusic;
     public AudioClip backgroundMusic;
 
+    [Header("Win Music")]
+    [Tooltip("Optional MusicController for the win screen — supports start offset, volume, and fade. " +
+             "If assigned, this is used instead of the Win Music clip above.")]
+    public MusicController winMusicController;
+
     private AudioSource audioSource;
     private bool isPaused = false;
 
@@ -125,11 +130,18 @@ public class GameManager : MonoBehaviour
         // Show win UI
         if (winPanel != null) winPanel.SetActive(true);
 
-        // Play win music
-        if (winMusic != null)
+        // Play win music — MusicController takes priority over raw AudioClip
+        if (winMusicController != null)
         {
             audioSource.Stop();
-            audioSource.PlayOneShot(winMusic);
+            winMusicController.gameObject.SetActive(true); // triggers OnEnable → StartPlayback
+        }
+        else if (winMusic != null)
+        {
+            audioSource.Stop();
+            audioSource.clip = winMusic;
+            audioSource.loop = true;
+            audioSource.Play();
         }
 
         // Unlock cursor so player can click UI buttons

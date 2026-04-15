@@ -4,19 +4,20 @@ using System.Collections;
 
 /// <summary>
 /// Spawns stadium NPCs in waves when the player enters the stadium trigger zone.
-/// Each wave: NPCs spawn at seats, descend to the field, and crowd the player.
-/// The next wave begins once all NPCs from the current wave have been made happy.
+/// Waves fire on a timer — the player does NOT need to clear a wave before the
+/// next one starts. The intent is to overwhelm the player until health drops to
+/// the critical threshold and the cat vision event triggers automatically.
 ///
 /// SETUP:
 /// 1. Create an empty GameObject named "Section2Spawner"
 /// 2. Add a BoxCollider (Is Trigger = true) sized to cover the stadium entrance
 /// 3. Attach this script
-/// 4. Create 18 seat spawn points (empty GameObjects) in the stadium seating area
+/// 4. Create seat spawn points (empty GameObjects) in the stadium seating area
 ///    and assign them to "seatSpawnPoints" — reused for every wave
 /// 5. Create one empty GameObject on the football field named "FieldCenter"
 ///    and assign it to "fieldTarget"
 /// 6. Assign your UnhappyPerson prefabs
-/// 7. Optionally assign a SectionTracker — it receives ALL NPCs after the final wave
+/// 7. Optionally assign a SectionTracker — it receives ALL spawned NPCs
 /// </summary>
 public class Section2Spawner : MonoBehaviour
 {
@@ -37,7 +38,8 @@ public class Section2Spawner : MonoBehaviour
     [Tooltip("How many waves to send before the section is complete.")]
     public int totalWaves = 3;
 
-    [Tooltip("Seconds to wait between a wave being cleared and the next wave spawning.")]
+    [Tooltip("Seconds to wait after a wave finishes spawning before the next wave begins. " +
+             "Waves do NOT wait to be cleared — they overlap intentionally.")]
     public float timeBetweenWaves = 3f;
 
     [Header("Crowd Ring")]
@@ -66,7 +68,9 @@ public class Section2Spawner : MonoBehaviour
 
     private bool hasTriggered = false;
     private float crowdRadius;
-    private UnhappyPerson[] spawnedNPCs;
+    private UnhappyPerson[] spawnedNPCs;          // current wave — used for crowd radius shrink
+    private System.Collections.Generic.List<UnhappyPerson> allSpawnedNPCs
+        = new System.Collections.Generic.List<UnhappyPerson>(); // all waves — for SectionTracker
     private Coroutine shrinkCoroutine;
 
     /// <summary>Current active wave (1-based). 0 = not started. Read by CatVisionEvent.</summary>
@@ -113,28 +117,27 @@ public class Section2Spawner : MonoBehaviour
 
             yield return StartCoroutine(SpawnWave(wave));
 
-            // Wait until every NPC from this wave has been made happy (or destroyed)
-            yield return StartCoroutine(WaitForWaveClear(wave));
-
+            // No clear-wait — next wave fires after a fixed delay regardless
+            // of how many NPCs are still unhappy. This is intentional: the player
+            // should feel overwhelmed until the cat vision triggers.
             if (wave < totalWaves)
             {
-                Debug.Log($"[Section2Spawner] Wave {wave} cleared — next wave in {timeBetweenWaves}s.");
+                Debug.Log($"[Section2Spawner] Wave {wave} spawned — next wave in {timeBetweenWaves}s.");
                 yield return new WaitForSeconds(timeBetweenWaves);
             }
         }
 
-        Debug.Log("[Section2Spawner] All waves complete.");
+        Debug.Log("[Section2Spawner] All waves spawned.");
 
-        // Hand the last wave's NPCs to SectionTracker for section-complete logic
-        if (sectionTracker != null && spawnedNPCs != null)
+        // Hand ALL spawned NPCs (every wave) to SectionTracker
+        if (sectionTracker != null && allSpawnedNPCs.Count > 0)
         {
-            sectionTracker.sectionPeople = spawnedNPCs;
-            Debug.Log("[Section2Spawner] Registered final wave NPCs with SectionTracker.");
+            sectionTracker.sectionPeople = allSpawnedNPCs.ToArray();
+            Debug.Log($"[Section2Spawner] Registered {allSpawnedNPCs.Count} total NPCs with SectionTracker.");
         }
 
-        // Unlock the exit now that all waves are done
+        // Unlock exit and fire event once all waves are out
         SetBlockers(false);
-
         onAllWavesComplete?.Invoke();
     }
 
@@ -164,12 +167,13 @@ public class Section2Spawner : MonoBehaviour
             UnhappyPerson npc = obj.GetComponent<UnhappyPerson>();
             if (npc != null)
             {
-                npc.fieldTarget    = fieldTarget;
-                npc.crowdSlotIndex = i;
+                npc.fieldTarget     = fieldTarget;
+                npc.crowdSlotIndex  = i;
                 npc.totalCrowdSlots = seatSpawnPoints.Length;
-                npc.crowdRadius    = crowdRadius;
+                npc.crowdRadius     = crowdRadius;
                 npc.ActivateStadiumBehaviour();
                 spawnedNPCs[i] = npc;
+                allSpawnedNPCs.Add(npc);  // track across all waves
             }
 
             Debug.Log($"[Section2Spawner] Wave {waveNumber} — spawned NPC {i + 1}/{seatSpawnPoints.Length} at {seat.name}");
@@ -178,31 +182,6 @@ public class Section2Spawner : MonoBehaviour
 
         Debug.Log($"[Section2Spawner] Wave {waveNumber} fully spawned.");
         shrinkCoroutine = StartCoroutine(ShrinkCrowdRadius());
-    }
-
-    IEnumerator WaitForWaveClear(int waveNumber)
-    {
-        Debug.Log($"[Section2Spawner] Waiting for wave {waveNumber} to be cleared...");
-
-        while (true)
-        {
-            bool allClear = true;
-            if (spawnedNPCs != null)
-            {
-                foreach (var npc in spawnedNPCs)
-                {
-                    // NPC is still active and unhappy — wave not cleared yet
-                    if (npc != null && npc.currentMood == UnhappyPerson.MoodState.Unhappy)
-                    {
-                        allClear = false;
-                        break;
-                    }
-                }
-            }
-
-            if (allClear) yield break;
-            yield return new WaitForSeconds(0.5f); // poll every half-second
-        }
     }
 
     IEnumerator ShrinkCrowdRadius()

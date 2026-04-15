@@ -181,12 +181,6 @@ public class CatVisionEvent : MonoBehaviour
     {
         if (hasTriggered) return;
 
-        if (section2Spawner != null && section2Spawner.currentWave < triggerOnWave)
-        {
-            Debug.Log($"[CatVision] Near-death on wave {section2Spawner.currentWave} — not wave {triggerOnWave} yet.");
-            return;
-        }
-
         hasTriggered = true;
         playerHealth.invincible = true;
         if (playerHealth.currentHappiness <= 0)
