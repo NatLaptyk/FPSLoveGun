@@ -73,6 +73,20 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
     [Header("References")]
     public Transform player;
 
+    [Header("Audio")]
+    [Tooltip("Sound played when the Watcher fires a projectile.")]
+    public AudioClip attackSound;
+    [Tooltip("Sound played when the Watcher performs a bite attack.")]
+    public AudioClip biteAttackSound;
+    [Tooltip("Sound played when the Watcher is hit by love.")]
+    public AudioClip hitSound;
+
+    [Range(0f, 1f)]
+    [Tooltip("Master volume for all Watcher sound effects.")]
+    public float sfxVolume = 1f;
+
+    private AudioSource audioSource;
+
     [Header("Events")]
     [Tooltip("Fired after the boss is defeated and NPCs are ejected. " +
              "Wire to music change, HUD message, win condition, etc.")]
@@ -91,8 +105,10 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
     private void Start()
     {
         CurrentLove = 0;
-        animator = GetComponent<Animator>();
+        animator     = GetComponent<Animator>();
         bossCollider = GetComponent<Collider>();
+        audioSource  = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
 
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)
@@ -182,12 +198,14 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
             if (isDoingBiteAttack)
             {
                 if (animator != null) animator.SetTrigger("Attack2");
+                PlaySound(biteAttackSound);
                 Debug.Log("[WatcherAI] Bite attack!");
             }
             else
             {
                 if (animator != null) animator.SetTrigger("Attack1");
                 FireProjectile();
+                PlaySound(attackSound);
                 Debug.Log("[WatcherAI] Projectile attack!");
             }
 
@@ -253,6 +271,8 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
             return;
         }
 
+        PlaySound(hitSound);
+
         if (isFromBomb)
         {
             CurrentState = BossState.Stunned;
@@ -290,6 +310,12 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
 
         onDefeated?.Invoke();
         Destroy(gameObject, 8f);
+    }
+
+    private void PlaySound(AudioClip clip)
+    {
+        if (clip != null && audioSource != null)
+            audioSource.PlayOneShot(clip, sfxVolume);
     }
 
     /// <summary>

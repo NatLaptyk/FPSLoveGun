@@ -395,9 +395,13 @@ public class UnhappyPerson : MonoBehaviour
         if (bodyRenderer != null)
             bodyRenderer.material.color = happyColor;
 
-        // Show happy effect
+        // Show happy effect — parented so it follows the NPC as they wander.
+        // Simulation Space must be Local on the ParticleSystem for this to work correctly.
         if (happyEffect != null)
-            Instantiate(happyEffect, transform.position + Vector3.up, Quaternion.identity);
+        {
+            GameObject effect = Instantiate(happyEffect, transform.position + Vector3.up, Quaternion.identity);
+            effect.transform.SetParent(transform, worldPositionStays: true);
+        }
 
         // Swap indicators
         if (unhappyIndicator != null) unhappyIndicator.SetActive(false);
