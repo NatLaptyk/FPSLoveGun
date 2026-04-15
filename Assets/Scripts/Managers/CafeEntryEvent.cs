@@ -204,7 +204,8 @@ public class CafeEntryEvent : MonoBehaviour
         }
 
         // ── 8. NPC is inside — stop them, hide them ───────────────────────────
-        if (npcAgent != null) npcAgent.isStopped = true;
+        if (npcAgent != null && npcAgent.enabled && npcAgent.isOnNavMesh)
+            npcAgent.isStopped = true;
         npcObj.SetActive(false);   // disappears inside — no fadeout needed since door will close
 
         yield return new WaitForSeconds(pauseInsideBeforeClose);
