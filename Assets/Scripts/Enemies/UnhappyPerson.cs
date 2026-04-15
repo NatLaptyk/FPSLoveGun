@@ -60,6 +60,9 @@ public class UnhappyPerson : MonoBehaviour
     public float attackRange = 12f;              // Range at which they start throwing
     public float throwCooldown = 2f;             // Time between throws
     public float throwForce = 6f;                // Lowered so the sadness is easier to see in flight
+    [Tooltip("Height offset above the player's pivot to aim at. " +
+             "Player pivot is usually at their feet, so 1.4–1.6 targets the chest.")]
+    public float throwAimOffsetY = 1.5f;
     private float nextThrowTime = 0f;
 
     [Header("Sadness Trail")]
@@ -303,7 +306,7 @@ public class UnhappyPerson : MonoBehaviour
         if (sadnessProjectilePrefab == null || throwPoint == null) return;
 
         // Calculate throw direction toward the player
-        Vector3 directionToPlayer = (playerTransform.position + Vector3.up * 1.2f - throwPoint.position).normalized;
+        Vector3 directionToPlayer = (playerTransform.position + Vector3.up * throwAimOffsetY - throwPoint.position).normalized;
 
         GameObject projectile = Instantiate(sadnessProjectilePrefab, throwPoint.position, Quaternion.identity);
 
@@ -419,17 +422,21 @@ public class UnhappyPerson : MonoBehaviour
         if (cityPeople != null)
             cityPeople.enabled = true;
 
-        // ── Happy wandering — only if the NavMeshAgent is active.
-        // Stadium NPCs have their agent disabled (pure transform movement);
-        // trying to call agent.SetDestination on a disabled agent throws errors.
+        // ── Happy wandering ───────────────────────────────────────────────────
+        // Stadium NPCs have their agent disabled (pure transform movement).
+        // Re-enable it here so they wander away from the crowd ring instead of
+        // blocking the player's shots at still-unhappy NPCs.
+        if (agent != null && !agent.enabled)
+        {
+            agent.enabled = true;
+        }
+
         if (agent != null && agent.enabled && agent.isOnNavMesh)
         {
             agent.isStopped = false;
             agent.speed = happyWanderSpeed;
             StartCoroutine(HappyWanderRoutine());
         }
-        // else: stadium NPC — CityPeople will play a dance animation in place,
-        // which is exactly what we want for the surrounded-player crowd.
 
         // Notify the GameManager
         GameManager gm = FindFirstObjectByType<GameManager>();
