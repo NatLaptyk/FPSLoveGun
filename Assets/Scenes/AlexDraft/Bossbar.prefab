@@ -112,8 +112,43 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5547898242416702327, guid: 8929512c4906a4b009c95254155bfe7d, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 317684792075186026, guid: 8929512c4906a4b009c95254155bfe7d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3269922259720155747}
   m_SourcePrefab: {fileID: 100100000, guid: 8929512c4906a4b009c95254155bfe7d, type: 3}
+--- !u!1 &2303779294840201267 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 317684792075186026, guid: 8929512c4906a4b009c95254155bfe7d, type: 3}
+  m_PrefabInstance: {fileID: 1986104695331409753}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3269922259720155747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2303779294840201267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af7d723ba87604b1fba36c03112bab82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WatcherLoveBar
+  fillImage: {fileID: 3977233337005908075}
+  localOffset: {x: 0, y: 2.8, z: 0}
+  faceCamera: 1
+--- !u!114 &3977233337005908075 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3216123288197721906, guid: 8929512c4906a4b009c95254155bfe7d, type: 3}
+  m_PrefabInstance: {fileID: 1986104695331409753}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image

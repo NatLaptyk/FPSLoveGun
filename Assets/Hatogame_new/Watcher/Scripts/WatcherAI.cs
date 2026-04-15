@@ -102,6 +102,9 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
     private float nextAttackTime = 0f;
     private bool isDoingBiteAttack = false;
 
+    [Header("UI — Love Bar")]
+    [SerializeField] private WatcherLoveBar loveBar; // drag the CHILD bar here
+
     private void Start()
     {
         CurrentLove = 0;
@@ -110,6 +113,11 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
         audioSource  = GetComponent<AudioSource>();
         if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
 
+    if (loveBar != null)
+    {
+        loveBar.Init(transform);
+        UpdateLoveBar(); // full at start
+    }
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
@@ -144,6 +152,12 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
             case BossState.Attacking: HandleAttacking(); break;
             case BossState.Stunned:   HandleStunned();   break;
         }
+    }
+
+    private void UpdateLoveBar()
+    {
+        if (loveBar != null)
+            loveBar.SetValues(CurrentLove, loveNeededToConvert);
     }
 
     private float GetHoverTargetY()
@@ -263,6 +277,7 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
             loveAmount *= stunnedLoveMultiplier;
 
         CurrentLove += loveAmount;
+        UpdateLoveBar();
         Debug.Log($"[WatcherAI] Received {loveAmount} love (total: {CurrentLove}/{loveNeededToConvert})");
 
         if (CurrentLove >= loveNeededToConvert)
@@ -288,6 +303,10 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
     private void BecomeHappy()
     {
         CurrentState = BossState.Converted;
+
+        if (loveBar != null)
+        loveBar.gameObject.SetActive(false);
+        
         if (animator != null) animator.SetTrigger("Die");
         if (bossCollider != null) bossCollider.enabled = false;
 
