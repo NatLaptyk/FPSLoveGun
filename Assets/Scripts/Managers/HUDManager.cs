@@ -58,13 +58,13 @@ public class HUDManager : MonoBehaviour
     public void UpdateAmmo(int current, int max)
     {
         if (ammoText != null)
-            ammoText.text = "Ammo: " + current + " / " + max;
+            ammoText.text = " " + current + " / " + max;
     }
 
     public void UpdateBombs(int current, int max)
     {
         if (bombText != null)
-            bombText.text = "Love Bombs: " + current;
+            bombText.text = " " + current;
     }
 
     public void ShowReloading(bool show)
@@ -102,7 +102,7 @@ public class HUDManager : MonoBehaviour
     public void UpdatePeopleCount(int happy, int total)
     {
         if (peopleCounterText != null)
-            peopleCounterText.text = happy + " / " + total + " people made happy";
+            peopleCounterText.text = "Make everyone happy " + happy + " / " + total;
     }
 
     /// <summary>
