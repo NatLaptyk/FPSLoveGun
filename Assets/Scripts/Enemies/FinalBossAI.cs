@@ -180,6 +180,9 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     private float nextJumpTime;
     private float stateEndTime;
 
+    [Header("UI — Boss Love Bar")]
+    [SerializeField] private BossLoveBar bossLoveBar; // drag the child bar here in Inspector
+
     // ─────────────────────────────────────────────────────────────────────────
     void Start()
     {
@@ -202,6 +205,11 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
             var p = GameObject.FindGameObjectWithTag("Player");
             if (p != null) player = p.transform;
         }
+        if (bossLoveBar != null)
+    {
+        bossLoveBar.Init(transform);
+        UpdateBossLoveBar(); // shows full at start
+    }
     }
 
     void Update()
@@ -228,7 +236,11 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     }
 
     // ── State handlers ────────────────────────────────────────────────────────
-
+    private void UpdateBossLoveBar()
+{
+    if (bossLoveBar != null)
+        bossLoveBar.SetValues(CurrentLove, loveNeededToDefeat);
+}
     void HandleIdle(float distToPlayer)
     {
         agent.isStopped = true;
@@ -469,6 +481,7 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
             : loveAmount;
 
         CurrentLove += effective;
+         UpdateBossLoveBar();
         Debug.Log($"[FinalBoss] Received {effective} love (total {CurrentLove}/{loveNeededToDefeat}).");
 
         PlaySound(hitSound);
@@ -505,7 +518,10 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     // ── Defeat ────────────────────────────────────────────────────────────────
 
     IEnumerator DefeatSequence()
+
     {
+        if (bossLoveBar != null)
+    bossLoveBar.gameObject.SetActive(false);
         CurrentState = BossState.Defeated;
 
         // Stop all movement and clear animation bools immediately
