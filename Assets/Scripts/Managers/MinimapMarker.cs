@@ -3,16 +3,20 @@ using UnityEngine;
 /// <summary>
 /// Shows a distinct colored icon on the minimap for each object type.
 /// Icons float HIGH above objects so they're visible even inside buildings.
+/// Automatically hides when the parent GameObject is disabled (pickup collected).
 ///
 /// Shapes:
-///   Player    = white forward-pointing arrow  (rotates with player)
-///   NPC       = red circle  (turns green when happy)
-///   Boss      = purple diamond
-///   Objective = yellow pulsing circle with outline
+///   Player      = black forward-pointing arrow  (rotates with player)
+///   NPC         = red circle  (turns green when happy)
+///   Boss        = purple diamond
+///   Objective   = yellow pulsing circle with outline
+///   Ammo        = cyan square
+///   LoveBomb    = pink 4-point star
+///   HealthPickup= lime-green cross / plus sign
 /// </summary>
 public class MinimapMarker : MonoBehaviour
 {
-    public enum MarkerType { Player, NPC, Boss, Objective }
+    public enum MarkerType { Player, NPC, Boss, Objective, Ammo, LoveBomb, HealthPickup }
 
     [Header("Marker Settings")]
     public MarkerType markerType = MarkerType.NPC;
@@ -23,19 +27,23 @@ public class MinimapMarker : MonoBehaviour
     [Tooltip("Size of the icon in world units.")]
     public float iconSize = 2.5f;
 
-    // Colours
-    static readonly Color ColPlayer      = Color.black;
-    static readonly Color ColNPCUnhappy  = new Color(1f, 0.25f, 0.25f);
-    static readonly Color ColNPCHappy    = new Color(0.2f, 1f, 0.35f);
-    static readonly Color ColBoss        = new Color(0.75f, 0.1f, 1f);
-    static readonly Color ColObjective   = new Color(1f, 0.9f, 0f);
-    static readonly Color ColOutline     = Color.black;
+    // ── Colours ───────────────────────────────────────────────────────────────
+    static readonly Color ColPlayer       = Color.black;
+    static readonly Color ColNPCUnhappy   = new Color(0.2f, 0.4f, 1f);    // blue
+    static readonly Color ColNPCHappy     = new Color(0.2f, 1f,  0.35f);
+    static readonly Color ColBoss         = new Color(0.75f, 0.1f, 1f);
+    static readonly Color ColObjective    = new Color(1f,  0.9f,  0f);
+    static readonly Color ColAmmo         = new Color(1f,  0.15f, 0.15f);  // red
+    static readonly Color ColLoveBomb     = new Color(1f,  0.2f,  0.65f);  // hot pink
+    static readonly Color ColHealthPickup = new Color(0.55f, 1f,  0f);     // lime green
+    static readonly Color ColOutline      = Color.black;
 
-    private GameObject iconRoot;
-    private MeshRenderer mainRenderer;
+    private GameObject    iconRoot;
+    private MeshRenderer  mainRenderer;
     private UnhappyPerson trackedPerson;
-    private float pulseTimer;
+    private float         pulseTimer;
 
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
     void Start()
     {
         CreateIcon();
@@ -43,19 +51,44 @@ public class MinimapMarker : MonoBehaviour
             trackedPerson = GetComponentInParent<UnhappyPerson>();
     }
 
+    /// <summary>Hide the icon when the pickup GameObject is disabled (i.e. collected).</summary>
+    void OnDisable()
+    {
+        if (iconRoot != null) iconRoot.SetActive(false);
+    }
+
+    /// <summary>Restore the icon if the pickup is ever re-enabled.</summary>
+    void OnEnable()
+    {
+        if (iconRoot != null) iconRoot.SetActive(true);
+    }
+
+    void OnDestroy()
+    {
+        if (iconRoot != null) Destroy(iconRoot);
+    }
+
+    // ── Icon construction ─────────────────────────────────────────────────────
     void CreateIcon()
     {
         iconRoot = new GameObject($"MinimapIcon_{markerType}");
 
         int layer = LayerMask.NameToLayer("Minimap");
-        if (layer < 0) { Debug.LogWarning("[MinimapMarker] Add a layer named 'Minimap' in Project Settings > Tags and Layers."); layer = 0; }
+        if (layer < 0)
+        {
+            Debug.LogWarning("[MinimapMarker] Add a layer named 'Minimap' in Project Settings > Tags and Layers.");
+            layer = 0;
+        }
 
         switch (markerType)
         {
-            case MarkerType.Player:    BuildArrow(layer);   break;
-            case MarkerType.NPC:       BuildCircle(layer, ColNPCUnhappy, 1.0f); break;
-            case MarkerType.Boss:      BuildDiamond(layer); break;
-            case MarkerType.Objective: BuildCircle(layer, ColObjective, 1.2f); break;
+            case MarkerType.Player:       BuildArrow(layer);                              break;
+            case MarkerType.NPC:          BuildCircle(layer, ColNPCUnhappy, 1.0f);        break;
+            case MarkerType.Boss:         BuildDiamond(layer);                            break;
+            case MarkerType.Objective:    BuildCircle(layer, ColObjective,  1.2f);        break;
+            case MarkerType.Ammo:         BuildSquare(layer);                             break;
+            case MarkerType.LoveBomb:     BuildStar(layer);                               break;
+            case MarkerType.HealthPickup: BuildCross(layer);                              break;
         }
     }
 
@@ -69,24 +102,23 @@ public class MinimapMarker : MonoBehaviour
 
     static Mesh CreateArrowMesh(float scale)
     {
-        // Simple forward-pointing arrow seen from above
         Vector3[] verts = {
-            new Vector3( 0f,    0f,  0.6f) * scale,   // tip
-            new Vector3(-0.4f,  0f, -0.2f) * scale,   // left wing
-            new Vector3(-0.15f, 0f,  0f  ) * scale,   // inner left
-            new Vector3( 0.15f, 0f,  0f  ) * scale,   // inner right
-            new Vector3( 0.4f,  0f, -0.2f) * scale,   // right wing
-            new Vector3( 0f,    0f, -0.6f) * scale,   // tail
+            new Vector3( 0f,    0f,  0.6f) * scale,
+            new Vector3(-0.4f,  0f, -0.2f) * scale,
+            new Vector3(-0.15f, 0f,  0f  ) * scale,
+            new Vector3( 0.15f, 0f,  0f  ) * scale,
+            new Vector3( 0.4f,  0f, -0.2f) * scale,
+            new Vector3( 0f,    0f, -0.6f) * scale,
         };
         int[] tris = { 0,1,2,  0,2,3,  0,3,4,  2,5,3 };
         Mesh m = new Mesh();
-        m.vertices = verts;
+        m.vertices  = verts;
         m.triangles = tris;
         m.RecalculateNormals();
         return m;
     }
 
-    // ── Circle (NPC / Objective) ───────────────────────────────────────────────
+    // ── Circle (NPC / Objective) ──────────────────────────────────────────────
     void BuildCircle(int layer, Color col, float sizeMultiplier)
     {
         AddMesh(iconRoot, layer, MakeDoubleSided(CreateCircleMesh(1.35f * sizeMultiplier, 16)), ColOutline, -0.01f);
@@ -108,7 +140,7 @@ public class MinimapMarker : MonoBehaviour
             tris[i * 3 + 2] = (i + 1) % segments + 1;
         }
         Mesh m = new Mesh();
-        m.vertices = verts;
+        m.vertices  = verts;
         m.triangles = tris;
         m.RecalculateNormals();
         return m;
@@ -130,22 +162,120 @@ public class MinimapMarker : MonoBehaviour
             new Vector3( 0f,   0f, -0.6f) * scale,
             new Vector3( 0.5f, 0f,  0f  ) * scale,
         };
-        int[] tris = { 0,1,2, 0,2,3 };
+        int[] tris = { 0,1,2,  0,2,3 };
         Mesh m = new Mesh();
-        m.vertices = verts;
+        m.vertices  = verts;
         m.triangles = tris;
         m.RecalculateNormals();
         return m;
     }
 
-    // ── Makes a mesh double-sided so it's visible from both above and below ──
+    // ── Square (Ammo pickup) ──────────────────────────────────────────────────
+    void BuildSquare(int layer)
+    {
+        AddMesh(iconRoot, layer, MakeDoubleSided(CreateSquareMesh(1.35f)), ColOutline, -0.01f);
+        GameObject main = AddMesh(iconRoot, layer, MakeDoubleSided(CreateSquareMesh(1f)), ColAmmo, 0f);
+        mainRenderer = main.GetComponent<MeshRenderer>();
+    }
+
+    static Mesh CreateSquareMesh(float scale)
+    {
+        float h = 0.5f * scale;
+        Vector3[] verts = {
+            new Vector3(-h, 0f,  h),
+            new Vector3( h, 0f,  h),
+            new Vector3( h, 0f, -h),
+            new Vector3(-h, 0f, -h),
+        };
+        int[] tris = { 0,1,2,  0,2,3 };
+        Mesh m = new Mesh();
+        m.vertices  = verts;
+        m.triangles = tris;
+        m.RecalculateNormals();
+        return m;
+    }
+
+    // ── 4-Point Star (Love Bomb pickup) ───────────────────────────────────────
+    void BuildStar(int layer)
+    {
+        AddMesh(iconRoot, layer, MakeDoubleSided(CreateStarMesh(1.35f)), ColOutline, -0.01f);
+        GameObject main = AddMesh(iconRoot, layer, MakeDoubleSided(CreateStarMesh(1f)), ColLoveBomb, 0f);
+        mainRenderer = main.GetComponent<MeshRenderer>();
+    }
+
+    static Mesh CreateStarMesh(float scale)
+    {
+        // 4 outer points (N E S W) + 4 inner corners + centre
+        float outer = 0.6f * scale;
+        float inner = 0.22f * scale;
+        Vector3[] verts = {
+            new Vector3( 0f,    0f,  outer),  // 0 N outer
+            new Vector3( inner, 0f,  inner),  // 1 NE inner
+            new Vector3( outer, 0f,  0f   ),  // 2 E outer
+            new Vector3( inner, 0f, -inner),  // 3 SE inner
+            new Vector3( 0f,    0f, -outer),  // 4 S outer
+            new Vector3(-inner, 0f, -inner),  // 5 SW inner
+            new Vector3(-outer, 0f,  0f   ),  // 6 W outer
+            new Vector3(-inner, 0f,  inner),  // 7 NW inner
+            new Vector3( 0f,    0f,  0f   ),  // 8 centre
+        };
+        // Fan from centre to each consecutive pair around the star
+        int[] tris = {
+            8,0,1,  8,1,2,  8,2,3,  8,3,4,
+            8,4,5,  8,5,6,  8,6,7,  8,7,0,
+        };
+        Mesh m = new Mesh();
+        m.vertices  = verts;
+        m.triangles = tris;
+        m.RecalculateNormals();
+        return m;
+    }
+
+    // ── Cross / Plus (Health pickup) ──────────────────────────────────────────
+    void BuildCross(int layer)
+    {
+        AddMesh(iconRoot, layer, MakeDoubleSided(CreateCrossMesh(1.35f)), ColOutline, -0.01f);
+        GameObject main = AddMesh(iconRoot, layer, MakeDoubleSided(CreateCrossMesh(1f)), ColHealthPickup, 0f);
+        mainRenderer = main.GetComponent<MeshRenderer>();
+    }
+
+    static Mesh CreateCrossMesh(float scale)
+    {
+        float arm = 0.55f * scale;   // half-length of each arm
+        float bar = 0.18f * scale;   // half-width of each arm
+
+        // 12 vertices forming a plus sign
+        Vector3[] verts = {
+            // vertical bar
+            new Vector3(-bar, 0f,  arm),   // 0
+            new Vector3( bar, 0f,  arm),   // 1
+            new Vector3( bar, 0f, -arm),   // 2
+            new Vector3(-bar, 0f, -arm),   // 3
+            // horizontal bar
+            new Vector3(-arm, 0f,  bar),   // 4
+            new Vector3( arm, 0f,  bar),   // 5
+            new Vector3( arm, 0f, -bar),   // 6
+            new Vector3(-arm, 0f, -bar),   // 7
+        };
+        // Two overlapping quads
+        int[] tris = {
+            0,1,2,  0,2,3,   // vertical
+            4,5,6,  4,6,7,   // horizontal
+        };
+        Mesh m = new Mesh();
+        m.vertices  = verts;
+        m.triangles = tris;
+        m.RecalculateNormals();
+        return m;
+    }
+
+    // ── Shared mesh helper ────────────────────────────────────────────────────
     static Mesh MakeDoubleSided(Mesh m)
     {
-        int[] tris = m.triangles;
-        int origLen = tris.Length;
-        int[] both = new int[origLen * 2];
+        int[] tris   = m.triangles;
+        int   origLen = tris.Length;
+        int[] both   = new int[origLen * 2];
         for (int i = 0; i < origLen; i++) both[i] = tris[i];
-        // Reverse winding for back faces
         for (int i = 0; i < origLen; i += 3)
         {
             both[origLen + i]     = tris[i];
@@ -157,7 +287,6 @@ public class MinimapMarker : MonoBehaviour
         return m;
     }
 
-    // ── Shared mesh helper ────────────────────────────────────────────────────
     static GameObject AddMesh(GameObject parent, int layer, Mesh mesh, Color col, float yOffset)
     {
         GameObject go = new GameObject("mesh");
@@ -165,17 +294,16 @@ public class MinimapMarker : MonoBehaviour
         go.transform.localPosition = new Vector3(0f, yOffset, 0f);
         go.layer = layer;
 
-        MeshFilter mf = go.AddComponent<MeshFilter>();
+        MeshFilter   mf  = go.AddComponent<MeshFilter>();
         mf.mesh = mesh;
 
-        MeshRenderer mr = go.AddComponent<MeshRenderer>();
-        Material mat = new Material(Shader.Find("Unlit/Color"));
-        // Render AFTER opaque geometry so icons show through roofs
-        mat.renderQueue = 3500;
-        mat.color = col;
-        mr.material = mat;
+        MeshRenderer mr  = go.AddComponent<MeshRenderer>();
+        Material     mat = new Material(Shader.Find("Unlit/Color"));
+        mat.renderQueue  = 3500;   // render after opaque so icons show through roofs
+        mat.color        = col;
+        mr.material      = mat;
         mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        mr.receiveShadows = false;
+        mr.receiveShadows    = false;
 
         return go;
     }
@@ -185,14 +313,11 @@ public class MinimapMarker : MonoBehaviour
     {
         if (iconRoot == null) return;
 
-        // Float above object at heightOffset
-        iconRoot.transform.position = transform.position + Vector3.up * heightOffset;
-
-        // Scale by iconSize
+        // Float above the object
+        iconRoot.transform.position   = transform.position + Vector3.up * heightOffset;
         iconRoot.transform.localScale = Vector3.one * iconSize;
 
-        // Mesh vertices are already flat in XZ — no X rotation needed.
-        // Player arrow rotates around Y to match facing direction.
+        // Player arrow rotates with facing direction; everything else stays flat
         if (markerType == MarkerType.Player)
             iconRoot.transform.rotation = Quaternion.Euler(0f, transform.eulerAngles.y, 0f);
         else
@@ -213,11 +338,22 @@ public class MinimapMarker : MonoBehaviour
             float pulse = 1f + Mathf.Sin(pulseTimer) * 0.25f;
             iconRoot.transform.localScale = Vector3.one * iconSize * pulse;
         }
+
+        // Pickups pulse gently so they stand out from static markers
+        if (markerType == MarkerType.Ammo ||
+            markerType == MarkerType.LoveBomb ||
+            markerType == MarkerType.HealthPickup)
+        {
+            pulseTimer += Time.deltaTime * 3f;
+            float pulse = 1f + Mathf.Sin(pulseTimer) * 0.15f;
+            iconRoot.transform.localScale = Vector3.one * iconSize * pulse;
+        }
     }
 
+    // ── Public API ────────────────────────────────────────────────────────────
+
     /// <summary>
-    /// Hides this marker. Wire this to SectionTracker's onSectionComplete event
-    /// in the Inspector to make the objective disappear when the section is done.
+    /// Hides this marker. Wire to onSectionComplete or call when the objective is done.
     /// </summary>
     public void Hide()
     {
@@ -226,16 +362,11 @@ public class MinimapMarker : MonoBehaviour
     }
 
     /// <summary>
-    /// Shows this marker again (e.g. if you need to re-activate an objective).
+    /// Shows this marker (e.g. to re-activate an objective).
     /// </summary>
     public void Show()
     {
         if (iconRoot != null) iconRoot.SetActive(true);
         enabled = true;
-    }
-
-    void OnDestroy()
-    {
-        if (iconRoot != null) Destroy(iconRoot);
     }
 }

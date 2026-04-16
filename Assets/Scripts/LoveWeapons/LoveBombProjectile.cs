@@ -53,10 +53,15 @@ public class LoveBombProjectile : MonoBehaviour
                 person.ReceiveLove(lovePower);
                 Debug.Log($"[LoveBomb] Loved {person.name}, isVeryUnhappy={person.isVeryUnhappy}, gave {lovePower}");
             }
-            WatcherAI boss = col.GetComponentInParent<WatcherAI>();
-            if (boss != null)
+            WatcherAI watcher = col.GetComponentInParent<WatcherAI>();
+            if (watcher != null)
             {
-                boss.ReceiveLove(lovePower, true); // true = IS a bomb (triggers STUN!)
+                watcher.ReceiveLove(lovePower, true); // true = IS a bomb (triggers STUN!)
+            }
+            FinalBossAI finalBoss = col.GetComponentInParent<FinalBossAI>();
+            if (finalBoss != null)
+            {
+                finalBoss.ReceiveLove(lovePower, true); // true = IS a bomb (triggers STUN!)
             }
         }
 

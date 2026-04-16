@@ -186,6 +186,9 @@ public class CatVisionEvent : MonoBehaviour
         if (playerHealth.currentHappiness <= 0)
             playerHealth.currentHappiness = 1;
 
+        // Stop the infinite stadium wave loop — no more NPCs will spawn
+        if (section2Spawner != null) section2Spawner.StopWaves();
+
         Debug.Log("[CatVision] Triggered — starting vision sequence.");
         StartCoroutine(CatVisionSequence());
     }

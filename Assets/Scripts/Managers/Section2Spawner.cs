@@ -35,11 +35,9 @@ public class Section2Spawner : MonoBehaviour
     public float spawnInterval = 0.5f;
 
     [Header("Waves")]
-    [Tooltip("How many waves to send before the section is complete.")]
-    public int totalWaves = 3;
-
     [Tooltip("Seconds to wait after a wave finishes spawning before the next wave begins. " +
-             "Waves do NOT wait to be cleared — they overlap intentionally.")]
+             "Waves do NOT wait to be cleared — they overlap intentionally. " +
+             "Waves repeat forever until StopWaves() is called by CatVisionEvent.")]
     public float timeBetweenWaves = 3f;
 
     [Header("Crowd Ring")]
@@ -54,6 +52,12 @@ public class Section2Spawner : MonoBehaviour
     [Tooltip("Optional — receives all NPCs after the final wave for section-complete tracking.")]
     public SectionTracker sectionTracker;
 
+    [Header("Entry Blockers")]
+    [Tooltip("GameObjects that physically block the stadium entrance at game start. " +
+             "Call UnlockEntrance() (via the café SectionTracker's onSectionComplete event) " +
+             "to remove them once the café section is cleared.")]
+    public GameObject[] entryBlockers;
+
     [Header("Exit Blockers")]
     [Tooltip("GameObjects to activate when the player enters (e.g. an invisible wall or gate mesh " +
              "blocking the stadium entrance). They are deactivated once all waves are cleared.")]
@@ -67,6 +71,7 @@ public class Section2Spawner : MonoBehaviour
     public UnityEngine.Events.UnityEvent onAllWavesComplete;
 
     private bool hasTriggered = false;
+    private bool wavesActive  = false;   // set false by StopWaves() to end the infinite loop
     private float crowdRadius;
     private UnhappyPerson[] spawnedNPCs;          // current wave — used for crowd radius shrink
     private System.Collections.Generic.List<UnhappyPerson> allSpawnedNPCs
@@ -76,23 +81,48 @@ public class Section2Spawner : MonoBehaviour
     /// <summary>Current active wave (1-based). 0 = not started. Read by CatVisionEvent.</summary>
     [HideInInspector] public int currentWave = 0;
 
+    /// <summary>
+    /// Called by CatVisionEvent when the health threshold is crossed.
+    /// Stops the infinite wave loop after the current wave finishes spawning.
+    /// </summary>
+    public void StopWaves()
+    {
+        wavesActive = false;
+        Debug.Log("[Section2Spawner] StopWaves() called — no further waves will start.");
+    }
+
+    /// <summary>
+    /// Wire this to the café SectionTracker's onSectionComplete event.
+    /// Removes the entry blockers so the player can enter the stadium.
+    /// </summary>
+    public void UnlockEntrance()
+    {
+        if (entryBlockers == null) return;
+        foreach (var blocker in entryBlockers)
+            if (blocker != null) blocker.SetActive(false);
+        Debug.Log("[Section2Spawner] Café cleared — stadium entrance unlocked.");
+    }
+
+    void Start()
+    {
+        // Activate entry blockers at game start so the player can't skip to the stadium
+        if (entryBlockers != null)
+            foreach (var blocker in entryBlockers)
+                if (blocker != null) blocker.SetActive(true);
+    }
+
     void OnTriggerEnter(Collider other)
     {
         if (hasTriggered) return;
         if (!other.CompareTag("Player") && !other.transform.root.CompareTag("Player")) return;
 
         hasTriggered = true;
+        wavesActive  = true;
         if (stadiumMusic != null) stadiumMusic.gameObject.SetActive(true);
-        Debug.Log("[Section2Spawner] Player entered stadium — starting wave sequence.");
+        Debug.Log("[Section2Spawner] Player entered stadium — starting infinite wave sequence.");
 
-        // Lock the exit so the player can't leave until all waves are cleared
+        // Lock the exit so the player can't leave until the cat vision fires
         SetBlockers(true);
-
-        // Register ALL wave NPCs with GameManager immediately so the total is
-        // correct from the start. If we registered per-wave, the win condition
-        // could fire after wave 1 before waves 2 and 3 are counted.
-        GameManager gm = FindFirstObjectByType<GameManager>();
-        if (gm != null) gm.RegisterAdditionalPeople(seatSpawnPoints.Length * totalWaves);
 
         StartCoroutine(WaveLoop());
     }
@@ -110,24 +140,28 @@ public class Section2Spawner : MonoBehaviour
             yield break;
         }
 
-        for (int wave = 1; wave <= totalWaves; wave++)
+        // Waves loop forever — CatVisionEvent calls StopWaves() when health
+        // drops to the threshold, which sets wavesActive = false and ends the loop
+        // after the current wave finishes spawning.
+        while (wavesActive)
         {
-            currentWave = wave;
-            Debug.Log($"[Section2Spawner] Starting wave {wave}/{totalWaves}.");
+            currentWave++;
+            Debug.Log($"[Section2Spawner] Starting wave {currentWave} (infinite loop).");
 
-            yield return StartCoroutine(SpawnWave(wave));
+            // Register this wave's NPCs with GameManager before spawning so the
+            // HUD counter is always accurate.
+            GameManager gm = FindFirstObjectByType<GameManager>();
+            if (gm != null) gm.RegisterAdditionalPeople(seatSpawnPoints.Length);
 
-            // No clear-wait — next wave fires after a fixed delay regardless
-            // of how many NPCs are still unhappy. This is intentional: the player
-            // should feel overwhelmed until the cat vision triggers.
-            if (wave < totalWaves)
-            {
-                Debug.Log($"[Section2Spawner] Wave {wave} spawned — next wave in {timeBetweenWaves}s.");
-                yield return new WaitForSeconds(timeBetweenWaves);
-            }
+            yield return StartCoroutine(SpawnWave(currentWave));
+
+            if (!wavesActive) break;
+
+            Debug.Log($"[Section2Spawner] Wave {currentWave} spawned — next wave in {timeBetweenWaves}s.");
+            yield return new WaitForSeconds(timeBetweenWaves);
         }
 
-        Debug.Log("[Section2Spawner] All waves spawned.");
+        Debug.Log("[Section2Spawner] Wave loop ended (StopWaves called).");
 
         // Hand ALL spawned NPCs (every wave) to SectionTracker
         if (sectionTracker != null && allSpawnedNPCs.Count > 0)
@@ -136,7 +170,7 @@ public class Section2Spawner : MonoBehaviour
             Debug.Log($"[Section2Spawner] Registered {allSpawnedNPCs.Count} total NPCs with SectionTracker.");
         }
 
-        // Unlock exit and fire event once all waves are out
+        // Unlock exit and fire event
         SetBlockers(false);
         onAllWavesComplete?.Invoke();
     }
@@ -150,7 +184,7 @@ public class Section2Spawner : MonoBehaviour
         crowdRadius = crowdRadiusStart;
         spawnedNPCs = new UnhappyPerson[seatSpawnPoints.Length];
 
-        for (int i = 0; i < seatSpawnPoints.Length; i++)
+        for (int i = 0; i < seatSpawnPoints.Length && wavesActive; i++)
         {
             Transform seat = seatSpawnPoints[i];
             if (seat == null) continue;

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2069371333208547060}
   - component: {fileID: 4636505976012096094}
   - component: {fileID: 1165037582733378893}
+  - component: {fileID: 644786840510736762}
   m_Layer: 0
   m_Name: AmmoPickupPack
   m_TagString: Untagged
@@ -151,3 +152,18 @@ MonoBehaviour:
   areaMessage: 
   messageDuration: 3
   triggerSound: {fileID: 0}
+--- !u!114 &644786840510736762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8820725375680957214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2899767a086ae0c40b84e019d82069f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinimapMarker
+  markerType: 4
+  heightOffset: 15
+  iconSize: 2.5

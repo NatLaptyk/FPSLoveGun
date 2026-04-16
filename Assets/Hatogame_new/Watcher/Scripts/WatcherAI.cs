@@ -38,7 +38,9 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
 
     [Header("Boss Stats")]
     public int loveNeededToConvert = 10;
-    public float runSpeed = 4f;
+    [Tooltip("Chase speed. Should be higher than the Final Boss's runSpeed so Watchers " +
+             "can flank the player independently rather than trailing behind the boss.")]
+    public float runSpeed = 12f;
     [Tooltip("Multiplier applied to love received while stunned.")]
     public int stunnedLoveMultiplier = 2;
     public float stunDuration = 3f;
@@ -104,6 +106,17 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
 
     [Header("UI — Love Bar")]
     [SerializeField] private WatcherLoveBar loveBar; // drag the CHILD bar here
+
+    /// <summary>
+    /// Called by FinalBossAI when it summons this Watcher mid-fight.
+    /// Skips the Idle aggro check and begins chasing immediately.
+    /// </summary>
+    public void ActivateFromBoss(Transform playerTransform)
+    {
+        player       = playerTransform;
+        CurrentState = BossState.Chasing;
+        Debug.Log("[WatcherAI] Activated by boss — chasing player immediately.");
+    }
 
     private void Start()
     {

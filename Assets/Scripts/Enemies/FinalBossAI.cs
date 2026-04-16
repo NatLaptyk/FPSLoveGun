@@ -77,6 +77,23 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     [Tooltip("Optional particle/effect spawned at the boss position during the pulse.")]
     public GameObject pulseEffectPrefab;
 
+    [Header("Teleport Dash (Attack5)")]
+    [Tooltip("The boss vanishes and reappears directly behind the player, then immediately swings. " +
+             "Triggers at any distance once the cooldown is ready.")]
+    public float teleportDashCooldown = 12f;
+    [Tooltip("How far behind the player the boss lands (metres).")]
+    public float teleportBehindDistance = 1.8f;
+    [Tooltip("Damage dealt by the guaranteed strike right after the teleport.")]
+    public int   teleportStrikeDamage = 20;
+    [Tooltip("Optional VFX prefab played at the DISAPPEAR position.")]
+    public GameObject teleportDisappearVFX;
+    [Tooltip("Optional VFX prefab played at the APPEAR position.")]
+    public GameObject teleportAppearVFX;
+    [Tooltip("Duration of the VFX / brief pause before the boss reappears.")]
+    public float teleportVFXDuration = 0.25f;
+    [Tooltip("How long the strike animation lasts after the boss reappears.")]
+    public float teleportStrikeAnimLength = 0.8f;
+
     [Header("Ring Shot (Attack4)")]
     [Tooltip("Number of projectiles fired evenly spread around the full 360°.")]
     public int   ringProjectileCount = 12;
@@ -177,6 +194,7 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     private float nextHeavyAttackTime;
     private float nextPulseTime;
     private float nextRingShotTime;
+    private float nextTeleportDashTime;
     private float nextJumpTime;
     private float stateEndTime;
 
@@ -292,6 +310,13 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
             return;
         }
 
+        // Teleport behind the player — fires at any distance once cooldown is ready
+        if (Time.time >= nextTeleportDashTime)
+        {
+            StartCoroutine(TeleportDash());
+            return;
+        }
+
         // Jump to close a large gap — speed burst, not a warp
         if (Time.time >= nextJumpTime && distToPlayer >= jumpTriggerDistance)
         {
@@ -342,7 +367,7 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
 
     // ── Attack logic ──────────────────────────────────────────────────────────
 
-    enum BossAttackType { Quick, Heavy, Pulse, RingShot }
+    enum BossAttackType { Quick, Heavy, Pulse, RingShot, TeleportDash }
 
     void StartAttack(BossAttackType type)
     {
@@ -705,6 +730,65 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
         Debug.Log("[FinalBoss] Jump complete.");
     }
 
+    // ── Teleport Dash ─────────────────────────────────────────────────────────
+
+    IEnumerator TeleportDash()
+    {
+        // Enter a locked state so no other attack interrupts the sequence
+        CurrentState = BossState.Attacking;
+        agent.isStopped = true;
+        nextTeleportDashTime = Time.time + teleportDashCooldown;
+
+        // ── 1. Disappear VFX at current position ──────────────────────────────
+        if (teleportDisappearVFX != null)
+        {
+            GameObject vfx = Instantiate(teleportDisappearVFX, transform.position, transform.rotation);
+            Destroy(vfx, teleportVFXDuration + 1f);
+        }
+
+        // Briefly hide the boss mesh so it looks like it vanished
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (var r in renderers) r.enabled = false;
+
+        yield return new WaitForSeconds(teleportVFXDuration);
+
+        // ── 2. Calculate position directly behind the player ──────────────────
+        // Use the player's forward so "behind" is relative to where they face.
+        Vector3 behindOffset  = -player.forward * teleportBehindDistance;
+        Vector3 targetPos     = player.position + behindOffset;
+        targetPos.y           = transform.position.y; // keep boss on the ground
+
+        // Snap to NavMesh so the boss doesn't land in geometry
+        if (NavMesh.SamplePosition(targetPos, out NavMeshHit navHit, 3f, NavMesh.AllAreas))
+            targetPos = navHit.position;
+
+        agent.Warp(targetPos);
+
+        // Face the player from behind
+        Vector3 lookDir = player.position - transform.position;
+        lookDir.y = 0f;
+        if (lookDir.sqrMagnitude > 0.01f)
+            transform.rotation = Quaternion.LookRotation(lookDir);
+
+        // ── 3. Reappear ───────────────────────────────────────────────────────
+        foreach (var r in renderers) r.enabled = true;
+
+        if (teleportAppearVFX != null)
+        {
+            GameObject vfx = Instantiate(teleportAppearVFX, transform.position, transform.rotation);
+            Destroy(vfx, teleportStrikeAnimLength + 1f);
+        }
+
+        // ── 4. Immediate strike ───────────────────────────────────────────────
+        if (animator != null) animator.SetTrigger("Attack1");
+        PlaySound(attackSound);
+        DealMeleeDamage(teleportStrikeDamage, teleportBehindDistance + 1.5f);
+
+        stateEndTime = Time.time + teleportStrikeAnimLength;
+
+        Debug.Log("[FinalBoss] Teleport Dash — appeared behind player and struck!");
+    }
+
     // ── Watcher Summon ────────────────────────────────────────────────────────
 
     void TrySummonWatcher()
@@ -728,10 +812,10 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
         GameObject watcher = Instantiate(watcherPrefab, spawnPos, Quaternion.identity);
         activeWatchers.Add(watcher);
 
-        // Point the new Watcher straight at the player so it aggros immediately
+        // Skip the Watcher's Idle state and begin chasing the player immediately
         WatcherAI ai = watcher.GetComponent<WatcherAI>();
         if (ai != null && player != null)
-            ai.player = player;
+            ai.ActivateFromBoss(player);
 
         Debug.Log($"[FinalBoss] Summoned Watcher at {spawnPos}. Active: {activeWatchers.Count}/{maxWatchersAlive}");
     }

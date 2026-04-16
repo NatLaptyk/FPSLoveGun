@@ -88,6 +88,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b69ab7dc4a09f094885bf950a65c44c3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1731294246017348038}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b69ab7dc4a09f094885bf950a65c44c3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -7760463172741757378}
   m_SourcePrefab: {fileID: 100100000, guid: b69ab7dc4a09f094885bf950a65c44c3, type: 3}
 --- !u!1 &473584333220080812 stripped
 GameObject:
@@ -179,3 +182,18 @@ MonoBehaviour:
   rotateSpeed: 90
   bobSpeed: 2
   bobHeight: 0.3
+--- !u!114 &-7760463172741757378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 473584333220080812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2899767a086ae0c40b84e019d82069f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinimapMarker
+  markerType: 5
+  heightOffset: 15
+  iconSize: 2.5

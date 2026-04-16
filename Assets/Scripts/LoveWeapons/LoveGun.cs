@@ -3,20 +3,31 @@ using System.Collections;
 
 /// <summary>
 /// Love Gun — the player's primary weapon.
-/// Left-click to shoot love projectiles at unhappy people.
-/// Attach this to the Gun object (child of the Camera).
+/// Left-click to shoot. Auto-reloads from reserve when magazine empties.
+/// Reserve ammo comes from pickups — no cap. Empty click only when truly out.
+///
+/// Ammo model:
+///   currentAmmo  — shots left in the current magazine (0 – maxAmmo)
+///   reserveAmmo  — shots stored from pickups (no upper limit)
+///
+/// Reload draws up to maxAmmo shots from the reserve into the magazine.
+/// Empty click plays only when magazine AND reserve are both zero.
 /// </summary>
 public class LoveGun : MonoBehaviour
 {
     [Header("Shooting")]
-    public GameObject loveProjectilePrefab; // Assign LoveProjectile prefab
-    public Transform firePoint;             // Empty GameObject at the gun barrel tip
-    public float fireRate = 0.3f;           // Seconds between shots
-    public float projectileSpeed = 30f;
+    public GameObject loveProjectilePrefab;
+    public Transform  firePoint;
+    public float      fireRate       = 0.3f;
+    public float      projectileSpeed = 30f;
 
     [Header("Ammo")]
-    public int maxAmmo = 30;
+    [Tooltip("Magazine size — how many shots per reload.")]
+    public int maxAmmo     = 30;
+    [Tooltip("Shots currently in the magazine.")]
     public int currentAmmo = 30;
+    [Tooltip("Reserve shots accumulated from pickups. No upper limit.")]
+    public int reserveAmmo = 0;
     public float reloadTime = 1.5f;
 
     [Header("Audio")]
@@ -25,10 +36,10 @@ public class LoveGun : MonoBehaviour
     public AudioClip emptySound;
 
     [Header("Visual Feedback")]
-    public ParticleSystem muzzleFlash; // Pink/heart particle effect at fire point
+    public ParticleSystem muzzleFlash;
 
-    private float nextFireTime = 0f;
-    private bool isReloading = false;
+    private float      nextFireTime = 0f;
+    private bool       isReloading  = false;
     private AudioSource audioSource;
 
     void Start()
@@ -36,34 +47,37 @@ public class LoveGun : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
+
+        UpdateHUD();
     }
 
     void Update()
     {
         if (isReloading) return;
 
-        // Reload with R key
-        if (Input.GetKeyDown(KeyCode.R) && currentAmmo < maxAmmo)
+        // Manual reload with R — only useful if magazine isn't full and reserve has ammo
+        if (Input.GetKeyDown(KeyCode.R) && currentAmmo < maxAmmo && reserveAmmo > 0)
         {
             StartCoroutine(Reload());
             return;
         }
 
-        // Shoot with Left Mouse Button
         if (Input.GetButton("Fire1") && Time.time >= nextFireTime)
         {
             if (currentAmmo > 0)
             {
                 Shoot();
             }
+            else if (reserveAmmo > 0)
+            {
+                // Magazine empty but reserve available — auto-reload
+                StartCoroutine(Reload());
+            }
             else
             {
-                // Play empty click sound
-                if (emptySound != null)
+                // Truly out of ammo — click once per trigger press
+                if (Input.GetButtonDown("Fire1") && emptySound != null)
                     audioSource.PlayOneShot(emptySound);
-
-                // Auto-reload when empty
-                StartCoroutine(Reload());
             }
         }
     }
@@ -73,19 +87,15 @@ public class LoveGun : MonoBehaviour
         nextFireTime = Time.time + fireRate;
         currentAmmo--;
 
-        // Aim from the camera center (where the crosshair is), not from the gun.
-        // This makes projectiles go exactly where the crosshair points.
+        // Aim from camera centre so projectiles go exactly where the crosshair points
         Camera cam = Camera.main;
         Vector3 aimDirection;
         if (cam != null)
         {
             Ray centerRay = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-            // Use whatever the crosshair is over as the target point,
-            // or a far point straight ahead if nothing is in range.
             Vector3 targetPoint = Physics.Raycast(centerRay, out RaycastHit hit, 200f)
                 ? hit.point
                 : centerRay.origin + centerRay.direction * 200f;
-
             aimDirection = (targetPoint - firePoint.position).normalized;
         }
         else
@@ -93,57 +103,56 @@ public class LoveGun : MonoBehaviour
             aimDirection = firePoint.forward;
         }
 
-        // Spawn projectile at gun barrel, rotated toward the crosshair target
-        GameObject projectile = Instantiate(loveProjectilePrefab, firePoint.position, Quaternion.LookRotation(aimDirection));
+        GameObject projectile = Instantiate(loveProjectilePrefab, firePoint.position,
+                                            Quaternion.LookRotation(aimDirection));
         Rigidbody rb = projectile.GetComponent<Rigidbody>();
-        rb.linearVelocity = aimDirection * projectileSpeed;
+        if (rb != null) rb.linearVelocity = aimDirection * projectileSpeed;
 
-        // Visual effect
-        if (muzzleFlash != null)
-            muzzleFlash.Play();
+        if (muzzleFlash != null) muzzleFlash.Play();
+        if (shootSound  != null) audioSource.PlayOneShot(shootSound);
 
-        // Sound
-        if (shootSound != null)
-            audioSource.PlayOneShot(shootSound);
-
-        // Update HUD
-        HUDManager hud = FindFirstObjectByType<HUDManager>();
-        if (hud != null) hud.UpdateAmmo(currentAmmo, maxAmmo);
+        UpdateHUD();
     }
 
     IEnumerator Reload()
     {
         isReloading = true;
 
-        if (reloadSound != null)
-            audioSource.PlayOneShot(reloadSound);
+        if (reloadSound != null) audioSource.PlayOneShot(reloadSound);
 
-        // Update HUD to show reloading
-        
         HUDManager hud = FindFirstObjectByType<HUDManager>();
-        Debug.Log("[LoveGun] Reload started");
         if (hud != null) hud.ShowReloading(true);
-        else Debug.LogWarning("[LoveGun] HUDManager not found!");
-     
+
         yield return new WaitForSeconds(reloadTime);
 
-        currentAmmo = maxAmmo;
+        // Draw enough shots from reserve to fill the magazine
+        int needed = maxAmmo - currentAmmo;
+        int drawn  = Mathf.Min(needed, reserveAmmo);
+        currentAmmo += drawn;
+        reserveAmmo -= drawn;
+
         isReloading = false;
 
-        if (hud != null)
-        {
-            hud.ShowReloading(false);
-            hud.UpdateAmmo(currentAmmo, maxAmmo);
-        }
+        if (hud != null) hud.ShowReloading(false);
+        UpdateHUD();
+
+        Debug.Log($"[LoveGun] Reloaded. Magazine: {currentAmmo}/{maxAmmo}  Reserve: {reserveAmmo}");
     }
 
     /// <summary>
-    /// Called by ammo pickups to add ammo.
+    /// Called by ammo pickups. Adds directly to reserve — no upper limit.
     /// </summary>
     public void AddAmmo(int amount)
     {
-        currentAmmo = Mathf.Min(currentAmmo + amount, maxAmmo);
+        reserveAmmo += amount;
+        UpdateHUD();
+        Debug.Log($"[LoveGun] Picked up {amount} ammo. Magazine: {currentAmmo}  Reserve: {reserveAmmo}");
+    }
+
+    void UpdateHUD()
+    {
         HUDManager hud = FindFirstObjectByType<HUDManager>();
-        if (hud != null) hud.UpdateAmmo(currentAmmo, maxAmmo);
+        // Show  currentAmmo / reserveAmmo  so the player always knows both counts
+        if (hud != null) hud.UpdateAmmo(currentAmmo, reserveAmmo);
     }
 }
