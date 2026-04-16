@@ -9,6 +9,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 7072269505057359559, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
+      propertyPath: fieldTarget
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7072269505057359559, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
       propertyPath: healthDropChance
       value: 0.8
       objectReference: {fileID: 0}
@@ -58,7 +62,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9217683100734423264, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
       propertyPath: m_Name
-      value: Stadium_elder_Female 1 Variant
+      value: BossFight_elder_Female 1 Variant
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

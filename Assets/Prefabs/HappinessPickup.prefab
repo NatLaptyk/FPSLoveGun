@@ -121,7 +121,7 @@ MonoBehaviour:
   triggerOnce: 0
   eventToTrigger: {fileID: 0}
   pickupType: 2
-  pickupAmount: 20
+  pickupAmount: 50
   pickupVisual: {fileID: 2296033804105935199}
   respawnPoint: {fileID: 0}
   areaMessage: 
@@ -160,6 +160,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2899767a086ae0c40b84e019d82069f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MinimapMarker
-  markerType: 6
+  markerType: 7
   heightOffset: 15
   iconSize: 2.5

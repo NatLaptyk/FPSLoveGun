@@ -64,9 +64,10 @@ public class SadnessProjectile : MonoBehaviour
             return;
         }
 
-        // Ignore other NPCs and Watchers — only destroy on walls/floor
+        // Ignore other NPCs, Watchers, and the Final Boss — only destroy on walls/floor
         if (other.GetComponentInParent<UnhappyPerson>() != null) return;
         if (other.GetComponentInParent<WatcherAI>() != null) return;
+        if (other.GetComponentInParent<FinalBossAI>() != null) return;
 
         // Hit a wall or ground
         Destroy(gameObject);

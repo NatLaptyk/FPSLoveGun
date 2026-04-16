@@ -28,7 +28,7 @@ using System.Collections.Generic;
 public class FinalBossAI : MonoBehaviour, ILovable<bool>
 {
     // ── State machine ─────────────────────────────────────────────────────────
-    public enum BossState { Idle, Chasing, Attacking, Jumping, Stunned, Defeated }
+    public enum BossState { Idle, Chasing, Attacking, Jumping, Stunned, PhaseTransition, Defeated }
     public BossState CurrentState { get; private set; } = BossState.Idle;
     public int CurrentLove { get; private set; }
 
@@ -112,6 +112,41 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     [Tooltip("Y offset from the boss pivot where projectiles spawn (waist / chest height).")]
     public float ringShotHeightOffset = 1.2f;
 
+    // ── Phase Relocation ──────────────────────────────────────────────────────
+    [Header("Phase — Boss Relocation")]
+    [Tooltip("Two Transform markers placed in the city.\n" +
+             "  [0] = where the boss warps when Phase 2 starts (≥ phase2Threshold).\n" +
+             "  [1] = where the boss warps when Phase 3 starts (≥ phase3Threshold).\n" +
+             "Leave empty to disable phase teleportation entirely.")]
+    public Transform[] phaseSpawnPoints;
+
+    [Range(0f, 1f)]
+    [Tooltip("Fraction of loveNeededToDefeat at which the boss escapes to Phase 2 location. " +
+             "Default 0.30 = 30 %.")]
+    public float phase2Threshold = 0.30f;
+
+    [Range(0f, 1f)]
+    [Tooltip("Fraction of loveNeededToDefeat at which the boss escapes to Phase 3 location. " +
+             "Default 0.80 = 80 %.")]
+    public float phase3Threshold = 0.80f;
+
+    [Tooltip("VFX prefab played at the boss position when it vanishes (used for both departure " +
+             "and arrival). Leave empty to skip.")]
+    public GameObject phaseTeleportVFX;
+
+    [Tooltip("Seconds the boss stays invisible while warping to the next phase location.")]
+    public float phaseTransitionDuration = 1.5f;
+
+    [Tooltip("Optional HintMessage component to call ShowWithText() on during each transition. " +
+             "Wire to a trigger zone or a screen-space canvas HintMessage in the scene.")]
+    public HintMessage phaseHintMessage;
+
+    [Tooltip("Hint shown to the player when the boss escapes to Phase 2.")]
+    public string phase2Message = "The boss has fled! Find him across town!";
+
+    [Tooltip("Hint shown to the player when the boss escapes to Phase 3.")]
+    public string phase3Message = "He's running again — track him down and finish this!";
+
     // ── Watcher Summons ───────────────────────────────────────────────────────
     [Header("Watcher Summons")]
     [Tooltip("The WatcherAI prefab to spawn during combat.")]
@@ -189,6 +224,7 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
 
     private bool        isAggroed     = false;   // once true, boss never returns to Idle
     private bool        musicStarted  = false;   // guard against double-play
+    private int         currentPhase  = 1;       // 1 / 2 / 3 — controls phase-teleport thresholds
     private GameObject  activePulseEffect;       // tracked so it can be destroyed after the attack
     private float nextQuickAttackTime;
     private float nextHeavyAttackTime;
@@ -213,6 +249,10 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
 
         agent.speed = walkSpeed;
 
+        // Give the teleport-dash a warm-up delay so it doesn't fire on the
+        // very first frame the boss enters Chasing state.
+        nextTeleportDashTime = Time.time + teleportDashCooldown;
+
         // Prevent the music from auto-starting if its GO is a child of this prefab.
         // We'll enable it manually the moment the boss first aggros the player.
         if (bossFightMusic != null)
@@ -234,6 +274,11 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     {
         if (CurrentState == BossState.Defeated || player == null) return;
 
+        // Keep the objective marker in sync regardless of whether it is a
+        // child of this object or a standalone scene object.
+        if (bossObjectiveMarker != null)
+            bossObjectiveMarker.transform.position = transform.position;
+
         float distToPlayer = Vector3.Distance(transform.position, player.position);
 
         // Once aggroed, skip Idle and go straight to Chasing
@@ -242,15 +287,18 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
 
         switch (CurrentState)
         {
-            case BossState.Idle:      HandleIdle(distToPlayer);      break;
-            case BossState.Chasing:   HandleChasing(distToPlayer);   break;
-            case BossState.Attacking: HandleAttacking();              break;
-            case BossState.Jumping:   /* driven by JumpDash coroutine */ break;
-            case BossState.Stunned:   HandleStunned();                break;
+            case BossState.Idle:             HandleIdle(distToPlayer);      break;
+            case BossState.Chasing:          HandleChasing(distToPlayer);   break;
+            case BossState.Attacking:        HandleAttacking();              break;
+            case BossState.Jumping:          /* driven by JumpDash coroutine */     break;
+            case BossState.Stunned:          HandleStunned();                break;
+            case BossState.PhaseTransition:  /* driven by PhaseTransition coroutine */ break;
         }
 
-        // Watcher summon — runs independently of the attack state machine
-        if (isAggroed) TrySummonWatcher();
+        // Watcher summon — runs independently of the attack state machine,
+        // but not during a phase teleport
+        if (isAggroed && CurrentState != BossState.PhaseTransition)
+            TrySummonWatcher();
     }
 
     // ── State handlers ────────────────────────────────────────────────────────
@@ -481,13 +529,23 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
             GameObject proj = Instantiate(prefab, spawnPos,
                                           Quaternion.LookRotation(direction));
 
-            // Ignore the boss's own collider
+            // Set owner so SadnessProjectile's root check can identify us
             SadnessProjectile sp = proj.GetComponent<SadnessProjectile>();
             if (sp != null) sp.owner = transform;
 
+            // Immediately ignore all boss colliders — don't wait for
+            // SadnessProjectile.Start() next frame, which would be too late
+            // if a FixedUpdate runs first and detects the overlap.
+            Collider projCol = proj.GetComponent<Collider>();
+            if (projCol != null)
+            {
+                foreach (Collider bossCol in GetComponentsInChildren<Collider>())
+                    Physics.IgnoreCollision(projCol, bossCol, true);
+            }
+
             if (proj.TryGetComponent(out Rigidbody rb))
             {
-                rb.useGravity    = false;
+                rb.useGravity     = false;
                 rb.linearVelocity = direction * ringProjectileForce;
             }
         }
@@ -499,24 +557,70 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
 
     public void ReceiveLove(int loveAmount, bool isFromBomb)
     {
-        if (CurrentState == BossState.Defeated) return;
+        // Ignore love during defeat sequence or while teleporting between phases
+        if (CurrentState == BossState.Defeated ||
+            CurrentState == BossState.PhaseTransition) return;
 
         int effective = CurrentState == BossState.Stunned
             ? loveAmount * stunnedLoveMultiplier
             : loveAmount;
 
         CurrentLove += effective;
-         UpdateBossLoveBar();
+        UpdateBossLoveBar();
         Debug.Log($"[FinalBoss] Received {effective} love (total {CurrentLove}/{loveNeededToDefeat}).");
 
         PlaySound(hitSound);
 
-        if (CurrentLove >= loveNeededToDefeat)
+        // ── Phase-transition checks (only when spawn points are configured) ────
+        bool phasesEnabled = phaseSpawnPoints != null && phaseSpawnPoints.Length >= 2;
+
+        if (phasesEnabled)
         {
-            StartCoroutine(DefeatSequence());
-            return;
+            float ratio = (float)CurrentLove / loveNeededToDefeat;
+
+            if (currentPhase == 1 && ratio >= phase2Threshold)
+            {
+                // Cap love so the bar stops at the threshold — the remaining
+                // portion must be filled during Phase 2 / 3.
+                CurrentLove = Mathf.RoundToInt(phase2Threshold * loveNeededToDefeat);
+                UpdateBossLoveBar();
+                // Kill any in-flight attack coroutines (TeleportDash, JumpDash,
+                // DelayRingShot, etc.) so their agent.Warp() can't overwrite ours.
+                StopAllCoroutines();
+                // Restore renderers in case an attack coroutine hid them mid-animation.
+                foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = true;
+                StartCoroutine(DoPhaseTransition(2));
+                return;
+            }
+
+            if (currentPhase == 2 && ratio >= phase3Threshold)
+            {
+                CurrentLove = Mathf.RoundToInt(phase3Threshold * loveNeededToDefeat);
+                UpdateBossLoveBar();
+                StopAllCoroutines();
+                foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = true;
+                StartCoroutine(DoPhaseTransition(3));
+                return;
+            }
+
+            // Final defeat only allowed once in Phase 3
+            if (currentPhase == 3 && CurrentLove >= loveNeededToDefeat)
+            {
+                StartCoroutine(DefeatSequence());
+                return;
+            }
+        }
+        else
+        {
+            // No phases configured — original single-phase behaviour
+            if (CurrentLove >= loveNeededToDefeat)
+            {
+                StartCoroutine(DefeatSequence());
+                return;
+            }
         }
 
+        // ── Hit reactions ─────────────────────────────────────────────────────
         if (isFromBomb && CurrentState != BossState.Stunned)
         {
             CurrentState = BossState.Stunned;
@@ -571,12 +675,15 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
         // Kill any active pulse VFX immediately
         if (activePulseEffect != null) { Destroy(activePulseEffect); activePulseEffect = null; }
 
-        // Kill all Watchers the boss summoned — they fall with their master
+        // Kill all Watchers the boss summoned — they fall with their master.
+        // Also catches any watchers that survived from earlier phases.
         activeWatchers.RemoveAll(w => w == null);
         foreach (GameObject watcher in activeWatchers)
-            Destroy(watcher);
+        {
+            if (watcher != null) Destroy(watcher);
+        }
         activeWatchers.Clear();
-        Debug.Log("[FinalBoss] Summoned Watchers destroyed.");
+        Debug.Log("[FinalBoss] All summoned Watchers destroyed.");
 
         Debug.Log("[FinalBoss] Defeated — playing death animation.");
 
@@ -787,6 +894,119 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
         stateEndTime = Time.time + teleportStrikeAnimLength;
 
         Debug.Log("[FinalBoss] Teleport Dash — appeared behind player and struck!");
+    }
+
+    // ── Phase Relocation ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Hides the boss, warps it to the next phase spawn point, shows a hint, then
+    /// resumes combat at the new location.  The minimap marker follows automatically
+    /// because it lives on the boss GameObject.
+    /// </summary>
+    IEnumerator DoPhaseTransition(int newPhase)
+    {
+        currentPhase = newPhase;
+        CurrentState = BossState.PhaseTransition;
+
+        // Stop movement immediately
+        agent.isStopped = true;
+        agent.velocity  = Vector3.zero;
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", 0f);
+            animator.SetBool("IsRunning", false);
+            animator.SetBool("InCombat", false);
+        }
+
+        Debug.Log($"[FinalBoss] Phase {newPhase} transition — vanishing…");
+
+        // ── Departure VFX + vanish ────────────────────────────────────────────
+        if (phaseTeleportVFX != null)
+        {
+            GameObject vfx = Instantiate(phaseTeleportVFX, transform.position, transform.rotation);
+            Destroy(vfx, phaseTransitionDuration + 2f);
+        }
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (var r in renderers) r.enabled = false;
+
+        // Boss is invisible and invulnerable while warping
+        yield return new WaitForSeconds(phaseTransitionDuration);
+
+        // ── Destroy any active Watchers before moving to the new location ────
+        // This prevents them lingering in the old area while the player searches
+        // for the boss across town.
+        activeWatchers.RemoveAll(w => w == null);
+        foreach (GameObject watcher in activeWatchers)
+            Destroy(watcher);
+        activeWatchers.Clear();
+
+        // ── Teleport to the phase spawn point ────────────────────────────────
+        // phaseSpawnPoints[0] = Phase-2 destination
+        // phaseSpawnPoints[1] = Phase-3 destination
+        int idx = newPhase - 2;   // phase 2 → 0,  phase 3 → 1
+        if (idx >= 0 && idx < phaseSpawnPoints.Length && phaseSpawnPoints[idx] != null)
+        {
+            Vector3 dest = phaseSpawnPoints[idx].position;
+
+            // Pre-sample so we know the exact on-mesh landing point BEFORE
+            // touching the agent.  Use a generous 15 m radius in case the
+            // designer placed the spawn marker slightly above the NavMesh.
+            if (NavMesh.SamplePosition(dest, out NavMeshHit hit, 15f, NavMesh.AllAreas))
+            {
+                dest = hit.position;
+                Debug.Log($"[FinalBoss] Phase {newPhase} — NavMesh snap: {dest}.");
+            }
+            else
+            {
+                Debug.LogWarning($"[FinalBoss] Phase {newPhase} — no NavMesh found within 15 m of spawn point {dest}! Check that your NavMesh is baked there.");
+            }
+
+            // Full agent reset: stop → disable → move transform → wait one frame
+            // so Unity processes the position before the agent re-initialises.
+            agent.isStopped = true;
+            agent.ResetPath();
+            agent.velocity  = Vector3.zero;
+            agent.enabled   = false;
+            transform.position = dest;
+
+            yield return null;   // one frame gap — critical for agent re-init
+
+            agent.enabled = true;
+
+            Debug.Log($"[FinalBoss] Phase {newPhase} — agent re-enabled at {transform.position}.");
+        }
+        else
+        {
+            Debug.LogWarning($"[FinalBoss] Phase {newPhase} spawn point not assigned in Inspector!");
+            yield return null;
+        }
+
+        // ── Arrival VFX + reappear ────────────────────────────────────────────
+        if (phaseTeleportVFX != null)
+        {
+            GameObject vfx = Instantiate(phaseTeleportVFX, transform.position, transform.rotation);
+            Destroy(vfx, 2f);
+        }
+
+        foreach (var r in renderers) r.enabled = true;
+
+        // ── Hint message to guide the player ─────────────────────────────────
+        if (phaseHintMessage != null)
+        {
+            string msg = newPhase == 2 ? phase2Message : phase3Message;
+            phaseHintMessage.ShowWithText(msg);
+        }
+
+        // ── Resume combat ─────────────────────────────────────────────────────
+        agent.isStopped = false;
+        CurrentState    = BossState.Chasing;
+        if (animator != null) animator.SetBool("InCombat", true);
+
+        // Reset teleport-dash timer so it doesn't fire the instant we reappear
+        nextTeleportDashTime = Time.time + teleportDashCooldown;
+
+        Debug.Log($"[FinalBoss] Phase {newPhase} — now chasing player at new location.");
     }
 
     // ── Watcher Summon ────────────────────────────────────────────────────────

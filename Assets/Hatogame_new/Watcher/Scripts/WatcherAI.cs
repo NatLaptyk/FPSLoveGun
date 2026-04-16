@@ -72,11 +72,20 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
     public SavedNPCConfig[] savedNPCsToEject;
     public float ejectForce = 500f;
 
-    [Header("Defeat — Ammo Drop")]
-    [Tooltip("Ammo pickup prefab to spawn at the Watcher's position on defeat. Leave empty to skip.")]
+    [Header("Defeat — Pickup Drop")]
+    [Tooltip("Ammo pickup prefab. Leave empty to exclude from the drop table.")]
     public GameObject ammoDropPrefab;
-    [Tooltip("Height above the Watcher's position to spawn the ammo drop.")]
-    public float ammoDropHeightOffset = 0.5f;
+    [Tooltip("Health pickup prefab. Leave empty to exclude from the drop table.")]
+    public GameObject healthDropPrefab;
+    [Tooltip("Love Bomb pickup prefab. Leave empty to exclude from the drop table.")]
+    public GameObject loveBombDropPrefab;
+    [Tooltip("Relative weight for each drop type (Ammo / Health / LoveBomb). " +
+             "Higher = more likely. Values are normalised automatically.")]
+    public float ammoDropWeight    = 2f;
+    public float healthDropWeight  = 1f;
+    public float loveBombDropWeight = 1f;
+    [Tooltip("Height above the Watcher's position to spawn the drop.")]
+    public float dropHeightOffset = 0.5f;
 
     [Header("References")]
     public Transform player;
@@ -331,13 +340,8 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
 
         Debug.Log("[WatcherAI] Converted! Ejecting NPCs.");
 
-        // Drop ammo pickup at the Watcher's current position
-        if (ammoDropPrefab != null)
-        {
-            Vector3 dropPos = transform.position + Vector3.up * ammoDropHeightOffset;
-            Instantiate(ammoDropPrefab, dropPos, Quaternion.identity);
-            Debug.Log("[WatcherAI] Ammo pack dropped.");
-        }
+        // Random weighted drop — build table from whichever prefabs are assigned
+        SpawnRandomDrop();
 
         UnhappyPerson[] ejected = EjectNPCs();
 
@@ -356,6 +360,45 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
 
         onDefeated?.Invoke();
         Destroy(gameObject, 8f);
+    }
+
+    /// <summary>
+    /// Builds a weighted drop table from whichever pickup prefabs are assigned,
+    /// rolls a random pick, and spawns the winner above the Watcher's position.
+    /// Any prefab left null is simply excluded from the table.
+    /// </summary>
+    private void SpawnRandomDrop()
+    {
+        // Build table: (prefab, weight) pairs — skip any null prefabs
+        var table = new System.Collections.Generic.List<(GameObject prefab, float weight)>();
+        if (ammoDropPrefab    != null) table.Add((ammoDropPrefab,    ammoDropWeight));
+        if (healthDropPrefab  != null) table.Add((healthDropPrefab,  healthDropWeight));
+        if (loveBombDropPrefab != null) table.Add((loveBombDropPrefab, loveBombDropWeight));
+
+        if (table.Count == 0) return; // nothing assigned — no drop
+
+        // Sum weights
+        float total = 0f;
+        foreach (var entry in table) total += entry.weight;
+
+        // Roll
+        float roll = Random.Range(0f, total);
+        float cumulative = 0f;
+        GameObject chosen = null;
+        foreach (var entry in table)
+        {
+            cumulative += entry.weight;
+            if (roll <= cumulative)
+            {
+                chosen = entry.prefab;
+                break;
+            }
+        }
+        if (chosen == null) chosen = table[table.Count - 1].prefab; // safety fallback
+
+        Vector3 dropPos = transform.position + Vector3.up * dropHeightOffset;
+        Instantiate(chosen, dropPos, Quaternion.identity);
+        Debug.Log($"[WatcherAI] Dropped: {chosen.name}");
     }
 
     private void PlaySound(AudioClip clip)

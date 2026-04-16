@@ -20,6 +20,9 @@ namespace SojaExiles
 		void OnMouseOver()
 		{
 			{
+				// Don't respond to clicks while any menu/popup is open
+				if (PopupController.IsPaused) return;
+
 				if (Player)
 				{
 					float dist = Vector3.Distance(Player.position, transform.position);

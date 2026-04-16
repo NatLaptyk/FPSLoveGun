@@ -4,7 +4,6 @@ using UnityEngine;
 /// Player Health (Happiness Meter)
 /// The player starts with full happiness. Getting hit by sadness reduces it.
 /// If happiness reaches 0, the player becomes too sad and it's game over.
-/// Attach to the Player GameObject.
 /// </summary>
 public class PlayerHealth : MonoBehaviour
 {

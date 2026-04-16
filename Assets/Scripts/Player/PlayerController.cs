@@ -36,6 +36,9 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        // Freeze all player input while the pause menu is open
+        if (PopupController.IsPaused) return;
+
         HandleMouseLook();
         HandleMovement();
     }
@@ -67,7 +70,10 @@ public class PlayerController : MonoBehaviour
         float moveX = Input.GetAxis("Horizontal"); // A/D
         float moveZ = Input.GetAxis("Vertical");   // W/S
 
+        // Clamp to magnitude 1 so diagonal movement isn't ~41 % faster than
+        // straight movement (raw vector length would be √2 ≈ 1.41 otherwise).
         Vector3 move = transform.right * moveX + transform.forward * moveZ;
+        if (move.sqrMagnitude > 1f) move.Normalize();
 
         // Sprint
         float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : walkSpeed;

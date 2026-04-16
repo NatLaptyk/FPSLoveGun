@@ -7,16 +7,17 @@ using UnityEngine;
 ///
 /// Shapes:
 ///   Player      = black forward-pointing arrow  (rotates with player)
-///   NPC         = red circle  (turns green when happy)
-///   Boss        = purple diamond
+///   NPC         = blue circle  (turns green when happy)
+///   Boss        = purple diamond  (Watcher)
+///   FinalBoss   = orange-red 6-point star  (larger, pulses faster)
 ///   Objective   = yellow pulsing circle with outline
-///   Ammo        = cyan square
+///   Ammo        = red square
 ///   LoveBomb    = pink 4-point star
 ///   HealthPickup= lime-green cross / plus sign
 /// </summary>
 public class MinimapMarker : MonoBehaviour
 {
-    public enum MarkerType { Player, NPC, Boss, Objective, Ammo, LoveBomb, HealthPickup }
+    public enum MarkerType { Player, NPC, Boss, FinalBoss, Objective, Ammo, LoveBomb, HealthPickup }
 
     [Header("Marker Settings")]
     public MarkerType markerType = MarkerType.NPC;
@@ -31,7 +32,8 @@ public class MinimapMarker : MonoBehaviour
     static readonly Color ColPlayer       = Color.black;
     static readonly Color ColNPCUnhappy   = new Color(0.2f, 0.4f, 1f);    // blue
     static readonly Color ColNPCHappy     = new Color(0.2f, 1f,  0.35f);
-    static readonly Color ColBoss         = new Color(0.75f, 0.1f, 1f);
+    static readonly Color ColBoss         = new Color(0.75f, 0.1f, 1f);   // purple  (Watcher)
+    static readonly Color ColFinalBoss    = new Color(1f,   0.3f, 0f);    // orange-red
     static readonly Color ColObjective    = new Color(1f,  0.9f,  0f);
     static readonly Color ColAmmo         = new Color(1f,  0.15f, 0.15f);  // red
     static readonly Color ColLoveBomb     = new Color(1f,  0.2f,  0.65f);  // hot pink
@@ -85,6 +87,7 @@ public class MinimapMarker : MonoBehaviour
             case MarkerType.Player:       BuildArrow(layer);                              break;
             case MarkerType.NPC:          BuildCircle(layer, ColNPCUnhappy, 1.0f);        break;
             case MarkerType.Boss:         BuildDiamond(layer);                            break;
+            case MarkerType.FinalBoss:    BuildSixPointStar(layer);                       break;
             case MarkerType.Objective:    BuildCircle(layer, ColObjective,  1.2f);        break;
             case MarkerType.Ammo:         BuildSquare(layer);                             break;
             case MarkerType.LoveBomb:     BuildStar(layer);                               break;
@@ -163,6 +166,44 @@ public class MinimapMarker : MonoBehaviour
             new Vector3( 0.5f, 0f,  0f  ) * scale,
         };
         int[] tris = { 0,1,2,  0,2,3 };
+        Mesh m = new Mesh();
+        m.vertices  = verts;
+        m.triangles = tris;
+        m.RecalculateNormals();
+        return m;
+    }
+
+    // ── 6-Point Star (Final Boss) ─────────────────────────────────────────────
+    void BuildSixPointStar(int layer)
+    {
+        AddMesh(iconRoot, layer, MakeDoubleSided(CreateSixPointStarMesh(1.35f)), ColOutline, -0.01f);
+        GameObject main = AddMesh(iconRoot, layer, MakeDoubleSided(CreateSixPointStarMesh(1f)), ColFinalBoss, 0f);
+        mainRenderer = main.GetComponent<MeshRenderer>();
+    }
+
+    static Mesh CreateSixPointStarMesh(float scale)
+    {
+        // 6 outer points + 6 inner points + centre (index 12)
+        float outer = 0.6f * scale;
+        float inner = 0.28f * scale;
+        Vector3[] verts = new Vector3[13];
+        for (int i = 0; i < 6; i++)
+        {
+            float outerAngle = i * 60f * Mathf.Deg2Rad - Mathf.PI / 2f;
+            float innerAngle = outerAngle + 30f * Mathf.Deg2Rad;
+            verts[i * 2]     = new Vector3(Mathf.Cos(outerAngle) * outer, 0f, Mathf.Sin(outerAngle) * outer);
+            verts[i * 2 + 1] = new Vector3(Mathf.Cos(innerAngle) * inner, 0f, Mathf.Sin(innerAngle) * inner);
+        }
+        verts[12] = Vector3.zero; // centre
+
+        // Fan triangles from centre to each consecutive outer/inner pair
+        int[] tris = new int[12 * 3];
+        for (int i = 0; i < 12; i++)
+        {
+            tris[i * 3]     = 12;
+            tris[i * 3 + 1] = i;
+            tris[i * 3 + 2] = (i + 1) % 12;
+        }
         Mesh m = new Mesh();
         m.vertices  = verts;
         m.triangles = tris;
@@ -287,6 +328,29 @@ public class MinimapMarker : MonoBehaviour
         return m;
     }
 
+    // Cached shader — found once and reused for every marker icon.
+    // Falls back through several always-included shaders so the markers
+    // show their correct colours in builds even if Unlit/Color is missing
+    // from the Graphics Settings "Always Included Shaders" list.
+    static Shader _iconShader;
+    static Shader IconShader
+    {
+        get
+        {
+            if (_iconShader != null) return _iconShader;
+            _iconShader = Shader.Find("Unlit/Color");           // ideal — flat, no lighting
+            if (_iconShader == null)
+                _iconShader = Shader.Find("Sprites/Default");   // always included in builds
+            if (_iconShader == null)
+                _iconShader = Shader.Find("UI/Default");        // last resort
+            if (_iconShader == null)
+                Debug.LogError("[MinimapMarker] Could not find any suitable shader. " +
+                               "Go to Project Settings → Graphics → Always Included Shaders " +
+                               "and add 'Unlit/Color'.");
+            return _iconShader;
+        }
+    }
+
     static GameObject AddMesh(GameObject parent, int layer, Mesh mesh, Color col, float yOffset)
     {
         GameObject go = new GameObject("mesh");
@@ -298,7 +362,7 @@ public class MinimapMarker : MonoBehaviour
         mf.mesh = mesh;
 
         MeshRenderer mr  = go.AddComponent<MeshRenderer>();
-        Material     mat = new Material(Shader.Find("Unlit/Color"));
+        Material     mat = new Material(IconShader);
         mat.renderQueue  = 3500;   // render after opaque so icons show through roofs
         mat.color        = col;
         mr.material      = mat;
@@ -336,6 +400,14 @@ public class MinimapMarker : MonoBehaviour
         {
             pulseTimer += Time.deltaTime * 2.5f;
             float pulse = 1f + Mathf.Sin(pulseTimer) * 0.25f;
+            iconRoot.transform.localScale = Vector3.one * iconSize * pulse;
+        }
+
+        // Final Boss pulses faster and more aggressively than a regular objective
+        if (markerType == MarkerType.FinalBoss)
+        {
+            pulseTimer += Time.deltaTime * 5f;
+            float pulse = 1f + Mathf.Sin(pulseTimer) * 0.4f;
             iconRoot.transform.localScale = Vector3.one * iconSize * pulse;
         }
 
