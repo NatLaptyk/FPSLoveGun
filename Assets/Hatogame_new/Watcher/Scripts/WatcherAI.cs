@@ -72,6 +72,12 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
     public SavedNPCConfig[] savedNPCsToEject;
     public float ejectForce = 500f;
 
+    [Header("Defeat — Ammo Drop")]
+    [Tooltip("Ammo pickup prefab to spawn at the Watcher's position on defeat. Leave empty to skip.")]
+    public GameObject ammoDropPrefab;
+    [Tooltip("Height above the Watcher's position to spawn the ammo drop.")]
+    public float ammoDropHeightOffset = 0.5f;
+
     [Header("References")]
     public Transform player;
 
@@ -324,6 +330,14 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
         if (bossCollider != null) bossCollider.enabled = false;
 
         Debug.Log("[WatcherAI] Converted! Ejecting NPCs.");
+
+        // Drop ammo pickup at the Watcher's current position
+        if (ammoDropPrefab != null)
+        {
+            Vector3 dropPos = transform.position + Vector3.up * ammoDropHeightOffset;
+            Instantiate(ammoDropPrefab, dropPos, Quaternion.identity);
+            Debug.Log("[WatcherAI] Ammo pack dropped.");
+        }
 
         UnhappyPerson[] ejected = EjectNPCs();
 

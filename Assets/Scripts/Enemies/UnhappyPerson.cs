@@ -369,6 +369,11 @@ public class UnhappyPerson : MonoBehaviour
 }
 
     [Header("Happy Behavior")]
+    [Tooltip("Health pickup prefab to spawn when this NPC is converted. Leave empty to skip.")]
+    public GameObject healthDropPrefab;
+    [Tooltip("Chance (0–1) that a health pickup drops on conversion. 1 = always, 0.5 = 50%.")]
+    [Range(0f, 1f)]
+    public float healthDropChance = 1f;
     [Tooltip("Speed at which happy people wander around")]
     public float happyWanderSpeed = 1.5f;
     [Tooltip("Radius around current position for happy wandering")]
@@ -380,7 +385,11 @@ public class UnhappyPerson : MonoBehaviour
     {
         currentMood = MoodState.Happy;
         if (loveBarInstance != null)
-        loveBarInstance.gameObject.SetActive(false);
+            loveBarInstance.gameObject.SetActive(false);
+
+        // Drop health pickup at the NPC's feet (probabilistic)
+        if (healthDropPrefab != null && Random.value <= healthDropChance)
+            Instantiate(healthDropPrefab, transform.position, Quaternion.identity);
 
         // ── Permanently remove all physics obstacles so happy NPCs are fully passthrough.
         // Destroy() is used instead of disable because an animation system or other

@@ -146,7 +146,7 @@ MonoBehaviour:
   triggerOnce: 1
   eventToTrigger: {fileID: 0}
   pickupType: 0
-  pickupAmount: 15
+  pickupAmount: 30
   pickupVisual: {fileID: 0}
   respawnPoint: {fileID: 0}
   areaMessage: 

@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &2738814951145922930
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 7072269505057359559, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
+      propertyPath: healthDropChance
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7072269505057359559, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
+      propertyPath: healthDropPrefab
+      value: 
+      objectReference: {fileID: 2296033804105935199, guid: 63bec979eed6ec74a8178700cfaaaffc, type: 3}
+    - target: {fileID: 8403744795349342810, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 168.07996
+      objectReference: {fileID: 0}
+    - target: {fileID: 8403744795349342810, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.00000005777058
+      objectReference: {fileID: 0}
+    - target: {fileID: 8403744795349342810, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 99.107956
+      objectReference: {fileID: 0}
+    - target: {fileID: 8403744795349342810, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8403744795349342810, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8403744795349342810, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8403744795349342810, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8403744795349342810, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8403744795349342810, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 8403744795349342810, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9217683100734423264, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
+      propertyPath: m_Name
+      value: Stadium_elder_Female 1 Variant
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d578f81c6f8bcca4dab4ca3d098945ed, type: 3}
