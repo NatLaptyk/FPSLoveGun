@@ -70,8 +70,9 @@ public class Section2Spawner : MonoBehaviour
     [Header("Events")]
     public UnityEngine.Events.UnityEvent onAllWavesComplete;
 
-    private bool hasTriggered = false;
-    private bool wavesActive  = false;   // set false by StopWaves() to end the infinite loop
+    private bool hasTriggered  = false;
+    private bool wavesActive   = false;   // set false by StopWaves() to end the infinite loop
+    private bool cafeCleared   = false;   // set true by UnlockEntrance() — gates the stadium
     private float crowdRadius;
     private UnhappyPerson[] spawnedNPCs;          // current wave — used for crowd radius shrink
     private System.Collections.Generic.List<UnhappyPerson> allSpawnedNPCs
@@ -97,6 +98,7 @@ public class Section2Spawner : MonoBehaviour
     /// </summary>
     public void UnlockEntrance()
     {
+        cafeCleared = true;
         if (entryBlockers == null) return;
         foreach (var blocker in entryBlockers)
             if (blocker != null) blocker.SetActive(false);
@@ -115,6 +117,12 @@ public class Section2Spawner : MonoBehaviour
     {
         if (hasTriggered) return;
         if (!other.CompareTag("Player") && !other.transform.root.CompareTag("Player")) return;
+
+        if (!cafeCleared)
+        {
+            Debug.Log("[Section2Spawner] Player touched stadium trigger but café is not cleared yet — entrance blocked.");
+            return;
+        }
 
         hasTriggered = true;
         wavesActive  = true;
