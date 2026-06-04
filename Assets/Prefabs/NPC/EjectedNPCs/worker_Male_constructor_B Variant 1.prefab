@@ -49,7 +49,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8184333350258574277, guid: 3e909ce7eb42c9e4e9767fdf0044ef89, type: 3}
       propertyPath: m_Name
-      value: worker_Male_constructor_B Variant
+      value: worker_Male_constructor_B Variant 1
       objectReference: {fileID: 0}
     - target: {fileID: 8184333350258574277, guid: 3e909ce7eb42c9e4e9767fdf0044ef89, type: 3}
       propertyPath: m_IsActive
@@ -58,6 +58,18 @@ PrefabInstance:
     - target: {fileID: 8184333350258574277, guid: 3e909ce7eb42c9e4e9767fdf0044ef89, type: 3}
       propertyPath: m_TagString
       value: NPC
+      objectReference: {fileID: 0}
+    - target: {fileID: 8853873995892382079, guid: 3e909ce7eb42c9e4e9767fdf0044ef89, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8853873995892382079, guid: 3e909ce7eb42c9e4e9767fdf0044ef89, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8853873995892382079, guid: 3e909ce7eb42c9e4e9767fdf0044ef89, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 8853873995892382079, guid: 3e909ce7eb42c9e4e9767fdf0044ef89, type: 3}
       propertyPath: m_LocalPosition.x
@@ -205,6 +217,7 @@ MonoBehaviour:
   attackRange: 12
   throwCooldown: 20
   throwForce: 10
+  throwAimOffsetY: 1.5
   addSadnessTrail: 1
   sadnessTrailColor: {r: 0.2, g: 0.2, b: 0.6, a: 1}
   sadnessTrailTime: 0.5
@@ -220,6 +233,9 @@ MonoBehaviour:
   throwSound: {fileID: 8300000, guid: 60bdc8a4755cb9c41a87f4bd574181e4, type: 3}
   unhappyIndicator: {fileID: 0}
   happyIndicator: {fileID: 0}
+  loveBarInstance: {fileID: 0}
+  healthDropPrefab: {fileID: 0}
+  healthDropChance: 1
   happyWanderSpeed: 1.5
   happyWanderRadius: 6
   happyWanderInterval: 5

@@ -68,6 +68,18 @@ PrefabInstance:
       value: NPC
       objectReference: {fileID: 0}
     - target: {fileID: 7658026095892835012, guid: 314b13a2c4f89c74299eabc2a4c725c7, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7658026095892835012, guid: 314b13a2c4f89c74299eabc2a4c725c7, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7658026095892835012, guid: 314b13a2c4f89c74299eabc2a4c725c7, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7658026095892835012, guid: 314b13a2c4f89c74299eabc2a4c725c7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 12.13
       objectReference: {fileID: 0}
@@ -204,17 +216,25 @@ MonoBehaviour:
   unhappinessLevel: 5
   isVeryUnhappy: 1
   currentMood: 0
+  behaviourMode: 0
   patrolPoints:
   - {fileID: 0}
   - {fileID: 0}
   patrolSpeed: 2.5
   waitTimeAtPoint: 1
+  fieldTarget: {fileID: 0}
+  descentSpeed: 3.5
+  crowdRadius: 4
+  crowdSpeed: 2
+  crowdSlotIndex: 0
+  totalCrowdSlots: 1
   sadnessProjectilePrefab: {fileID: 7026195717630135985, guid: 38f0468503616674280175cff75e26cf, type: 3}
   throwPoint: {fileID: 4761695274161554089}
   detectionRange: 15
   attackRange: 12
   throwCooldown: 2
   throwForce: 12
+  throwAimOffsetY: 1.5
   addSadnessTrail: 1
   sadnessTrailColor: {r: 0.2, g: 0.2, b: 0.6, a: 1}
   sadnessTrailTime: 0.5
@@ -230,6 +250,9 @@ MonoBehaviour:
   throwSound: {fileID: 8300000, guid: 60bdc8a4755cb9c41a87f4bd574181e4, type: 3}
   unhappyIndicator: {fileID: 0}
   happyIndicator: {fileID: 0}
+  loveBarInstance: {fileID: 0}
+  healthDropPrefab: {fileID: 0}
+  healthDropChance: 1
   happyWanderSpeed: 1.5
   happyWanderRadius: 6
   happyWanderInterval: 5

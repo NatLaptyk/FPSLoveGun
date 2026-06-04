@@ -48,6 +48,18 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5776691538091650739, guid: bae26acf817c6dc4e82f95d9ef4ab46a, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5776691538091650739, guid: bae26acf817c6dc4e82f95d9ef4ab46a, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5776691538091650739, guid: bae26acf817c6dc4e82f95d9ef4ab46a, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5776691538091650739, guid: bae26acf817c6dc4e82f95d9ef4ab46a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.21
       objectReference: {fileID: 0}
@@ -207,6 +219,7 @@ MonoBehaviour:
   attackRange: 12
   throwCooldown: 8
   throwForce: 10
+  throwAimOffsetY: 1.5
   addSadnessTrail: 1
   sadnessTrailColor: {r: 0.2, g: 0.2, b: 0.6, a: 1}
   sadnessTrailTime: 0.5
@@ -222,6 +235,9 @@ MonoBehaviour:
   throwSound: {fileID: 8300000, guid: 60bdc8a4755cb9c41a87f4bd574181e4, type: 3}
   unhappyIndicator: {fileID: 0}
   happyIndicator: {fileID: 0}
+  loveBarInstance: {fileID: 0}
+  healthDropPrefab: {fileID: 0}
+  healthDropChance: 1
   happyWanderSpeed: 1.5
   happyWanderRadius: 6
   happyWanderInterval: 5
