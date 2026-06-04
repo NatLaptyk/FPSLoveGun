@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Scripted event: when the player is surrounded in wave 3 and happiness drops
+/// Scripted event: when the player is in the stadium wave loop and happiness drops
 /// to 10%, they see a vision of their cat. A shockwave radiates outward converting
 /// every NPC while the player is lifted into the air to watch from above. The
 /// screen then fades to black and the player is teleported to the street for the
@@ -27,7 +27,7 @@ public class CatVisionEvent : MonoBehaviour
     // ── Trigger ────────────────────────────────────────────────────────────────
     [Header("Trigger")]
     [Tooltip("Which wave the event fires on.")]
-    public int triggerOnWave = 3;
+    public int triggerOnWave = 1;
 
     [Tooltip("Health fraction (0–1) at which the event fires. 0.1 = 10 %.")]
     [Range(0.01f, 0.5f)]
@@ -180,6 +180,21 @@ public class CatVisionEvent : MonoBehaviour
     void TriggerCatVision()
     {
         if (hasTriggered) return;
+
+        // ── Guard — only fire when the player is actually in the stadium. ────────
+        // PlayerHealth.onNearDeath fires whenever happiness drops below 10 % ANYWHERE
+        // in the game. Without this check, getting low at the café (or anywhere else)
+        // would trigger the cat vision and teleport the player past the rest of the
+        // game straight to the boss arena. The triggerOnWave field already existed
+        // for this purpose; we just have to actually honour it.
+        int currentWave = (section2Spawner != null) ? section2Spawner.currentWave : 0;
+        if (currentWave < triggerOnWave)
+        {
+            Debug.Log($"[CatVision] Near-death fired (happiness ≤ 10 %) but " +
+                      $"currentWave={currentWave} < triggerOnWave={triggerOnWave} — " +
+                      "ignoring. The player will die normally and respawn at the last checkpoint.");
+            return;
+        }
 
         hasTriggered = true;
         playerHealth.invincible = true;
