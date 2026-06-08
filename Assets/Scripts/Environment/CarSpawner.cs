@@ -1,17 +1,7 @@
 using UnityEngine;
 
-/// <summary>
-/// Continuously spawns cars that drive along a CarPath and self-destruct at the end.
-///
-/// SETUP:
-/// 1. Create an empty GameObject named "CarSpawner"
-/// 2. Attach this script
-/// 3. Assign your car prefab(s) to "carPrefabs" — if multiple, a random one is picked each time
-/// 4. Assign the CarPath the cars should follow
-/// 5. Tweak spawn interval and speed range
-///
-/// Cars are spawned at the first waypoint of the path and drive to the end.
-/// </summary>
+// Continuously spawns cars that drive along a CarPath and self-destruct at the end.
+
 public class CarSpawner : MonoBehaviour
 {
     [Header("Prefabs")]

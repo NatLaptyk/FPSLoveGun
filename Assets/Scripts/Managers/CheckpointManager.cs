@@ -2,32 +2,18 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Section-level checkpoint / respawn system.
-///
-/// On death, instead of reloading the whole scene (which throws away café progress when
-/// the player dies in the stadium, etc.), the Retry button calls
-/// <see cref="RespawnAtCheckpoint"/> which:
-///   • teleports the player to the last checkpoint Transform
-///   • refills happiness, ammo, and love bombs
-///   • hides the lose panel, clears <c>GameManager.isGameOver</c>, re-locks the cursor,
-///     restores <c>Time.timeScale</c>, clears <c>PlayerHealth.invincible</c>
-///   • leaves already-converted NPCs converted and section progress intact
-///
-/// A checkpoint is "the start of the currently-active section". You set it as each
-/// section begins. The most recently set checkpoint wins.
-///
-/// SETUP IN BRIEF (full wiring below the class):
-/// 1. Create an empty GameObject "CheckpointManager", attach this script.
-/// 2. Drop your Player into <see cref="playerTransform"/> — or leave it blank and it'll
-///    auto-find by tag the first time it's needed.
-/// 3. Place empty GameObjects at the spawn point of each section (café entry, breather
-///    entry, stadium entry, boss arena, etc.) and drop them into the matching slots.
-/// 4. Wire each section's "I just started" event to the matching SetCheckpoint…()
-///    method on this component (see WIRING block at the bottom of this file).
-/// 5. On your lose panel's Retry button, replace the GameManager.RestartLevel() OnClick
-///    binding with CheckpointManager.RespawnAtCheckpoint().
-/// </summary>
+// Section-level checkpoint / respawn system.
+// On death, instead of reloading the whole scene (which throws away café progress when
+// the player dies in the stadium, etc.), the Retry button calls
+// <see cref="RespawnAtCheckpoint"/> which:
+// • teleports the player to the last checkpoint Transform
+// • refills happiness, ammo, and love bombs
+// • hides the lose panel, clears <c>GameManager.isGameOver</c>, re-locks the cursor,
+// restores <c>Time.timeScale</c>, clears <c>PlayerHealth.invincible</c>
+// • leaves already-converted NPCs converted and section progress intact
+// A checkpoint is "the start of the currently-active section". You set it as each
+// section begins. The most recently set checkpoint wins.
+
 public class CheckpointManager : MonoBehaviour
 {
     // ── Player references ──────────────────────────────────────────────────────
@@ -282,57 +268,3 @@ public class CheckpointManager : MonoBehaviour
         DrawMarker(bossArenaCheckpoint,   new Color(0.8f, 0.2f, 1f),  "Boss arena");
     }
 }
-
-/*
-════════════════════════════════════════════════════════════════════════════════════
-  WIRING (do this once in the Unity editor — no code edits needed elsewhere)
-════════════════════════════════════════════════════════════════════════════════════
-
-  1. CHECKPOINT MANAGER OBJECT
-     · Create empty GameObject "CheckpointManager", attach this component.
-     · Drop the Player object into "Player Transform" (or leave blank for auto).
-     · Place empty GameObjects at each section's spawn point and drop them in:
-         Cafe Checkpoint        → "Spawn_Cafe"      (player start)
-         Breather Checkpoint    → "Spawn_Breather"  (mouth of the breather corridor)
-         Stadium Checkpoint     → "Spawn_Stadium"   (just inside the stadium entry)
-         Ambush Checkpoint      → "Spawn_Ambush"    (mouth of the Heartbreak Bridge)
-         Boss Arena Checkpoint  → same Transform CatVisionEvent.teleportDestination uses
-     · Drop your lose panel into "Lose Panel".
-
-  2. WIRE EACH SECTION'S "I JUST STARTED" EVENT
-     · Café:
-         GameManager / scene-start has the player already at Spawn_Cafe. No wiring
-         needed — Initial Checkpoint covers it (or assign Cafe Checkpoint to
-         Initial Checkpoint for explicit naming).
-     · Breather (Café → Stadium):
-         On the café SectionTracker → On Section Complete → ADD a call to
-         CheckpointManager.SetCheckpointBreather()  (alongside BreatherZone.Open()).
-         OR: on BreatherZone → On Breather Opened → SetCheckpointBreather().
-     · Stadium:
-         On BreatherZone → On Breather Cleared → SetCheckpointStadium()
-         (fires the moment the player leaves the breather toward the stadium).
-         Without BreatherZone: place a SequenceTrigger at the stadium entrance and
-         wire its On Triggered → SetCheckpointStadium().
-     · Ambush (Stadium → Boss, optional):
-         On AmbushGauntlet → On Gauntlet Began → SetCheckpointAmbush().
-     · Boss arena:
-         On AmbushGauntlet → On Gauntlet Cleared → SetCheckpointBossArena().
-         Without the ambush: place a SequenceTrigger by the boss spawn and wire it.
-
-  3. RETRY BUTTON
-     · On the lose panel's Retry button OnClick:
-         REMOVE the current "GameManager.RestartLevel()" binding.
-         ADD            "CheckpointManager.RespawnAtCheckpoint()".
-     · If you want to KEEP a "Restart from scratch" option, add a second button
-       that calls GameManager.RestartLevel() with the label "Start over".
-
-  4. KNOWN LIMITATION
-     · PlayerHealth's "low health" and "near death" warnings only fire ONCE per
-       game session (their flags are private inside PlayerHealth). After a respawn
-       the player won't get the on-screen warning again, but health works fine.
-       For a 5-minute playtest run this is rarely noticeable; if it matters, make
-       PlayerHealth.lowHealthFired and nearDeathFired internal and reset them in
-       RespawnAtCheckpoint.
-
-════════════════════════════════════════════════════════════════════════════════════
-*/

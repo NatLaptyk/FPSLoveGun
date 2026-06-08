@@ -1,18 +1,10 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-/// <summary>
-/// Unhappy Person NPC — the "enemies" in your love FPS.
-/// They patrol between waypoints, throw sadness projectiles at the player,
-/// and become happy when they receive enough love.
-///
-/// SETUP:
-/// 1. Create a humanoid character (capsule placeholder is fine)
-/// 2. Add a NavMeshAgent component
-/// 3. Add this script
-/// 4. Create empty GameObjects as patrol waypoints and assign them
-/// 5. Set unhappinessLevel: 1-3 = normal (love gun works), 4-5 = very unhappy (needs love bomb)
-/// </summary>
+// Unhappy Person NPC — the "enemies" in your love FPS.
+// They patrol between waypoints, throw sadness projectiles at the player,
+// and become happy when they receive enough love.
+
 public class UnhappyPerson : MonoBehaviour
 {
     public enum MoodState { Unhappy, Happy }

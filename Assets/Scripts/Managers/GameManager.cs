@@ -1,11 +1,9 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Game Manager — tracks overall game progress.
-/// Counts how many people have been made happy, handles win/lose conditions.
-/// Create an empty GameObject called "GameManager" and attach this script.
-/// </summary>
+// Game Manager — tracks overall game progress.
+// Counts how many people have been made happy, handles win/lose conditions.
+
 public class GameManager : MonoBehaviour
 {
     [Header("Level Goal")]

@@ -1,21 +1,8 @@
 using UnityEngine;
 
-/// <summary>
-/// Top-down orthographic camera that follows the player and renders to a RenderTexture
-/// displayed in the minimap UI.
-///
-/// SETUP:
-/// 1. Create an empty GameObject named "MinimapCamera"
-/// 2. Add a Camera component to it
-/// 3. Add this script to it
-/// 4. Create a RenderTexture asset (Project window > right-click > Create > Render Texture)
-///    Set size to 256x256, name it "MinimapRT"
-/// 5. Drag the RenderTexture into this script's "renderTexture" field
-/// 6. Also drag the RenderTexture into the Camera's "Target Texture" field
-/// 7. Set the Camera's Projection to Orthographic
-/// 8. Set the Camera's Culling Mask to exclude the "UI" layer (to avoid showing UI in minimap)
-/// 9. Assign your Player transform
-/// </summary>
+// Top-down orthographic camera that follows the player and renders to a RenderTexture
+// displayed in the minimap UI.
+
 [RequireComponent(typeof(Camera))]
 public class MinimapCamera : MonoBehaviour
 {

@@ -1,11 +1,11 @@
 using UnityEngine;
 
-/// <summary>
-/// Love Bomb Projectile — thrown grenade-style.
-/// Explodes on impact (or after a fuse timer), spreading love in an area.
-/// Great for "very unhappy" people who need extra love.
-/// Create a Prefab: a sphere/heart shape with Rigidbody (NOT kinematic), Collider, and this script.
-/// </summary>
+
+// Love Bomb Projectile — thrown grenade-style.
+//Explodes on impact (or after a fuse timer), spreading love in an area.
+//Great for "very unhappy" people who need extra love.
+//Create a Prefab: a sphere/heart shape with Rigidbody (NOT kinematic), Collider, and this script.
+
 public class LoveBombProjectile : MonoBehaviour
 {
     [Header("Explosion")]

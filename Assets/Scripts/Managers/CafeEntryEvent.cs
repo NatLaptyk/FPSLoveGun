@@ -2,21 +2,9 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
-/// <summary>
-/// Scripted opening event: a sad NPC walks to the café, the door opens,
-/// the NPC enters, the door closes, then a Watcher bursts out and attacks.
-///
-/// SETUP:
-/// 1. Add a BoxCollider (Is Trigger = true) near the café. Attach this script.
-/// 2. Place an empty GameObject at the NPC's start position → NPC Spawn Point.
-/// 3. Place an empty GameObject just outside the café door → Cafe Entrance Target.
-/// 4. Place an empty GameObject just inside the café → Cafe Interior Target.
-/// 5. Assign the café door GameObject (pivot MUST be at the hinge edge, not the centre).
-///    If your door pivots at its centre, wrap it in an empty parent at the hinge.
-/// 6. Place an empty GameObject above / in front of the café exit → Watcher Spawn Point.
-/// 7. Assign your WatcherAI prefab.
-/// 8. Assign Player Movement Script and Player Camera (same fields as CatVisionEvent).
-/// </summary>
+// Scripted opening event: a sad NPC walks to the café, the door opens,
+// the NPC enters, the door closes, then a Watcher bursts out and attacks.
+
 [RequireComponent(typeof(Collider))]
 public class CafeEntryEvent : MonoBehaviour
 {

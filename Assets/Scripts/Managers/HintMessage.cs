@@ -3,23 +3,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-/// <summary>
-/// Displays a hint/message overlay to the player without pausing the game.
-/// Can be triggered two ways:
-///   A) As a trigger zone — attach to a GameObject with a Trigger Collider;
-///      the message shows when the player walks through.
-///   B) Via UnityEvent — call Show() from any Inspector event
-///      (e.g. SectionTracker.onSectionComplete, CatVisionEvent.onSequenceComplete).
-///
-/// CANVAS SETUP:
-///   Create a Screen Space – Overlay Canvas (Sort Order 50) as a child of nothing.
-///   Inside it:
-///     HintPanel       (Image — dark semi-transparent background, anchored centre)
-///       └─ MessageText   (TextMeshProUGUI — main message)
-///       └─ DismissText   (TextMeshProUGUI — "Press [Enter] to continue", smaller)
-///   Add a CanvasGroup to HintPanel and assign it to "hintCanvasGroup" below.
-///   Keep HintPanel INACTIVE by default — this script enables it.
-/// </summary>
+// Displays a hint/message overlay to the player without pausing the game.
+// Can be triggered two ways:
+// A) As a trigger zone — attach to a GameObject with a Trigger Collider;
+// the message shows when the player walks through.
+// B) Via UnityEvent — call Show() from any Inspector event
+// (e.g. SectionTracker.onSectionComplete, CatVisionEvent.onSequenceComplete).
+
 public class HintMessage : MonoBehaviour
 {
     // ── UI ─────────────────────────────────────────────────────────────────────

@@ -1,10 +1,10 @@
 using UnityEngine;
 
-/// <summary>
-/// Love Projectile — fired by the Love Gun.
-/// On hitting an UnhappyPerson or WatcherAI, it adds love to them.
-/// Uses a per-frame raycast to prevent tunneling through fast-moving colliders.
-/// </summary>
+
+// Love Projectile — fired by the Love Gun.
+// On hitting an UnhappyPerson or WatcherAI, it adds love to them.
+// Uses a per-frame raycast to prevent tunneling through fast-moving colliders.
+
 public class LoveProjectile : MonoBehaviour
 {
     [Header("Settings")]
@@ -20,7 +20,7 @@ public class LoveProjectile : MonoBehaviour
         Destroy(gameObject, lifetime);
         previousPosition = transform.position;
 
-        // Point-blank fix: if we spawned overlapping a target,
+        // fix: if we spawned overlapping a target,
         // OnTriggerEnter will never fire. Detect it manually here.
         Collider myCol = GetComponent<Collider>();
         float radius = 0.5f;
@@ -104,10 +104,10 @@ public class LoveProjectile : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Checks if the collider belongs to an UnhappyPerson or WatcherAI and applies love.
-    /// Returns true if love was applied (so the projectile should be destroyed).
-    /// </summary>
+   
+    // Checks if the collider belongs to an UnhappyPerson or WatcherAI and applies love.
+    // Returns true if love was applied (so the projectile should be destroyed).
+   
     bool TryApplyLove(Collider col)
     {
         UnhappyPerson person = col.GetComponentInParent<UnhappyPerson>();

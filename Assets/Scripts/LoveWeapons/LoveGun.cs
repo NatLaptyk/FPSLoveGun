@@ -1,18 +1,18 @@
 using UnityEngine;
 using System.Collections;
 
-/// <summary>
-/// Love Gun — the player's primary weapon.
-/// Left-click to shoot. Auto-reloads from reserve when magazine empties.
-/// Reserve ammo comes from pickups — no cap. Empty click only when truly out.
-///
-/// Ammo model:
-///   currentAmmo  — shots left in the current magazine (0 – maxAmmo)
-///   reserveAmmo  — shots stored from pickups (no upper limit)
-///
-/// Reload draws up to maxAmmo shots from the reserve into the magazine.
-/// Empty click plays only when magazine AND reserve are both zero.
-/// </summary>
+
+// Love Gun — the player's primary weapon.
+// Left-click to shoot. Auto-reloads from reserve when magazine empties.
+//Reserve ammo comes from pickups — no cap. Empty click only when truly out.
+//
+//Ammo model:
+//  currentAmmo  — shots left in the current magazine (0 – maxAmmo)
+// reserveAmmo  — shots stored from pickups (no upper limit)
+//
+//Reload draws up to maxAmmo shots from the reserve into the magazine.
+//Empty click plays only when magazine AND reserve are both zero.
+
 public class LoveGun : MonoBehaviour
 {
     [Header("Shooting")]
@@ -139,9 +139,9 @@ public class LoveGun : MonoBehaviour
         Debug.Log($"[LoveGun] Reloaded. Magazine: {currentAmmo}/{maxAmmo}  Reserve: {reserveAmmo}");
     }
 
-    /// <summary>
+   
     /// Called by ammo pickups. Adds directly to reserve — no upper limit.
-    /// </summary>
+   
     public void AddAmmo(int amount)
     {
         reserveAmmo += amount;

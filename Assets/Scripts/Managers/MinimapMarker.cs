@@ -1,20 +1,19 @@
 using UnityEngine;
 
-/// <summary>
-/// Shows a distinct colored icon on the minimap for each object type.
-/// Icons float HIGH above objects so they're visible even inside buildings.
-/// Automatically hides when the parent GameObject is disabled (pickup collected).
-///
-/// Shapes:
-///   Player      = black forward-pointing arrow  (rotates with player)
-///   NPC         = blue circle  (turns green when happy)
-///   Boss        = purple diamond  (Watcher)
-///   FinalBoss   = orange-red 6-point star  (larger, pulses faster)
-///   Objective   = yellow pulsing circle with outline
-///   Ammo        = red square
-///   LoveBomb    = pink 4-point star
-///   HealthPickup= lime-green cross / plus sign
-/// </summary>
+// Shows a distinct colored icon on the minimap for each object type.
+// Icons float HIGH above objects so they're visible even inside buildings.
+// Automatically hides when the parent GameObject is disabled (pickup collected).
+//
+// Shapes:
+//   Player      = black forward-pointing arrow  (rotates with player)
+//   NPC         = blue circle  (turns green when happy)
+//   Boss        = purple diamond  (Watcher)
+//  FinalBoss   = orange-red 6-point star  (larger, pulses faster)
+//  Objective   = yellow pulsing circle with outline
+//  Ammo        = red square
+//  LoveBomb    = pink 4-point star
+//  HealthPickup= lime-green cross / plus sign
+
 public class MinimapMarker : MonoBehaviour
 {
     public enum MarkerType { Player, NPC, Boss, FinalBoss, Objective, Ammo, LoveBomb, HealthPickup }
@@ -424,18 +423,18 @@ public class MinimapMarker : MonoBehaviour
 
     // ── Public API ────────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Hides this marker. Wire to onSectionComplete or call when the objective is done.
-    /// </summary>
+    //
+    // Hides this marker. Wire to onSectionComplete or call when the objective is done.
+    //
     public void Hide()
     {
         if (iconRoot != null) iconRoot.SetActive(false);
         enabled = false;
     }
 
-    /// <summary>
-    /// Shows this marker (e.g. to re-activate an objective).
-    /// </summary>
+   
+    // Shows this marker (to re-activate an objective).
+   
     public void Show()
     {
         if (iconRoot != null) iconRoot.SetActive(true);

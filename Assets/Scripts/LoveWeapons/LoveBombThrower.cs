@@ -1,10 +1,8 @@
 using UnityEngine;
 
-/// <summary>
-/// Love Bomb Thrower — secondary weapon.
-/// Press G to throw a love bomb (area effect for very unhappy people).
-/// Attach this to the Player GameObject.
-/// </summary>
+// Love Bomb Thrower — secondary weapon.
+// Press G to throw a love bomb (area effect for very unhappy people).
+
 public class LoveBombThrower : MonoBehaviour
 {
     [Header("Love Bomb")]
@@ -92,9 +90,9 @@ public class LoveBombThrower : MonoBehaviour
         trail.endColor = new Color(trailColor.r, trailColor.g, trailColor.b, 0f);
     }
 
-    /// <summary>
-    /// Called by bomb pickups to add bombs.
-    /// </summary>
+  
+    // Called by bomb pickups to add bombs.
+    
     public void AddBombs(int amount)
     {
         currentBombs = Mathf.Min(currentBombs + amount, maxBombs);

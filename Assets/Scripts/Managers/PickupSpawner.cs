@@ -3,18 +3,10 @@ using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
 
-/// <summary>
-/// Randomly places Ammo, Love Bomb, and Health pickups across the city at game start,
-/// distributed among named zones.  Each collected pickup respawns independently
-/// after <see cref="respawnDelay"/> seconds.
-///
-/// SETUP:
-///   1. Add this component to an empty manager GameObject.
-///   2. Create empty GameObjects and place them at good spots around the city
-///      (e.g. alleyways, park benches, rooftops).  Assign them to the Zones array.
-///   3. Assign your pickup prefabs and tune the counts.
-///   4. Make sure the NavMesh is baked — pickups snap to the nearest walkable surface.
-/// </summary>
+// Randomly places Ammo, Love Bomb, and Health pickups across the city at game start,
+// distributed among named zones.  Each collected pickup respawns independently
+// after <see cref="respawnDelay"/> seconds.
+
 public class PickupSpawner : MonoBehaviour
 {
     // ── Pickup Prefabs ────────────────────────────────────────────────────────
@@ -70,7 +62,7 @@ public class PickupSpawner : MonoBehaviour
 
     // ── Internals ─────────────────────────────────────────────────────────────
 
-    /// <summary>Tracks one pickup slot: its fixed world position, prefab, and live instance.</summary>
+    // Tracks one pickup slot: its fixed world position, prefab, and live instance.
     private class PickupSlot
     {
         public Vector3     position;
@@ -105,10 +97,10 @@ public class PickupSpawner : MonoBehaviour
 
     // ── Slot building ─────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Generates <paramref name="count"/> pickup slots for the given prefab,
-    /// spreading them evenly across all configured zones.
-    /// </summary>
+    //
+    // Generates <paramref name="count"/> pickup slots for the given prefab,
+    // spreading them evenly across all configured zones.
+  
     void BuildSlots(GameObject prefab, int count)
     {
         if (prefab == null || count <= 0) return;
@@ -141,11 +133,10 @@ public class PickupSpawner : MonoBehaviour
 
     // ── Respawn coroutine ─────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Continuously watches a single slot.  The moment its instance is collected
-    /// (destroyed → null), it waits <see cref="respawnDelay"/> seconds then
-    /// respawns the pickup at exactly the same position.
-    /// </summary>
+    // Continuously watches a single slot.  The moment its instance is collected
+    // (destroyed → null), it waits <see cref="respawnDelay"/> seconds then
+    // respawns the pickup at exactly the same position.
+    
     IEnumerator WatchAndRespawn(PickupSlot slot)
     {
         while (true)
@@ -162,18 +153,18 @@ public class PickupSpawner : MonoBehaviour
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    /// <summary>Instantiates the slot's prefab at its stored position.</summary>
+    //Instantiates the slot's prefab at its stored position.
     GameObject Spawn(PickupSlot slot)
     {
         return Instantiate(slot.prefab, slot.position,
                            Quaternion.identity, pickupParent);
     }
 
-    /// <summary>
-    /// Picks a random horizontal point within <paramref name="radius"/> of
-    /// <paramref name="center"/> and snaps it to the nearest NavMesh surface.
-    /// Returns null if no valid point is found within <see cref="maxAttempts"/>.
-    /// </summary>
+  
+    // Picks a random horizontal point within <paramref name="radius"/> of
+    // <paramref name="center"/> and snaps it to the nearest NavMesh surface.
+    // Returns null if no valid point is found within <see cref="maxAttempts"/>.
+  
     Vector3? SampleNavMeshPoint(Vector3 center, float radius)
     {
         for (int attempt = 0; attempt < maxAttempts; attempt++)
@@ -234,9 +225,9 @@ public class PickupSpawner : MonoBehaviour
 #endif
 }
 
-/// <summary>
-/// Defines one pickup spawn zone: a center Transform and a scatter radius.
-/// </summary>
+
+// Defines one pickup spawn zone: a center Transform and a scatter radius.
+
 [System.Serializable]
 public class PickupZoneConfig
 {

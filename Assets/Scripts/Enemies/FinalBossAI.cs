@@ -3,27 +3,18 @@ using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
 
-/// <summary>
-/// Final Boss — a ground-based humanoid who spreads sadness and commands the crowd.
-/// Defeated by love projectiles; bursts into NPCs on death.
-///
-/// ANIMATOR PARAMETERS (set these up in the Animator Controller):
-///   Speed       float   — 0 = idle, > 0 = moving (drives walk/run blend)
-///   InCombat    bool    — true while the boss has spotted the player
-///   Attack1     trigger — quick attack  (attack00)
-///   Attack2     trigger — heavy attack  (attack01)
-///   Attack3     trigger — sadness pulse (attack02)
-///   Hit         trigger — hit reaction  (hit00 / hit01, randomised by script)
-///   Stun        trigger — fall and rise (fall&riseup00)
-///   Die         trigger — death         (dle00)
-///
-/// SETUP:
-///   1. Add NavMeshAgent, this script, a Collider, and an Animator to the boss.
-///   2. Bake a NavMesh that covers the field area.
-///   3. Assign all Inspector references.
-///   4. Fill savedNPCsToEject with the NPC prefabs that burst out on defeat.
-///   5. Activate the boss GameObject from Section2Spawner.onAllWavesComplete.
-/// </summary>
+// Final Boss — a ground-based humanoid who spreads sadness and commands the crowd.
+// Defeated by love projectiles; bursts into NPCs on death.
+// ANIMATOR PARAMETERS (set these up in the Animator Controller):
+// Speed       float   — 0 = idle, > 0 = moving (drives walk/run blend)
+// InCombat    bool    — true while the boss has spotted the player
+// Attack1     trigger — quick attack  (attack00)
+// Attack2     trigger — heavy attack  (attack01)
+// Attack3     trigger — sadness pulse (attack02)
+// Hit         trigger — hit reaction  (hit00 / hit01, randomised by script)
+// Stun        trigger — fall and rise (fall&riseup00)
+// Die         trigger — death         (dle00)
+
 [RequireComponent(typeof(NavMeshAgent))]
 public class FinalBossAI : MonoBehaviour, ILovable<bool>
 {

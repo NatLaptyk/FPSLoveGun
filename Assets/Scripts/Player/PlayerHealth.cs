@@ -1,10 +1,10 @@
 using UnityEngine;
 
-/// <summary>
-/// Player Health (Happiness Meter)
-/// The player starts with full happiness. Getting hit by sadness reduces it.
-/// If happiness reaches 0, the player becomes too sad and it's game over.
-/// </summary>
+
+// Player Health (Happiness Meter)
+// The player starts with full happiness. Getting hit by sadness reduces it.
+// If happiness reaches 0, the player becomes too sad and it's game over.
+
 public class PlayerHealth : MonoBehaviour
 {
     [Header("Happiness")]
@@ -21,25 +21,25 @@ public class PlayerHealth : MonoBehaviour
 
     private AudioSource audioSource;
 
-    /// <summary>
-    /// While true, sadness damage is absorbed — health cannot drop to 0 and
-    /// GameOver cannot fire. Set by CatVisionEvent during the scripted sequence.
-    /// </summary>
+  
+    // While true, sadness damage is absorbed — health cannot drop to 0 and
+    // GameOver cannot fire. Set by CatVisionEvent during the scripted sequence.
+  
     [HideInInspector] public bool invincible = false;
 
-    /// <summary>
-    /// Fires synchronously the first time health drops to ≤ lowHealthThreshold (25 %).
-    /// Used to show the "Happiness level dangerously low!" warning.
-    /// </summary>
+   
+    // Fires synchronously the first time health drops to ≤ lowHealthThreshold (25 %).
+    // Used to show the "Happiness level dangerously low!" warning.
+   
     public System.Action onLowHealth;
     [HideInInspector] public float lowHealthThreshold = 0.25f;
     private bool lowHealthFired = false;
 
-    /// <summary>
-    /// Fires synchronously inside TakeSadness the first time health crosses
-    /// below the near-death threshold (10 %). CatVisionEvent subscribes to this
-    /// so it triggers in the same frame as the lethal hit, before GameOver runs.
-    /// </summary>
+
+    // Fires synchronously inside TakeSadness the first time health crosses
+    // below the near-death threshold (10 %). CatVisionEvent subscribes to this
+    // so it triggers in the same frame as the lethal hit, before GameOver runs.
+  
     public System.Action onNearDeath;
     private bool nearDeathFired = false;
 
@@ -52,9 +52,9 @@ public class PlayerHealth : MonoBehaviour
         currentHappiness = maxHappiness;
     }
 
-    /// <summary>
-    /// Called when hit by a sadness projectile.
-    /// </summary>
+   
+    // Called when hit by a sadness projectile.
+
     public void TakeSadness(int amount)
     {
         if (invincible) return;
@@ -96,9 +96,9 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Restore happiness (from pickups or friendly NPCs).
-    /// </summary>
+    
+    // Restore happiness (from pickups or friendly NPCs).
+  
     public void Heal(int amount)
     {
         currentHappiness += amount;

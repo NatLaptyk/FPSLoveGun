@@ -1,31 +1,29 @@
 using UnityEngine;
 
-/// <summary>
-/// Orchestrates the multi-phase stadium finale event by coordinating with <see cref="SectionTracker"/> components.
-/// </summary>
-/// <remarks>
-/// <para>
-/// This controller delegates wave tracking and HUD management to individual <see cref="SectionTracker"/>s. 
-/// It acts as the master director: locking doors, waking up dormant enemies via the trackers' arrays, 
-/// and progressing the fight from snipers, to rushers, to the final boss.
-/// </para>
-/// <list type="table">
-/// <item><term>Phase 1</term><description>Wakes up dormant seat snipers and triggers the Phase 1 <see cref="SectionTracker"/>.</description></item>
-/// <item><term>Phase 2</term><description>Wakes up ground rushers and triggers the Phase 2 <see cref="SectionTracker"/>.</description></item>
-/// <item><term>Phase 3</term><description>Activates the <see cref="WatcherAI"/> and monitors it for the final victory condition.</description></item>
-/// </list>
-/// </remarks>
+
+// Orchestrates the multi-phase stadium finale event by coordinating with <see cref="SectionTracker"
+
+
+//This controller delegates wave tracking and HUD management to individual <see cref="SectionTracker"/>s. 
+//It acts as the master director: locking doors, waking up dormant enemies via the trackers' arrays, 
+//and progressing the fight from snipers, to rushers, to the final boss.
+
+// <list type="table">
+// <item><term>Phase 1</term><description>Wakes up dormant seat snipers and triggers the Phase 1 <see cref="SectionTracker"/>.</description></item>
+// <item><term>Phase 2</term><description>Wakes up ground rushers and triggers the Phase 2 <see cref="SectionTracker"/>.</description></item>
+// <item><term>Phase 3</term><description>Activates the <see cref="WatcherAI"/> and monitors it for the final victory condition.</description></item>
+
 public class StadiumEventController : MonoBehaviour
 {
-    /// <summary>
-    /// Represents the current stage of the stadium battle.
-    /// </summary>
+   
+    // Represents the current stage of the stadium battle.
+   
     public enum ArenaPhase { Waiting, Phase1_Seats, Phase2_Rush, Phase3_Boss, Completed }
 
-    /// <summary>
-    /// Gets the current active phase of the arena.
-    /// </summary>
-    /// <value>An <see cref="ArenaPhase"/> enum representing the ongoing battle stage.</value>
+
+    // Gets the current active phase of the arena.
+  
+    // An <see cref="ArenaPhase"/> enum representing the ongoing battle stage.
     public ArenaPhase CurrentPhase { get; private set; } = ArenaPhase.Waiting;
 
     [Header("Environment")]
@@ -45,9 +43,9 @@ public class StadiumEventController : MonoBehaviour
 
     private HUDManager hud;
 
-    /// <summary>
-    /// Prepares the stadium by forcing the dormant seat enemies (found via the <see cref="phase1Tracker"/>) to appear happy initially.
-    /// </summary>
+
+    // Prepares the stadium by forcing the dormant seat enemies (found via the <see cref="phase1Tracker"/>) to appear happy initially.
+   
     private void Start()
     {
         hud = FindFirstObjectByType<HUDManager>();
@@ -62,7 +60,7 @@ public class StadiumEventController : MonoBehaviour
                     // Keep AI disabled so they don't move or attack
                     spectator.enabled = false;
 
-                    // Paint them happy for the ambush
+                    // Paint them happy
                     if (spectator.bodyRenderer != null)
                         spectator.bodyRenderer.material.color = spectator.happyColor;
 
@@ -76,9 +74,9 @@ public class StadiumEventController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Initiates the stadium event, locks the doors, shocks the crowd into unhappiness, and tells Phase 1 Tracker to begin.
-    /// </summary>
+   
+    // Initiates the stadium event, locks the doors, shocks the crowd into unhappiness, and tells Phase 1 Tracker to begin.
+   
     public void StartStadiumEvent()
     {
         if (CurrentPhase != ArenaPhase.Waiting) return;
@@ -111,9 +109,9 @@ public class StadiumEventController : MonoBehaviour
         if (hud != null) hud.ShowMessage("Survive the Snipers!", 3f);
     }
 
-    /// <summary>
-    /// Monitors the progress of the <see cref="SectionTracker"/>s to advance the arena phases.
-    /// </summary>
+
+    // Monitors the progress of the <see cref="SectionTracker"/>s to advance the arena phases.
+  
     private void Update()
     {
         switch (CurrentPhase)
@@ -141,9 +139,9 @@ public class StadiumEventController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Activates the ground rush enemies and hands HUD control over to the Phase 2 <see cref="SectionTracker"/>.
-    /// </summary>
+  
+    // Activates the ground rush enemies and hands HUD control over to the Phase 2 <see cref="SectionTracker"/>.
+  
     private void StartPhase2()
     {
         CurrentPhase = ArenaPhase.Phase2_Rush;
@@ -163,9 +161,9 @@ public class StadiumEventController : MonoBehaviour
         if (hud != null) hud.ShowMessage("Incoming Rush!", 3f);
     }
 
-    /// <summary>
-    /// Activates the <see cref="WatcherAI"/> for the final phase and clears the standard wave HUD.
-    /// </summary>
+   
+    // Activates the <see cref="WatcherAI"/> for the final phase and clears the standard wave HUD.
+  
     private void StartPhase3()
     {
         CurrentPhase = ArenaPhase.Phase3_Boss;
@@ -186,9 +184,9 @@ public class StadiumEventController : MonoBehaviour
         Debug.Log("[StadiumEvent] Phase 2 cleared. Phase 3: Boss started.");
     }
 
-    /// <summary>
-    /// Triggers the final victory conditions for the game by interfacing with the <see cref="GameManager"/>.
-    /// </summary>
+  
+    // Triggers the final victory conditions for the game by interfacing with the <see cref="GameManager"/>.
+   
     private void CompleteEvent()
     {
         CurrentPhase = ArenaPhase.Completed;
@@ -206,10 +204,9 @@ public class StadiumEventController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Evaluates whether the boss has been converted or destroyed.
-    /// </summary>
-    /// <returns><c>true</c> if the boss is null or in the Converted state; otherwise, <c>false</c>.</returns>
+   
+    // Evaluates whether the boss has been converted or destroyed.
+  
     private bool IsBossDefeated()
     {
         if (stadiumBoss == null) return true;

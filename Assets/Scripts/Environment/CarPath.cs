@@ -1,17 +1,9 @@
 using UnityEngine;
 
-/// <summary>
-/// Defines a waypoint path for cars to follow.
-/// Uses simple linear interpolation between waypoints — no spline math,
-/// no looping, no overshoot. Just place one waypoint at each road corner.
-///
-/// SETUP:
-/// 1. Create an empty GameObject named "CarPath"
-/// 2. Add this script
-/// 3. Create child empty GameObjects as waypoints along the road
-/// 4. Drag them into the "waypoints" array in order
-/// 5. The yellow path appears in Scene view when selected
-/// </summary>
+// Defines a waypoint path for cars to follow.
+// Uses simple linear interpolation between waypoints — no spline math,
+// no looping, no overshoot. Just place one waypoint at each road corner.
+
 public class CarPath : MonoBehaviour
 {
     [Tooltip("Ordered waypoints the car will follow. One per corner is enough.")]
@@ -42,9 +34,9 @@ public class CarPath : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Returns a world-space position on the path. t ranges from 0 to 1.
-    /// </summary>
+    
+    // Returns a world-space position on the path. t ranges from 0 to 1.
+
     public Vector3 GetPointAtTime(float t)
     {
         if (waypoints == null || waypoints.Length < 2)
@@ -88,9 +80,9 @@ public class CarPath : MonoBehaviour
         return waypoints[waypoints.Length - 1].position;
     }
 
-    /// <summary>
-    /// Returns the forward direction on the path at time t.
-    /// </summary>
+  
+    // Returns the forward direction on the path at time t.
+
     public Vector3 GetDirectionAtTime(float t)
     {
         float delta = 0.005f;
@@ -99,10 +91,10 @@ public class CarPath : MonoBehaviour
         Vector3 dir = b - a;
         return dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector3.forward;
     }
+    
 
-    /// <summary>
-    /// Total world-space length of the path.
-    /// </summary>
+    // Total world-space length of the path.
+  
     public float GetApproximateLength()
     {
         if (segmentLengths == null) BuildCache();

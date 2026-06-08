@@ -1,24 +1,11 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-/// <summary>
-/// Tracks progress for a single section of the level.
-/// Unlike GameManager (which wins when ALL unhappy people in the scene are happy),
-/// a SectionTracker only cares about the specific NPCs assigned to it — letting you
-/// chain multiple sections together.
-///
-/// SETUP:
-/// 1. Create an empty GameObject named e.g. "SectionTracker_1_Cafe"
-/// 2. Attach this script
-/// 3. Drag every unhappy person that belongs to this section into "Section People"
-/// 4. Set "Goal Count" (0 = require all of them)
-/// 5. Wire "On Section Complete" to whatever should happen next:
-///    - Fade out current music via MusicController.FadeOut
-///    - Trigger the next section's EventManager
-///    - Show a HUD message
-///    - Enable a door to the next area
-///    - etc.
-/// </summary>
+// Tracks progress for a single section of the level.
+// Unlike GameManager (which wins when ALL unhappy people in the scene are happy),
+// a SectionTracker only cares about the specific NPCs assigned to it — letting you
+// chain multiple sections together.
+
 public class SectionTracker : MonoBehaviour
 {
     [Header("Identity")]
@@ -57,11 +44,10 @@ public class SectionTracker : MonoBehaviour
         Debug.Log($"[SectionTracker] '{sectionName}' initialized: goal {goalCount}/{TotalCount}");
     }
 
-    /// <summary>
-    /// Call this when the player enters the section (e.g. from EventManager.onSectionStarted).
-    /// Optional — the tracker works without it, but calling this enables HUD progress updates.
-    /// </summary>
-    public void BeginSection()
+    
+    // Call this when the player enters the section (e.g. from EventManager.onSectionStarted).
+    // Optional — the tracker works without it, but calling this enables HUD progress updates.
+       public void BeginSection()
     {
         if (IsStarted) return;
         IsStarted = true;

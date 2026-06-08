@@ -2,23 +2,11 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 
-/// <summary>
-/// Spawns stadium NPCs in waves when the player enters the stadium trigger zone.
-/// Waves fire on a timer — the player does NOT need to clear a wave before the
-/// next one starts. The intent is to overwhelm the player until health drops to
-/// the critical threshold and the cat vision event triggers automatically.
-///
-/// SETUP:
-/// 1. Create an empty GameObject named "Section2Spawner"
-/// 2. Add a BoxCollider (Is Trigger = true) sized to cover the stadium entrance
-/// 3. Attach this script
-/// 4. Create seat spawn points (empty GameObjects) in the stadium seating area
-///    and assign them to "seatSpawnPoints" — reused for every wave
-/// 5. Create one empty GameObject on the football field named "FieldCenter"
-///    and assign it to "fieldTarget"
-/// 6. Assign your UnhappyPerson prefabs
-/// 7. Optionally assign a SectionTracker — it receives ALL spawned NPCs
-/// </summary>
+// Spawns stadium NPCs in waves when the player enters the stadium trigger zone.
+// Waves fire on a timer — the player does NOT need to clear a wave before the
+// next one starts. The intent is to overwhelm the player until health drops to
+// the critical threshold and the cat vision event triggers automatically.
+
 public class Section2Spawner : MonoBehaviour
 {
     [Header("Spawning")]

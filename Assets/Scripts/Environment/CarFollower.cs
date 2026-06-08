@@ -1,13 +1,7 @@
 using UnityEngine;
 
-/// <summary>
-/// Drives a car along a CarPath spline and destroys it at the end.
-/// Attach this to your car prefab.
-///
-/// The car smoothly follows the curve, rotating to face the road direction.
-/// Speed is in world units per second (not spline-t), so cars move at
-/// a consistent real-world speed regardless of path length.
-/// </summary>
+// Drives a car along a CarPath spline and destroys it at the end.
+
 public class CarFollower : MonoBehaviour
 {
     [Header("Movement")]

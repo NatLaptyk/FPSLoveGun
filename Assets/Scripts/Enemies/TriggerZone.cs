@@ -1,17 +1,7 @@
 using UnityEngine;
 
-/// <summary>
-/// Trigger Zone — an invisible box that triggers events when the player walks through.
-///
-/// SETUP:
-/// 1. Create an empty GameObject
-/// 2. Add a Box Collider, check "Is Trigger"
-/// 3. Scale it to cover the area you want
-/// 4. Add this script
-/// 5. Assign the EventManager to trigger
-///
-/// You can also use this for pickups, checkpoints, and area transitions.
-/// </summary>
+// Trigger Zone — an invisible box that triggers events when the player walks through.
+
 public class TriggerZone : MonoBehaviour
 {
     public enum TriggerType { Event, Pickup, Checkpoint, AreaMessage }

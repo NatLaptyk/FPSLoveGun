@@ -2,17 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-/// <summary>
-/// HUD Manager — handles all on-screen UI elements.
-/// Shows ammo count, love bomb count, happiness bar, people-made-happy counter,
-/// hint messages, and crosshair.
-///
-/// SETUP:
-/// 1. Create a Canvas (GameObject > UI > Canvas)
-/// 2. Create the UI elements listed below as children of the Canvas
-/// 3. Create an empty GameObject called "HUDManager" and attach this script
-/// 4. Drag all the UI elements into the corresponding fields in the Inspector
-/// </summary>
+// HUD Manager — handles all on-screen UI elements.
+// Shows ammo count, love bomb count, happiness bar, people-made-happy counter,
+// hint messages, and crosshair.
+
 public class HUDManager : MonoBehaviour
 {
     [Header("Ammo Display")]

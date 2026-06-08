@@ -1,24 +1,10 @@
 using UnityEngine;
 using System.Collections;
 
-/// <summary>
-/// Event Manager — controls scripted events in your level.
-/// A scripted event is triggered by a TriggerZone and orchestrates
-/// multiple things happening at once (spawn NPCs, play animations, shake camera, etc.)
-///
-/// SETUP:
-/// 1. Create an empty GameObject, name it "EventManager_[EventName]"
-/// 2. Attach this script
-/// 3. Assign the objects/effects you want the event to trigger
-/// 4. Create a TriggerZone that references this EventManager
-///
-/// EXAMPLE SCRIPTED EVENT: "The Sad Parade"
-/// - Player walks into a plaza trigger zone
-/// - Camera shakes slightly
-/// - 5 very unhappy people burst through a door
-/// - Sad music intensifies
-/// - A text hint appears: "They look VERY unhappy... maybe a Love Bomb would help?"
-/// </summary>
+// Event Manager — controls scripted events in your level.
+// A scripted event is triggered by a TriggerZone and orchestrates
+// multiple things happening at once (spawn NPCs, play animations, shake camera, etc.)
+
 public class EventManager : MonoBehaviour
 {
     [Header("Event Settings")]

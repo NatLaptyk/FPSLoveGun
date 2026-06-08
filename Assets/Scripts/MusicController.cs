@@ -1,19 +1,7 @@
 using UnityEngine;
 
-/// <summary>
-/// Plays a music track starting at a specific timestamp.
-/// Designed to plug into the existing EventManager system:
-///
-/// SETUP:
-/// 1. Create an empty GameObject named e.g. "Section1_Music"
-/// 2. Add an AudioSource — drag your song into AudioClip, uncheck Play On Awake
-/// 3. Add this script — set Start Time Seconds to where "Heart over mind..." begins
-/// 4. DISABLE the GameObject in the Inspector
-/// 5. In your Section 1 EventManager, add this GameObject to "Objects To Activate"
-///
-/// When the player walks through the cafe-door TriggerZone, EventManager
-/// will enable this object and the music will start automatically from the mark.
-/// </summary>
+// Plays a music track starting at a specific timestamp.
+
 [RequireComponent(typeof(AudioSource))]
 public class MusicController : MonoBehaviour
 {

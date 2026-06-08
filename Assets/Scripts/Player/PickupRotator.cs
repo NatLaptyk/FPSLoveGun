@@ -1,10 +1,7 @@
 using UnityEngine;
 
-/// <summary>
-/// Simple rotating/bobbing animation for pickup items.
-/// Attach to any pickup object (ammo box, love bomb crate, etc.)
-/// to make it rotate and float up and down so players notice it.
-/// </summary>
+// Simple rotating/bobbing animation for pickup items.
+
 public class PickupRotator : MonoBehaviour
 {
     public float rotateSpeed = 90f;   // Degrees per second

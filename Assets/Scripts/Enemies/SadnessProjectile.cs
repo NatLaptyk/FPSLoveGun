@@ -1,10 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Sadness Projectile — thrown by Unhappy People or the Watcher boss at the player.
-/// Reduces the player's happiness on hit.
-/// Create a Prefab: small dark blue/grey sphere with Rigidbody, Collider (Is Trigger), and this script.
-/// </summary>
 public class SadnessProjectile : MonoBehaviour
 {
     [Header("Settings")]
@@ -12,10 +7,6 @@ public class SadnessProjectile : MonoBehaviour
     public float lifetime = 5f;
     public GameObject hitEffect;         // Dark/sad particle burst
 
-    /// <summary>
-    /// The root Transform of whoever fired this projectile.
-    /// Set by the shooter so the projectile ignores its own creator.
-    /// </summary>
     [HideInInspector]
     public Transform owner;
 
@@ -69,7 +60,7 @@ public class SadnessProjectile : MonoBehaviour
         if (other.GetComponentInParent<WatcherAI>() != null) return;
         if (other.GetComponentInParent<FinalBossAI>() != null) return;
 
-        // Hit a wall or ground
+        // Hit a wall or grounds
         Destroy(gameObject);
     }
 }

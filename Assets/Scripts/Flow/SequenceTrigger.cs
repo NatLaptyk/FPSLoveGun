@@ -2,32 +2,21 @@ using UnityEngine;
 using UnityEngine.Events;
 using System.Collections;
 
-/// <summary>
-/// A lightweight, reusable "player walked in here" trigger that fires a UnityEvent.
-///
-/// Why this exists alongside the older <see cref="TriggerZone"/>:
-/// TriggerZone is locked to a fixed set of behaviours (Event / Pickup / Checkpoint /
-/// AreaMessage) and can only ever call <c>EventManager.TriggerEvent()</c>. SequenceTrigger
-/// is the generic building block — its <see cref="onTriggered"/> UnityEvent can be wired in
-/// the Inspector to ANY public method (e.g. BreatherZone.Exit, AmbushGauntlet.Begin,
-/// Section2Spawner.UnlockEntrance, a door, music, …). It is used by both interstitial
-/// activities (the café→stadium breather and the stadium→boss ambush) but is generic
-/// enough for anything.
-///
-/// KEY FEATURE — "armed" gating:
-/// A trigger can be left disarmed so that simply walking through it does nothing until
-/// some earlier step arms it. Example: the breather's EXIT trigger should only unlock the
-/// stadium AFTER the breather has actually opened, not if the player somehow reaches it
-/// first. Call <see cref="Arm"/> from the earlier step, or set <see cref="startArmed"/>.
-///
-/// SETUP:
-/// 1. Create an empty GameObject where you want the trigger (e.g. "Trigger_BreatherExit").
-/// 2. Add a Box Collider and tick "Is Trigger". Scale it to cover the doorway/area.
-/// 3. Attach this script.
-/// 4. Wire "On Triggered" in the Inspector to whatever should happen.
-/// 5. (Optional) Untick "Start Armed" and call Arm() from an earlier event so the trigger
-///    is inert until the sequence reaches it.
-/// </summary>
+// A lightweight, reusable "player walked in here" trigger that fires a UnityEvent.
+// Why this exists alongside the older <see cref="TriggerZone"/>:
+// TriggerZone is locked to a fixed set of behaviours (Event / Pickup / Checkpoint /
+// AreaMessage) and can only ever call <c>EventManager.TriggerEvent()</c>. SequenceTrigger
+// is the generic building block — its <see cref="onTriggered"/> UnityEvent can be wired in
+// the Inspector to ANY public method (e.g. BreatherZone.Exit, AmbushGauntlet.Begin,
+// Section2Spawner.UnlockEntrance, a door, music, …). It is used by both interstitial
+// activities (the café→stadium breather and the stadium→boss ambush) but is generic
+// enough for anything.
+// KEY FEATURE — "armed" gating:
+// A trigger can be left disarmed so that simply walking through it does nothing until
+// some earlier step arms it. Example: the breather's EXIT trigger should only unlock the
+// stadium AFTER the breather has actually opened, not if the player somehow reaches it
+// first. Call <see cref="Arm"/> from the earlier step, or set <see cref="startArmed"/>.
+
 [RequireComponent(typeof(Collider))]
 public class SequenceTrigger : MonoBehaviour
 {

@@ -3,25 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Scripted event: when the player is in the stadium wave loop and happiness drops
-/// to 10%, they see a vision of their cat. A shockwave radiates outward converting
-/// every NPC while the player is lifted into the air to watch from above. The
-/// screen then fades to black and the player is teleported to the street for the
-/// final boss fight.
-///
-/// SETUP:
-/// 1. Attach to any persistent GameObject (e.g. "CatVisionEvent" empty).
-/// 2. Build the Cat Vision Canvas (see instructions at bottom of this file).
-/// 3. Assign all Inspector references.
-/// 4. Teleport Destination — empty GameObject in the street where the boss fight
-///    happens. Player arrives at its position facing its forward direction.
-/// 5. Boss To Activate — the FinalBoss GameObject, DISABLED in the scene.
-/// 6. Player Movement Script — drag your FPS movement script here so input is
-///    blocked while the player is being lifted.
-/// 7. Player Camera — drag the Transform that handles vertical look (usually
-///    the child camera pivot, or the Main Camera itself).
-/// </summary>
+// Scripted event: when the player is in the stadium wave loop and happiness drops
+// to 10%, they see a vision of their cat. A shockwave radiates outward converting
+// every NPC while the player is lifted into the air to watch from above. The
+// screen then fades to black and the player is teleported to the street for the
+// final boss fight.
+
 public class CatVisionEvent : MonoBehaviour
 {
     // ── Trigger ────────────────────────────────────────────────────────────────

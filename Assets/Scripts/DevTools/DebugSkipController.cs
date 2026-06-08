@@ -1,38 +1,7 @@
 using UnityEngine;
 
-/// <summary>
-/// DEV-ONLY skip hotkeys for iterating on later phases without playing through the earlier ones.
-///
-/// Default bindings (rebindable in the Inspector):
-///   1 — Skip the café phase (force-converts the café SectionTracker's people).
-///   2 — Skip the stadium phase (stops waves, converts any live NPCs, teleports the player into
-///       the boss-arena spawn, and activates whatever you have wired as the post-stadium target —
-///       the FinalBoss directly, OR your AmbushGauntlet drop-in if you went with Option A).
-///   3 — Skip both in sequence.
-///
-/// Heads-up on number keys: if you later wire 1/2/3 to weapon switching, rebind these in the
-/// Inspector — that's a single field change, no code edit needed.
-///
-/// The hotkey handling itself is guarded by #if UNITY_EDITOR || DEVELOPMENT_BUILD so the keys
-/// silently disappear in a release/Master build. The public SkipCafe() / SkipStadium() methods
-/// always exist — wire them to debug UI buttons if you prefer mouse clicks to hotkeys.
-///
-/// SETUP:
-///   1. Create an empty GameObject named "DebugSkip" (placing it on your GameManager works too).
-///   2. Add this component.
-///   3. Drag the café SectionTracker, your Section2Spawner, the player's teleport destination
-///      (the same Transform CatVisionEvent.teleportDestination uses), and the post-stadium target
-///      (FinalBoss OR your AmbushGauntlet GameObject) into the matching fields.
-///   4. Play, press F1 / F2 / F3.
-///
-/// What it INTENTIONALLY does not do:
-///   - It does not play the cat-vision cinematic. The point is to skip; the cinematic only matters
-///     when you're actually playing the encounter.
-///   - It does not bypass your AmbushGauntlet by default. If your AmbushGauntlet is the target
-///     activated after the stadium, skipping the stadium will start the ambush (which is usually
-///     what you want). Set Post Stadium Activate = FinalBoss directly if you want to skip the
-///     ambush too, OR call AmbushGauntlet.ForceComplete() from a separate debug button.
-/// </summary>
+// DEV-ONLY skip hotkeys for iterating on later phases without playing through the earlier ones.
+
 public class DebugSkipController : MonoBehaviour
 {
     // ── Hotkeys ─────────────────────────────────────────────────────────────────

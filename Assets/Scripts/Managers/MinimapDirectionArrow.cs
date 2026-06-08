@@ -1,18 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Shows a UI arrow on the edge of the circular minimap pointing toward the
-/// nearest active Objective marker. Automatically switches to the next objective
-/// when the current one is hidden (section complete). No manual wiring needed.
-///
-/// SETUP:
-/// 1. Create a UI Image inside your MinimapPanel (sibling of the RawImage)
-///    Name it "ObjectiveArrow", assign an arrow/triangle sprite, color it yellow
-/// 2. Attach this script to it
-/// 3. Assign: Player, MinimapCamera
-/// 4. Set MinimapRadius to half your minimap panel width in pixels (e.g. 80)
-/// </summary>
+// Shows a UI arrow on the edge of the circular minimap pointing toward the
+// nearest active Objective marker. Automatically switches to the next objective
+// when the current one is hidden (section complete). No manual wiring needed.
+
 public class MinimapDirectionArrow : MonoBehaviour
 {
     [Header("References")]

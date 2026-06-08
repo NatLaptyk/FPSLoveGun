@@ -1,10 +1,8 @@
 using UnityEngine;
 
-/// <summary>
-/// First-Person Player Controller
-/// Handles WASD movement, mouse look, and jumping.
-/// Attach this to your Player GameObject (which has a CharacterController component).
-/// </summary>
+// First-Person Player Controller
+// Handles WASD movement, mouse look, and jumping.
+
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
