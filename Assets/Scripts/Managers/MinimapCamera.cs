@@ -14,16 +14,16 @@ public class MinimapCamera : MonoBehaviour
     public float viewSize = 30f;
 
     [Tooltip("Height above the player to position the camera.")]
-    public float cameraHeight = 50f;
+    [SerializeField] private float cameraHeight = 50f;
 
     [Header("Render Texture")]
-    public RenderTexture renderTexture;
+    [SerializeField] private RenderTexture renderTexture;
 
     private Camera minimapCam;
 
     void Start()
     {
-        minimapCam = GetComponent<Camera>();
+        TryGetComponent(out minimapCam);
         minimapCam.orthographic = true;
         minimapCam.orthographicSize = viewSize;
         minimapCam.clearFlags = CameraClearFlags.SolidColor;

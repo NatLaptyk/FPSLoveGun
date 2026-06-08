@@ -7,34 +7,34 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     [Header("Level Goal")]
-    public int totalUnhappyPeople = 0;   // Auto-counted at start
-    public int peopleMadeHappy = 0;
+    [SerializeField] private int totalUnhappyPeople = 0;   // Auto-counted at start
+    [SerializeField] private int peopleMadeHappy = 0;
 
     [Header("Game State")]
     public bool isGameOver = false;
-    public bool isGameWon = false;
+    [SerializeField] private bool isGameWon = false;
 
     [Header("UI Panels")]
-    public GameObject winPanel;          // Assign a UI panel that shows "You Win!"
-    public GameObject losePanel;         // Assign a UI panel that shows "Game Over"
-    public GameObject pausePanel;        // Assign a UI panel for pause menu (optional)
+    [SerializeField] private GameObject winPanel;          // Assign a UI panel that shows "You Win!"
+    [SerializeField] private GameObject losePanel;         // Assign a UI panel that shows "Game Over"
+    [SerializeField] private GameObject pausePanel;        // Assign a UI panel for pause menu (optional)
 
     [Header("Audio")]
-    public AudioClip winMusic;
-    public AudioClip loseMusic;
-    public AudioClip backgroundMusic;
+    [SerializeField] private AudioClip winMusic;
+    [SerializeField] private AudioClip loseMusic;
+    [SerializeField] private AudioClip backgroundMusic;
 
     [Header("Win Music")]
     [Tooltip("Optional MusicController for the win screen — supports start offset, volume, and fade. " +
              "If assigned, this is used instead of the Win Music clip above.")]
-    public MusicController winMusicController;
+    [SerializeField] private MusicController winMusicController;
 
     private AudioSource audioSource;
     private bool isPaused = false;
 
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        TryGetComponent(out audioSource);
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
 
@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviour
     [Header("Win Mode")]
     [Tooltip("If true, GameManager triggers WinGame when ALL unhappy people are happy. " +
              "Turn this OFF if you're using SectionTrackers — let the final section call WinGame() instead.")]
-    public bool useGlobalWinCondition = false;
+    [SerializeField] private bool useGlobalWinCondition = false;
 
     /// <summary>
     /// Call this when NPCs are spawned at runtime (e.g. stadium waves) so the

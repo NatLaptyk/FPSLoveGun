@@ -3,9 +3,9 @@ using UnityEngine;
 public class SadnessProjectile : MonoBehaviour
 {
     [Header("Settings")]
-    public int sadnessDamage = 10;       // How much happiness the player loses
-    public float lifetime = 5f;
-    public GameObject hitEffect;         // Dark/sad particle burst
+    [SerializeField] private int sadnessDamage = 10;       // How much happiness the player loses
+    [SerializeField] private float lifetime = 5f;
+    [SerializeField] private GameObject hitEffect;         // Dark/sad particle burst
 
     [HideInInspector]
     public Transform owner;

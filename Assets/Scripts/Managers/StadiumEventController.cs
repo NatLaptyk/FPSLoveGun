@@ -28,18 +28,18 @@ public class StadiumEventController : MonoBehaviour
 
     [Header("Environment")]
     [Tooltip("The door GameObjects that will close when the event starts.")]
-    public GameObject[] stadiumDoors;
+    [SerializeField] private GameObject[] stadiumDoors;
 
     [Header("Wave Tracking Integrations")]
     [Tooltip("The SectionTracker responsible for the seat snipers.")]
-    public SectionTracker phase1Tracker;
+    [SerializeField] private SectionTracker phase1Tracker;
 
     [Tooltip("The SectionTracker responsible for the ground rushers.")]
-    public SectionTracker phase2Tracker;
+    [SerializeField] private SectionTracker phase2Tracker;
 
     [Header("Phase 3: The Boss")]
     [Tooltip("The boss that will be enabled for the final phase.")]
-    public WatcherAI stadiumBoss;
+    [SerializeField] private WatcherAI stadiumBoss;
 
     private HUDManager hud;
 

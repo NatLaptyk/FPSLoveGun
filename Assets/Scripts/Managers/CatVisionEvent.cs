@@ -14,45 +14,45 @@ public class CatVisionEvent : MonoBehaviour
     // ── Trigger ────────────────────────────────────────────────────────────────
     [Header("Trigger")]
     [Tooltip("Which wave the event fires on.")]
-    public int triggerOnWave = 1;
+    [SerializeField] private int triggerOnWave = 1;
 
     [Tooltip("Health fraction (0–1) at which the event fires. 0.1 = 10 %.")]
     [Range(0.01f, 0.5f)]
-    public float healthThreshold = 0.1f;
+    [SerializeField] private float healthThreshold = 0.1f;
 
     // ── Scene References ───────────────────────────────────────────────────────
     [Header("Scene References")]
-    public Section2Spawner  section2Spawner;
+    [SerializeField] private Section2Spawner  section2Spawner;
     public PlayerHealth     playerHealth;
     [Tooltip("The stadium MusicController. It will be faded out as soon as the cat vision starts.")]
-    public MusicController  stadiumMusic;
+    [SerializeField] private MusicController  stadiumMusic;
 
     // ── Player Lift ────────────────────────────────────────────────────────────
     [Header("Player Lift")]
     [Tooltip("Your FPS movement/look script — disabled during lift so input is ignored.")]
-    public MonoBehaviour playerMovementScript;
+    [SerializeField] private MonoBehaviour playerMovementScript;
 
     [Tooltip("The Transform whose X rotation controls vertical camera look. " +
              "Usually the Main Camera or a child camera pivot.")]
-    public Transform playerCamera;
+    [SerializeField] private Transform playerCamera;
 
     [Tooltip("How many world units the player rises during the shockwave.")]
-    public float liftHeight = 14f;
+    [SerializeField] private float liftHeight = 14f;
 
     [Tooltip("Degrees the camera tilts downward at the peak of the lift. " +
              "60–75 gives a nice bird's-eye view without full 90°.")]
     [Range(30f, 90f)]
-    public float cameraDownAngle = 65f;
+    [SerializeField] private float cameraDownAngle = 65f;
 
     // ── Teleport & Boss ────────────────────────────────────────────────────────
     [Header("Teleport & Boss")]
     [Tooltip("Empty GameObject in the street. Player arrives at its position " +
              "facing its forward direction.")]
-    public Transform teleportDestination;
+    [SerializeField] private Transform teleportDestination;
 
     [Tooltip("FinalBoss GameObject — DISABLED in the scene. Activated just " +
              "before the player arrives.")]
-    public GameObject bossToActivate;
+    [SerializeField] private GameObject bossToActivate;
 
     [Tooltip("MinimapMarker (Objective type) placed at the boss spawn location. " +
              "Keep it on a separate always-active GameObject — not on the boss itself, " +
@@ -61,49 +61,49 @@ public class CatVisionEvent : MonoBehaviour
 
     // ── UI ─────────────────────────────────────────────────────────────────────
     [Header("Cat Vision UI")]
-    public CanvasGroup catVisionGroup;
-    public Image       catImage;
-    public TMPro.TextMeshProUGUI captionText;
+    [SerializeField] private CanvasGroup catVisionGroup;
+    [SerializeField] private Image       catImage;
+    [SerializeField] private TMPro.TextMeshProUGUI captionText;
 
     [Tooltip("Full-screen BLACK image — used for vignette AND teleport blackout.")]
-    public CanvasGroup vignetteGroup;
+    [SerializeField] private CanvasGroup vignetteGroup;
 
     [Tooltip("Full-screen WHITE image for the flash before the shockwave.")]
-    public Image flashImage;
+    [SerializeField] private Image flashImage;
 
     // ── Shockwave ──────────────────────────────────────────────────────────────
     [Header("Shockwave")]
-    public float shockwaveMaxRadius = 25f;
-    public float shockwaveDuration  = 3f;
+    [SerializeField] private float shockwaveMaxRadius = 25f;
+    [SerializeField] private float shockwaveDuration  = 3f;
     [Tooltip("Love given to each NPC the wave touches. 999 = instant convert.")]
-    public int   shockwaveLovePower = 999;
-    public float ringWidth          = 0.4f;
-    public Color ringColor          = new Color(1f, 0.9f, 0.3f, 1f);
+    [SerializeField] private int   shockwaveLovePower = 999;
+    [SerializeField] private float ringWidth          = 0.4f;
+    [SerializeField] private Color ringColor          = new Color(1f, 0.9f, 0.3f, 1f);
 
     // ── Timing ─────────────────────────────────────────────────────────────────
     [Header("Timing")]
-    public float vignetteFadeIn  = 0.8f;
-    public float catFadeIn       = 0.6f;
-    public float catHoldDuration = 2.8f;
-    public float flashDuration   = 0.35f;
-    public float catFadeOut      = 0.4f;
-    public float teleportFadeOut = 0.6f;
-    public float teleportFadeIn  = 0.8f;
+    [SerializeField] private float vignetteFadeIn  = 0.8f;
+    [SerializeField] private float catFadeIn       = 0.6f;
+    [SerializeField] private float catHoldDuration = 2.8f;
+    [SerializeField] private float flashDuration   = 0.35f;
+    [SerializeField] private float catFadeOut      = 0.4f;
+    [SerializeField] private float teleportFadeOut = 0.6f;
+    [SerializeField] private float teleportFadeIn  = 0.8f;
 
     // ── Low-health Warning ─────────────────────────────────────────────────────
     [Header("Low Health Warning")]
     [Tooltip("CanvasGroup containing the 'Happiness level dangerously low!' text. " +
              "Flashes on screen when health first drops to 25%.")]
-    public CanvasGroup warningGroup;
+    [SerializeField] private CanvasGroup warningGroup;
 
     [Tooltip("How many times the warning flashes.")]
-    public int warningFlashCount = 3;
+    [SerializeField] private int warningFlashCount = 3;
 
     // ── Audio ──────────────────────────────────────────────────────────────────
     [Header("Audio")]
-    public AudioClip visionStartSound;
-    public AudioClip shockwaveSound;
-    public AudioClip warningSound;   // optional sting/alarm for the warning
+    [SerializeField] private AudioClip visionStartSound;
+    [SerializeField] private AudioClip shockwaveSound;
+    [SerializeField] private AudioClip warningSound;   // optional sting/alarm for the warning
 
     private AudioSource audioSource;
     private bool        hasTriggered = false;
@@ -111,7 +111,7 @@ public class CatVisionEvent : MonoBehaviour
     // ──────────────────────────────────────────────────────────────────────────
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        TryGetComponent(out audioSource);
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
 

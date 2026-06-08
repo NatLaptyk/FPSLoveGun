@@ -9,28 +9,28 @@ using System.Collections;
 public class HUDManager : MonoBehaviour
 {
     [Header("Ammo Display")]
-    public Text ammoText;                // Shows "24 / 30"
-    public Text reloadingText;           // Shows "Reloading..." (hidden by default)
+    [SerializeField] private Text ammoText;                // Shows "24 / 30"
+    [SerializeField] private Text reloadingText;           // Shows "Reloading..." (hidden by default)
 
     [Header("Love Bomb Display")]
-    public Text bombText;                // Shows love bomb count
+    [SerializeField] private Text bombText;                // Shows love bomb count
 
     [Header("Happiness Bar")]
-    public Slider happinessSlider;       // A UI Slider representing player happiness
-    public Image happinessFill;          // The fill image (to change color)
+    [SerializeField] private Slider happinessSlider;       // A UI Slider representing player happiness
+    [SerializeField] private Image happinessFill;          // The fill image (to change color)
 
     [Header("People Counter")]
-    public Text peopleCounterText;       // Shows "3 / 10 people made happy"
+    [SerializeField] private Text peopleCounterText;       // Shows "3 / 10 people made happy"
 
     [Header("Message Display")]
-    public Text messageText;             // For hint messages and area names
-    public float messageFadeSpeed = 2f;
+    [SerializeField] private Text messageText;             // For hint messages and area names
+    [SerializeField] private float messageFadeSpeed = 2f;
 
     [Header("Crosshair")]
-    public Image crosshairImage;         // Center-screen crosshair
+    [SerializeField] private Image crosshairImage;         // Center-screen crosshair
 
     [Header("Damage Indicator")]
-    public Image damageFlash;            // Full-screen red/blue flash when hit
+    [SerializeField] private Image damageFlash;            // Full-screen red/blue flash when hit
 
     private Coroutine messageCoroutine;
     private Coroutine damageCoroutine;

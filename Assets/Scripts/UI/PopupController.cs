@@ -4,16 +4,16 @@ using UnityEngine.SceneManagement;
 
 public class PopupController : MonoBehaviour
 {
-    public GameObject popupPanel;
-    public GameObject pausePanel;
+    [SerializeField] private GameObject popupPanel;
+    [SerializeField] private GameObject pausePanel;
 
     [Tooltip("Drag the Menu button RectTransform here.")]
-    public RectTransform menuButton;
+    [SerializeField] private RectTransform menuButton;
     [Tooltip("Drag the Exit button RectTransform here.")]
-    public RectTransform exitButton;
+    [SerializeField] private RectTransform exitButton;
 
     [Tooltip("Exact name of your Main Menu scene as it appears in Build Settings.")]
-    public string mainMenuSceneName = "MainMenu";
+    [SerializeField] private string mainMenuSceneName = "MainMenu";
 
     /// <summary>
     /// Read by PlayerController (and any other script) to suppress input while paused.

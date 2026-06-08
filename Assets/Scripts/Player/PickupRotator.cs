@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PickupRotator : MonoBehaviour
 {
-    public float rotateSpeed = 90f;   // Degrees per second
-    public float bobSpeed = 2f;       // How fast it bobs up and down
-    public float bobHeight = 0.3f;    // How high it bobs
+    [SerializeField] private float rotateSpeed = 90f;   // Degrees per second
+    [SerializeField] private float bobSpeed = 2f;       // How fast it bobs up and down
+    [SerializeField] private float bobHeight = 0.3f;    // How high it bobs
 
     private Vector3 startPos;
 

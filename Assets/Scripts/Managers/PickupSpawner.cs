@@ -13,20 +13,20 @@ public class PickupSpawner : MonoBehaviour
 
     [Header("Pickup Prefabs")]
     [Tooltip("Ammo pickup prefab.")]
-    public GameObject ammoPrefab;
+    [SerializeField] private GameObject ammoPrefab;
 
     [Tooltip("Love Bomb pickup prefab.")]
-    public GameObject loveBombPrefab;
+    [SerializeField] private GameObject loveBombPrefab;
 
     [Tooltip("Health pickup prefab.")]
-    public GameObject healthPrefab;
+    [SerializeField] private GameObject healthPrefab;
 
     // ── Counts ────────────────────────────────────────────────────────────────
 
     [Header("Counts (total across all zones)")]
-    public int ammoCount     = 12;
-    public int loveBombCount =  6;
-    public int healthCount   =  6;
+    [SerializeField] private int ammoCount     = 12;
+    [SerializeField] private int loveBombCount =  6;
+    [SerializeField] private int healthCount   =  6;
 
     // ── Zones ─────────────────────────────────────────────────────────────────
 
@@ -34,31 +34,31 @@ public class PickupSpawner : MonoBehaviour
     [Tooltip("Each zone is an empty GameObject placed in the city.  Pickups spawn " +
              "at random NavMesh positions within each zone's radius.  Pickups are " +
              "distributed evenly across all zones.")]
-    public PickupZoneConfig[] zones;
+    [SerializeField] private PickupZoneConfig[] zones;
 
     // ── Respawn ───────────────────────────────────────────────────────────────
 
     [Header("Respawn")]
     [Tooltip("Seconds after a pickup is collected before it reappears at the same spot.")]
-    public float respawnDelay = 30f;
+    [SerializeField] private float respawnDelay = 30f;
 
     // ── Placement Tuning ──────────────────────────────────────────────────────
 
     [Header("Placement")]
     [Tooltip("Search radius used by NavMesh.SamplePosition around each random candidate. " +
              "Increase if pickups fail to spawn (NavMesh is coarse).")]
-    public float navMeshSampleRadius = 4f;
+    [SerializeField] private float navMeshSampleRadius = 4f;
 
     [Tooltip("How far above the NavMesh surface to position each pickup so it sits " +
              "visibly on the ground rather than clipping through it.")]
-    public float heightOffset = 0.15f;
+    [SerializeField] private float heightOffset = 0.15f;
 
     [Tooltip("Max random attempts per pickup slot before giving up on that slot.")]
-    public int maxAttempts = 40;
+    [SerializeField] private int maxAttempts = 40;
 
     [Tooltip("Optional parent Transform to keep spawned pickups tidy in the hierarchy. " +
              "Leave empty to spawn at scene root.")]
-    public Transform pickupParent;
+    [SerializeField] private Transform pickupParent;
 
     // ── Internals ─────────────────────────────────────────────────────────────
 

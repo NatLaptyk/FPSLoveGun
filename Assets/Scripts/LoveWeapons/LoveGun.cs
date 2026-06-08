@@ -16,27 +16,27 @@ using System.Collections;
 public class LoveGun : MonoBehaviour
 {
     [Header("Shooting")]
-    public GameObject loveProjectilePrefab;
-    public Transform  firePoint;
-    public float      fireRate       = 0.3f;
-    public float      projectileSpeed = 30f;
+    [SerializeField] private GameObject loveProjectilePrefab;
+    [SerializeField] private Transform  firePoint;
+    [SerializeField] private float      fireRate       = 0.3f;
+    [SerializeField] private float      projectileSpeed = 30f;
 
     [Header("Ammo")]
     [Tooltip("Magazine size — how many shots per reload.")]
-    public int maxAmmo     = 30;
+    [SerializeField] private int maxAmmo     = 30;
     [Tooltip("Shots currently in the magazine.")]
     public int currentAmmo = 30;
     [Tooltip("Reserve shots accumulated from pickups. No upper limit.")]
     public int reserveAmmo = 0;
-    public float reloadTime = 1.5f;
+    [SerializeField] private float reloadTime = 1.5f;
 
     [Header("Audio")]
-    public AudioClip shootSound;
-    public AudioClip reloadSound;
-    public AudioClip emptySound;
+    [SerializeField] private AudioClip shootSound;
+    [SerializeField] private AudioClip reloadSound;
+    [SerializeField] private AudioClip emptySound;
 
     [Header("Visual Feedback")]
-    public ParticleSystem muzzleFlash;
+    [SerializeField] private ParticleSystem muzzleFlash;
 
     private float      nextFireTime = 0f;
     private bool       isReloading  = false;
@@ -44,7 +44,7 @@ public class LoveGun : MonoBehaviour
 
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        TryGetComponent(out audioSource);
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
 

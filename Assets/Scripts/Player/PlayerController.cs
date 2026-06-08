@@ -6,17 +6,17 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
-    public float walkSpeed = 5f;
-    public float sprintSpeed = 8f;
-    public float jumpForce = 5f;
-    public float gravity = -15f;
+    [SerializeField] private float walkSpeed = 5f;
+    [SerializeField] private float sprintSpeed = 8f;
+    [SerializeField] private float jumpForce = 5f;
+    [SerializeField] private float gravity = -15f;
 
     [Header("Mouse Look")]
-    public float mouseSensitivity = 2f;
-    public float maxLookAngle = 80f;
+    [SerializeField] private float mouseSensitivity = 2f;
+    [SerializeField] private float maxLookAngle = 80f;
 
     [Header("References")]
-    public Transform cameraHolder; // Assign the Camera (child of Player)
+    [SerializeField] private Transform cameraHolder; // Assign the Camera (child of Player)
 
     private CharacterController characterController;
     private Vector3 velocity;
@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        characterController = GetComponent<CharacterController>();
+        TryGetComponent(out characterController);
 
         // Lock and hide the cursor
         Cursor.lockState = CursorLockMode.Locked;

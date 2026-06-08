@@ -8,18 +8,18 @@ public class MusicController : MonoBehaviour
     [Header("Playback")]
     [Tooltip("Time in seconds where the music should start. " +
              "Find this by playing the track in Audacity and noting the timestamp.")]
-    public float startTimeSeconds = 0f;
+    [SerializeField] private float startTimeSeconds = 0f;
 
     [Range(0f, 1f)]
-    public float playVolume = 0.7f;
+    [SerializeField] private float playVolume = 0.7f;
 
     [Tooltip("Optional delay before music begins after activation")]
-    public float startDelay = 0f;
+    [SerializeField] private float startDelay = 0f;
 
     [Header("Fade Out")]
     [Tooltip("Auto-fade out after N seconds of playback (0 = no auto-fade)")]
-    public float autoFadeAfter = 0f;
-    public float fadeDuration = 2f;
+    [SerializeField] private float autoFadeAfter = 0f;
+    [SerializeField] private float fadeDuration = 2f;
 
     private AudioSource audioSource;
     private bool isFading = false;
@@ -28,7 +28,7 @@ public class MusicController : MonoBehaviour
 
     void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
+        TryGetComponent(out audioSource);
         audioSource.playOnAwake = false;
     }
 
@@ -75,7 +75,7 @@ public class MusicController : MonoBehaviour
     public void Play()
     {
         if (audioSource == null)
-            audioSource = GetComponent<AudioSource>();
+            TryGetComponent(out audioSource);
 
         isFading = false;
         StartPlayback();
@@ -97,7 +97,7 @@ public class MusicController : MonoBehaviour
     public void FadeOut(float duration)
     {
         if (audioSource == null)
-            audioSource = GetComponent<AudioSource>();
+            TryGetComponent(out audioSource);
 
         Debug.Log($"[MusicController] FadeOut called on '{gameObject.name}'. " +
                   $"isPlaying={audioSource?.isPlaying}, volume={audioSource?.volume:F2}, duration={duration}");

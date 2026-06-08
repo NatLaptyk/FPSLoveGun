@@ -8,9 +8,9 @@ using UnityEngine;
 public class LoveProjectile : MonoBehaviour
 {
     [Header("Settings")]
-    public int lovePower = 1;           // How much love each shot gives
-    public float lifetime = 5f;         // Auto-destroy after this time
-    public GameObject hitEffect;        // Pink heart particle burst on impact
+    [SerializeField] private int lovePower = 1;           // How much love each shot gives
+    [SerializeField] private float lifetime = 5f;         // Auto-destroy after this time
+    [SerializeField] private GameObject hitEffect;        // Pink heart particle burst on impact
 
     private Vector3 previousPosition;
 

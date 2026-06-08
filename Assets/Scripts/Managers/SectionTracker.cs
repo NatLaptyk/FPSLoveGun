@@ -16,17 +16,17 @@ public class SectionTracker : MonoBehaviour
     public UnhappyPerson[] sectionPeople;
 
     [Tooltip("How many must be made happy to clear this section. 0 = all of them.")]
-    public int goalCount = 0;
+    [SerializeField] private int goalCount = 0;
 
     [Header("HUD")]
     [Tooltip("If true, updates HUD with this section's progress instead of global")]
-    public bool showProgressOnHUD = true;
+    [SerializeField] private bool showProgressOnHUD = true;
 
     [Header("Events")]
-    public UnityEvent onSectionStarted;
+    [SerializeField] private UnityEvent onSectionStarted;
     public UnityEvent onSectionComplete;
     [Tooltip("Fired every time a person in this section becomes happy (param: current count)")]
-    public UnityEvent<int> onPersonMadeHappy;
+    [SerializeField] private UnityEvent<int> onPersonMadeHappy;
 
     public int HappyCount { get; private set; }
     public int TotalCount { get; private set; }

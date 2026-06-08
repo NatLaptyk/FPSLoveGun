@@ -22,37 +22,37 @@ public class SequenceTrigger : MonoBehaviour
 {
     [Header("Identity")]
     [Tooltip("Purely for readable Console logs.")]
-    public string triggerName = "SequenceTrigger";
+    [SerializeField] private string triggerName = "SequenceTrigger";
 
     [Header("Activation")]
     [Tooltip("If false, the trigger ignores the player until Arm() is called by an earlier " +
              "step in the sequence. Use this to stop the player short-circuiting a flow.")]
-    public bool startArmed = true;
+    [SerializeField] private bool startArmed = true;
 
     [Tooltip("If true, the trigger fires only once and then disables its collider. " +
              "If false it can fire every time the player enters (respecting Re-Arm Delay).")]
-    public bool triggerOnce = true;
+    [SerializeField] private bool triggerOnce = true;
 
     [Tooltip("When Trigger Once is OFF, the minimum seconds between repeat fires.")]
-    public float reArmDelay = 0.5f;
+    [SerializeField] private float reArmDelay = 0.5f;
 
     [Header("Timing")]
     [Tooltip("Seconds to wait after the player enters before On Triggered fires.")]
-    public float delayBeforeFiring = 0f;
+    [SerializeField] private float delayBeforeFiring = 0f;
 
     [Header("Optional HUD Message")]
     [Tooltip("If set, this is shown via HUDManager.ShowMessage when the trigger fires. " +
              "Leave blank to show nothing.")]
-    [TextArea] public string hudMessage = "";
-    public float hudMessageDuration = 3f;
+    [TextArea] [SerializeField] private string hudMessage = "";
+    [SerializeField] private float hudMessageDuration = 3f;
 
     [Header("Optional Audio")]
     [Tooltip("One-shot sound played at the trigger's position when it fires.")]
-    public AudioClip triggerSound;
+    [SerializeField] private AudioClip triggerSound;
 
     [Header("Event")]
     [Tooltip("Fired when the (armed) player enters. Wire this to any public method.")]
-    public UnityEvent onTriggered;
+    [SerializeField] private UnityEvent onTriggered;
 
     // ── State ───────────────────────────────────────────────────────────────────
     public bool IsArmed { get; private set; }

@@ -12,12 +12,12 @@ public class PlayerHealth : MonoBehaviour
     public int currentHappiness = 100;
 
     [Header("Visuals")]
-    public Color normalScreenColor = Color.clear;
-    public Color sadScreenColor = new Color(0f, 0f, 0.3f, 0.3f); // Blue overlay when sad
+    [SerializeField] private Color normalScreenColor = Color.clear;
+    [SerializeField] private Color sadScreenColor = new Color(0f, 0f, 0.3f, 0.3f); // Blue overlay when sad
 
     [Header("Audio")]
-    public AudioClip hurtSound;
-    public AudioClip healSound;
+    [SerializeField] private AudioClip hurtSound;
+    [SerializeField] private AudioClip healSound;
 
     private AudioSource audioSource;
 
@@ -32,7 +32,7 @@ public class PlayerHealth : MonoBehaviour
     // Used to show the "Happiness level dangerously low!" warning.
    
     public System.Action onLowHealth;
-    [HideInInspector] public float lowHealthThreshold = 0.25f;
+    [HideInInspector] [SerializeField] private float lowHealthThreshold = 0.25f;
     private bool lowHealthFired = false;
 
 
@@ -45,7 +45,7 @@ public class PlayerHealth : MonoBehaviour
 
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        TryGetComponent(out audioSource);
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
 

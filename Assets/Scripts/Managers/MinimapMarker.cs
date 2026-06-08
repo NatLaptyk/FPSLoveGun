@@ -22,10 +22,10 @@ public class MinimapMarker : MonoBehaviour
     public MarkerType markerType = MarkerType.NPC;
 
     [Tooltip("Height above the object. Keep this above your tallest building (default 15).")]
-    public float heightOffset = 15f;
+    [SerializeField] private float heightOffset = 15f;
 
     [Tooltip("Size of the icon in world units.")]
-    public float iconSize = 2.5f;
+    [SerializeField] private float iconSize = 2.5f;
 
     // ── Colours ───────────────────────────────────────────────────────────────
     static readonly Color ColPlayer       = Color.black;

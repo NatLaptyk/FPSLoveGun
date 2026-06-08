@@ -9,13 +9,13 @@ using UnityEngine;
 public class LoveBombProjectile : MonoBehaviour
 {
     [Header("Explosion")]
-    public float explosionRadius = 6f;      // How far the love spreads
-    public int lovePower = 5;               // Much more love than a regular shot
-    public float fuseTime = 3f;             // Explodes after this time if it hasn't hit anything
-    public GameObject explosionEffect;      // Big pink/heart particle explosion
+    [SerializeField] private float explosionRadius = 6f;      // How far the love spreads
+    [SerializeField] private int lovePower = 5;               // Much more love than a regular shot
+    [SerializeField] private float fuseTime = 3f;             // Explodes after this time if it hasn't hit anything
+    [SerializeField] private GameObject explosionEffect;      // Big pink/heart particle explosion
 
     [Header("Audio")]
-    public AudioClip explosionSound;
+    [SerializeField] private AudioClip explosionSound;
 
     private bool hasExploded = false;
 

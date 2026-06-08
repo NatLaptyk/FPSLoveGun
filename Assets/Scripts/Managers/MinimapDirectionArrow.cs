@@ -9,18 +9,18 @@ public class MinimapDirectionArrow : MonoBehaviour
 {
     [Header("References")]
     public Transform player;
-    public MinimapCamera minimapCamera;
+    [SerializeField] private MinimapCamera minimapCamera;
 
     [Header("Minimap UI")]
     [Tooltip("Radius of the circular minimap in pixels. Half the width of your minimap panel.")]
-    public float minimapRadius = 80f;
+    [SerializeField] private float minimapRadius = 80f;
 
     [Tooltip("How far inside the edge to place the arrow.")]
-    public float arrowEdgeOffset = 12f;
+    [SerializeField] private float arrowEdgeOffset = 12f;
 
     [Header("Debug")]
     [Tooltip("Currently tracked objective — set automatically, shown for reference.")]
-    public Transform currentObjective;
+    [SerializeField] private Transform currentObjective;
 
     private RectTransform rectTransform;
     private Image arrowImage;
@@ -29,8 +29,8 @@ public class MinimapDirectionArrow : MonoBehaviour
 
     void Start()
     {
-        rectTransform = GetComponent<RectTransform>();
-        arrowImage    = GetComponent<Image>();
+        TryGetComponent(out rectTransform);
+        TryGetComponent(out arrowImage);
 
         if (player == null)
         {

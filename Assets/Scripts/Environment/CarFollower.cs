@@ -9,7 +9,7 @@ public class CarFollower : MonoBehaviour
     public float speed = 8f;
 
     [Tooltip("How quickly the car rotates to match the road direction")]
-    public float rotationSmoothing = 10f;
+    [SerializeField] private float rotationSmoothing = 10f;
 
     [Header("Path (set by CarSpawner — leave empty on prefab)")]
     public CarPath path;
@@ -40,7 +40,7 @@ public class CarFollower : MonoBehaviour
         // Convert world-speed to t-speed
         tSpeed = speed / pathLength;
 
-        rb = GetComponent<Rigidbody>();
+        TryGetComponent(out rb);
         if (rb != null)
         {
             // Cars follow a fixed path — lock axes that physics shouldn't control.

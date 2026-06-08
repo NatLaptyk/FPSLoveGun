@@ -7,29 +7,29 @@ public class TriggerZone : MonoBehaviour
     public enum TriggerType { Event, Pickup, Checkpoint, AreaMessage }
 
     [Header("Trigger Settings")]
-    public TriggerType triggerType = TriggerType.Event;
-    public bool triggerOnce = true;
+    [SerializeField] private TriggerType triggerType = TriggerType.Event;
+    [SerializeField] private bool triggerOnce = true;
     private bool hasTriggered = false;
 
     [Header("Event Trigger")]
-    public EventManager eventToTrigger;      // Assign the EventManager this zone activates
+    [SerializeField] private EventManager eventToTrigger;      // Assign the EventManager this zone activates
 
     public enum PickupType { Ammo, LoveBomb, Happiness }
 
     [Header("Pickup Settings (if type = Pickup)")]
-    public PickupType pickupType = PickupType.Ammo;
-    public int pickupAmount = 10;
-    public GameObject pickupVisual;          // The visible pickup object to hide after collecting
+    [SerializeField] private PickupType pickupType = PickupType.Ammo;
+    [SerializeField] private int pickupAmount = 10;
+    [SerializeField] private GameObject pickupVisual;          // The visible pickup object to hide after collecting
 
     [Header("Checkpoint (if type = Checkpoint)")]
-    public Transform respawnPoint;           // Where the player respawns
+    [SerializeField] private Transform respawnPoint;           // Where the player respawns
 
     [Header("Area Message (if type = AreaMessage)")]
-    public string areaMessage = "";          // E.g., "The Town Square" or "Caution: Very Unhappy Zone"
-    public float messageDuration = 3f;
+    [SerializeField] private string areaMessage = "";          // E.g., "The Town Square" or "Caution: Very Unhappy Zone"
+    [SerializeField] private float messageDuration = 3f;
 
     [Header("Audio")]
-    public AudioClip triggerSound;
+    [SerializeField] private AudioClip triggerSound;
 
     void OnTriggerEnter(Collider other)
     {

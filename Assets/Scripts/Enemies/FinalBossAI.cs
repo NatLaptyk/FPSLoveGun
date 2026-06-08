@@ -27,81 +27,81 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     [Header("Boss Stats")]
     public int loveNeededToDefeat = 15;
     [Tooltip("Multiplier applied to love received while stunned.")]
-    public int stunnedLoveMultiplier = 3;
-    public float stunDuration = 4f;
+    [SerializeField] private int stunnedLoveMultiplier = 3;
+    [SerializeField] private float stunDuration = 4f;
 
     // ── Movement ──────────────────────────────────────────────────────────────
     [Header("Movement")]
-    public float walkSpeed  = 2f;
-    public float runSpeed   = 8f;    // set higher than player speed so boss can catch up
-    public float aggroRange = 20f;
+    [SerializeField] private float walkSpeed  = 2f;
+    [SerializeField] private float runSpeed   = 8f;    // set higher than player speed so boss can catch up
+    [SerializeField] private float aggroRange = 20f;
     [Tooltip("Distance at which the boss breaks into a run instead of walking.")]
-    public float runThreshold = 4f;
+    [SerializeField] private float runThreshold = 4f;
     [Tooltip("Distance at which the boss jumps toward the player to close the gap.")]
-    public float jumpTriggerDistance = 10f;
-    public float jumpCooldown = 5f;
+    [SerializeField] private float jumpTriggerDistance = 10f;
+    [SerializeField] private float jumpCooldown = 5f;
     [Tooltip("How many units the boss rises at the peak of the jump arc. " +
              "Increase this to clear taller obstacles.")]
-    public float jumpArcHeight = 3f;
+    [SerializeField] private float jumpArcHeight = 3f;
 
     // ── Attacks ───────────────────────────────────────────────────────────────
     [Header("Quick Attack (Attack1)")]
     [Tooltip("Melee range for the quick jab.")]
-    public float quickAttackRange = 2.5f;
-    public int   quickAttackDamage = 10;
-    public float quickAttackCooldown = 2f;
-    public float quickAttackAnimLength = 0.8f;
+    [SerializeField] private float quickAttackRange = 2.5f;
+    [SerializeField] private int   quickAttackDamage = 10;
+    [SerializeField] private float quickAttackCooldown = 2f;
+    [SerializeField] private float quickAttackAnimLength = 0.8f;
 
     [Header("Heavy Attack (Attack2)")]
     [Tooltip("Melee range for the heavy swing — slightly wider than quick.")]
-    public float heavyAttackRange = 3.5f;
-    public int   heavyAttackDamage = 25;
-    public float heavyAttackCooldown = 4f;
-    public float heavyAttackAnimLength = 1.2f;
+    [SerializeField] private float heavyAttackRange = 3.5f;
+    [SerializeField] private int   heavyAttackDamage = 25;
+    [SerializeField] private float heavyAttackCooldown = 4f;
+    [SerializeField] private float heavyAttackAnimLength = 1.2f;
 
     [Header("Sadness Pulse (Attack3)")]
     [Tooltip("Radius of the AoE sadness pulse centred on the boss.")]
-    public float pulseRadius = 8f;
-    public int   pulseDamage = 15;
-    public float pulseCooldown = 6f;
-    public float pulseAnimLength = 1.5f;
+    [SerializeField] private float pulseRadius = 8f;
+    [SerializeField] private int   pulseDamage = 15;
+    [SerializeField] private float pulseCooldown = 6f;
+    [SerializeField] private float pulseAnimLength = 1.5f;
     [Tooltip("Optional particle/effect spawned at the boss position during the pulse.")]
-    public GameObject pulseEffectPrefab;
+    [SerializeField] private GameObject pulseEffectPrefab;
 
     [Header("Teleport Dash (Attack5)")]
     [Tooltip("The boss vanishes and reappears directly behind the player, then immediately swings. " +
              "Triggers at any distance once the cooldown is ready.")]
-    public float teleportDashCooldown = 12f;
+    [SerializeField] private float teleportDashCooldown = 12f;
     [Tooltip("How far behind the player the boss lands (metres).")]
-    public float teleportBehindDistance = 1.8f;
+    [SerializeField] private float teleportBehindDistance = 1.8f;
     [Tooltip("Damage dealt by the guaranteed strike right after the teleport.")]
-    public int   teleportStrikeDamage = 20;
+    [SerializeField] private int   teleportStrikeDamage = 20;
     [Tooltip("Optional VFX prefab played at the DISAPPEAR position.")]
-    public GameObject teleportDisappearVFX;
+    [SerializeField] private GameObject teleportDisappearVFX;
     [Tooltip("Optional VFX prefab played at the APPEAR position.")]
-    public GameObject teleportAppearVFX;
+    [SerializeField] private GameObject teleportAppearVFX;
     [Tooltip("Duration of the VFX / brief pause before the boss reappears.")]
-    public float teleportVFXDuration = 0.25f;
+    [SerializeField] private float teleportVFXDuration = 0.25f;
     [Tooltip("How long the strike animation lasts after the boss reappears.")]
-    public float teleportStrikeAnimLength = 0.8f;
+    [SerializeField] private float teleportStrikeAnimLength = 0.8f;
 
     [Header("Ring Shot (Attack4)")]
     [Tooltip("Number of projectiles fired evenly spread around the full 360°.")]
-    public int   ringProjectileCount = 12;
+    [SerializeField] private int   ringProjectileCount = 12;
     [Tooltip("Projectile prefab for the ring shot. Reuses bossProjectilePrefab if left empty.")]
-    public GameObject ringProjectilePrefab;
+    [SerializeField] private GameObject ringProjectilePrefab;
     [Tooltip("Fallback single-shot projectile prefab (used by ring shot if ringProjectilePrefab is empty).")]
-    public GameObject bossProjectilePrefab;
+    [SerializeField] private GameObject bossProjectilePrefab;
     [Tooltip("How fast each ring projectile travels.")]
-    public float ringProjectileForce = 14f;
+    [SerializeField] private float ringProjectileForce = 14f;
     [Tooltip("Distance at which the ring shot triggers (medium range).")]
-    public float ringShotRange = 14f;
-    public float ringShotCooldown = 7f;
-    public float ringShotAnimLength = 1.0f;
+    [SerializeField] private float ringShotRange = 14f;
+    [SerializeField] private float ringShotCooldown = 7f;
+    [SerializeField] private float ringShotAnimLength = 1.0f;
     [Tooltip("Radius around the boss body from which each projectile spawns.")]
-    public float ringShotSpawnRadius = 0.8f;
+    [SerializeField] private float ringShotSpawnRadius = 0.8f;
     [Tooltip("Y offset from the boss pivot where projectiles spawn (waist / chest height).")]
-    public float ringShotHeightOffset = 1.2f;
+    [SerializeField] private float ringShotHeightOffset = 1.2f;
 
     // ── Phase Relocation ──────────────────────────────────────────────────────
     [Header("Phase — Boss Relocation")]
@@ -109,52 +109,52 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
              "  [0] = where the boss warps when Phase 2 starts (≥ phase2Threshold).\n" +
              "  [1] = where the boss warps when Phase 3 starts (≥ phase3Threshold).\n" +
              "Leave empty to disable phase teleportation entirely.")]
-    public Transform[] phaseSpawnPoints;
+    [SerializeField] private Transform[] phaseSpawnPoints;
 
     [Range(0f, 1f)]
     [Tooltip("Fraction of loveNeededToDefeat at which the boss escapes to Phase 2 location. " +
              "Default 0.30 = 30 %.")]
-    public float phase2Threshold = 0.30f;
+    [SerializeField] private float phase2Threshold = 0.30f;
 
     [Range(0f, 1f)]
     [Tooltip("Fraction of loveNeededToDefeat at which the boss escapes to Phase 3 location. " +
              "Default 0.80 = 80 %.")]
-    public float phase3Threshold = 0.80f;
+    [SerializeField] private float phase3Threshold = 0.80f;
 
     [Tooltip("VFX prefab played at the boss position when it vanishes (used for both departure " +
              "and arrival). Leave empty to skip.")]
-    public GameObject phaseTeleportVFX;
+    [SerializeField] private GameObject phaseTeleportVFX;
 
     [Tooltip("Seconds the boss stays invisible while warping to the next phase location.")]
-    public float phaseTransitionDuration = 1.5f;
+    [SerializeField] private float phaseTransitionDuration = 1.5f;
 
     [Tooltip("Optional HintMessage component to call ShowWithText() on during each transition. " +
              "Wire to a trigger zone or a screen-space canvas HintMessage in the scene.")]
-    public HintMessage phaseHintMessage;
+    [SerializeField] private HintMessage phaseHintMessage;
 
     [Tooltip("Hint shown to the player when the boss escapes to Phase 2.")]
-    public string phase2Message = "The boss has fled! Find him across town!";
+    [SerializeField] private string phase2Message = "The boss has fled! Find him across town!";
 
     [Tooltip("Hint shown to the player when the boss escapes to Phase 3.")]
-    public string phase3Message = "He's running again — track him down and finish this!";
+    [SerializeField] private string phase3Message = "He's running again — track him down and finish this!";
 
     // ── Watcher Summons ───────────────────────────────────────────────────────
     [Header("Watcher Summons")]
     [Tooltip("The WatcherAI prefab to spawn during combat.")]
-    public GameObject watcherPrefab;
+    [SerializeField] private GameObject watcherPrefab;
 
     [Tooltip("Maximum number of Watchers alive at the same time. " +
              "Boss won't summon more until one is defeated.")]
-    public int maxWatchersAlive = 2;
+    [SerializeField] private int maxWatchersAlive = 2;
 
     [Tooltip("Seconds between summons (when below the max).")]
-    public float watcherSpawnCooldown = 18f;
+    [SerializeField] private float watcherSpawnCooldown = 18f;
 
     [Tooltip("Radius around the boss where Watchers appear.")]
-    public float watcherSpawnRadius = 6f;
+    [SerializeField] private float watcherSpawnRadius = 6f;
 
     [Tooltip("How high above the boss the Watcher spawns (they hover, so start them elevated).")]
-    public float watcherSpawnHeight = 4f;
+    [SerializeField] private float watcherSpawnHeight = 4f;
 
     private float nextWatcherSpawnTime;
     private List<GameObject> activeWatchers = new List<GameObject>();
@@ -163,10 +163,10 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     [Header("Defeat — Explosion")]
     [Tooltip("Particle / VFX prefab instantiated at the boss position on defeat, " +
              "before NPCs are ejected. Leave empty to skip.")]
-    public GameObject explosionEffectPrefab;
+    [SerializeField] private GameObject explosionEffectPrefab;
     [Tooltip("Seconds to wait after the explosion spawns before ejecting NPCs. " +
              "Match this to the peak of your explosion effect.")]
-    public float explosionDuration = 1.2f;
+    [SerializeField] private float explosionDuration = 1.2f;
 
     [Tooltip("MinimapMarker (Objective type) for the boss location. " +
              "Hidden automatically when the boss is defeated.")]
@@ -174,38 +174,38 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
 
     [Header("Defeat — NPC Ejection")]
     [Tooltip("NPC prefabs and counts to burst out of the boss on defeat.")]
-    public SavedNPCConfig[] savedNPCsToEject;
-    public float ejectForce = 400f;
+    [SerializeField] private SavedNPCConfig[] savedNPCsToEject;
+    [SerializeField] private float ejectForce = 400f;
 
     // ── References ────────────────────────────────────────────────────────────
     [Header("References")]
     public Transform player;
     [Tooltip("Assign a SectionTracker — the ejected NPCs are auto-registered with it " +
              "so the section completes once they are all converted.")]
-    public SectionTracker bossPhaseTracker;
+    [SerializeField] private SectionTracker bossPhaseTracker;
 
     // ── Music ─────────────────────────────────────────────────────────────────
     [Header("Music")]
     [Tooltip("MusicController for the boss fight track. " +
              "Played the moment the boss first aggros onto the player.")]
-    public MusicController bossFightMusic;
+    [SerializeField] private MusicController bossFightMusic;
 
     // ── Events ────────────────────────────────────────────────────────────────
     [Header("Events")]
     [Tooltip("Fires the moment the boss is defeated (before the die animation finishes). " +
              "Wire to music, HUD message, etc.")]
-    public UnityEngine.Events.UnityEvent onDefeated;
+    [SerializeField] private UnityEngine.Events.UnityEvent onDefeated;
 
     // ── Audio ─────────────────────────────────────────────────────────────────
     [Header("Audio")]
-    public AudioClip attackSound;
-    public AudioClip pulseSound;
-    public AudioClip hitSound;
-    public AudioClip defeatSound;
+    [SerializeField] private AudioClip attackSound;
+    [SerializeField] private AudioClip pulseSound;
+    [SerializeField] private AudioClip hitSound;
+    [SerializeField] private AudioClip defeatSound;
 
     [Range(0f, 1f)]
     [Tooltip("Master volume for all boss sound effects.")]
-    public float sfxVolume = 1f;
+    [SerializeField] private float sfxVolume = 1f;
 
     // ── Privates ──────────────────────────────────────────────────────────────
     private NavMeshAgent agent;
@@ -231,10 +231,10 @@ public class FinalBossAI : MonoBehaviour, ILovable<bool>
     // ─────────────────────────────────────────────────────────────────────────
     void Start()
     {
-        agent        = GetComponent<NavMeshAgent>();
-        animator     = GetComponent<Animator>();
-        bossCollider = GetComponent<Collider>();
-        audioSource  = GetComponent<AudioSource>();
+        TryGetComponent(out agent);
+        TryGetComponent(out animator);
+        TryGetComponent(out bossCollider);
+        TryGetComponent(out audioSource);
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
 

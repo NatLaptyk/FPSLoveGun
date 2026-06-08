@@ -6,57 +6,57 @@ public class DebugSkipController : MonoBehaviour
 {
     // ── Hotkeys ─────────────────────────────────────────────────────────────────
     [Header("Hotkeys")]
-    public KeyCode skipCafeKey    = KeyCode.Alpha1;
-    public KeyCode skipStadiumKey = KeyCode.Alpha2;
-    public KeyCode skipBothKey    = KeyCode.Alpha3;
+    [SerializeField] private KeyCode skipCafeKey    = KeyCode.Alpha1;
+    [SerializeField] private KeyCode skipStadiumKey = KeyCode.Alpha2;
+    [SerializeField] private KeyCode skipBothKey    = KeyCode.Alpha3;
 
     // ── Café skip ───────────────────────────────────────────────────────────────
     [Header("Café Skip")]
     [Tooltip("Café SectionTracker. Each of its sectionPeople is force-converted, which fires the " +
              "tracker's onSectionComplete (BreatherZone.Open, Section2Spawner.UnlockEntrance, etc.).")]
-    public SectionTracker cafeTracker;
+    [SerializeField] private SectionTracker cafeTracker;
 
     [Tooltip("If ON, after clearing the café also call Section2Spawner.UnlockEntrance() directly, " +
              "BYPASSING any BreatherZone you have wired between them. Handy when you only want to " +
              "test the stadium.")]
-    public bool bypassBreatherOnCafeSkip = false;
+    [SerializeField] private bool bypassBreatherOnCafeSkip = false;
 
     // ── Stadium skip ────────────────────────────────────────────────────────────
     [Header("Stadium Skip")]
     [Tooltip("Section2Spawner — used to stop the infinite wave loop and (optionally) to unlock the " +
              "entrance when 'Bypass Breather On Café Skip' is on.")]
-    public Section2Spawner section2Spawner;
+    [SerializeField] private Section2Spawner section2Spawner;
 
     [Tooltip("Same teleport destination CatVisionEvent uses — the empty GameObject in the street " +
              "where the player should land after the stadium.")]
-    public Transform postStadiumTeleport;
+    [SerializeField] private Transform postStadiumTeleport;
 
     [Tooltip("What to SetActive(true) after the teleport. Assign the FinalBoss directly to skip " +
              "everything; assign your AmbushGauntlet to skip only the stadium and still play the " +
              "Heartbreak Bridge ambush.")]
-    public GameObject postStadiumActivate;
+    [SerializeField] private GameObject postStadiumActivate;
 
     [Tooltip("Optional MinimapMarker to Show() after the skip — usually the boss objective marker " +
              "that CatVisionEvent.bossObjectiveMarker points at.")]
-    public MinimapMarker postStadiumObjectiveMarker;
+    [SerializeField] private MinimapMarker postStadiumObjectiveMarker;
 
     [Tooltip("Player to teleport. If empty, auto-found by tag 'Player' on the first skip.")]
-    public Transform playerTransform;
+    [SerializeField] private Transform playerTransform;
 
     [Tooltip("PlayerHealth. If empty, auto-found from the player transform on the first skip.")]
     public PlayerHealth playerHealth;
 
     [Tooltip("Heal the player to full happiness when skipping the stadium.")]
-    public bool healOnStadiumSkip = true;
+    [SerializeField] private bool healOnStadiumSkip = true;
 
     [Tooltip("If ON, live stadium NPCs are Destroyed rather than converted. Faster, no happy-NPC " +
              "wanderers left behind, but the GameManager people-counter won't tick up for them.")]
-    public bool destroyStadiumNpcsOnSkip = false;
+    [SerializeField] private bool destroyStadiumNpcsOnSkip = false;
 
     // ── Feedback ────────────────────────────────────────────────────────────────
     [Header("Feedback")]
     [Tooltip("Show a brief HUDManager message when a skip fires.")]
-    public bool showHudMessages = true;
+    [SerializeField] private bool showHudMessages = true;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     void Start()

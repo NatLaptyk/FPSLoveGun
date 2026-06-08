@@ -17,12 +17,12 @@ public class UnhappyPerson : MonoBehaviour
     public MoodState currentMood = MoodState.Unhappy;
 
     [Header("Behaviour Mode")]
-    public BehaviourMode behaviourMode = BehaviourMode.Patrol;
+    [SerializeField] private BehaviourMode behaviourMode = BehaviourMode.Patrol;
 
     [Header("Patrol")]
-    public Transform[] patrolPoints;         // Assign waypoints in Inspector
-    public float patrolSpeed = 2.5f;
-    public float waitTimeAtPoint = 1f;       // Pause at each patrol point
+    [SerializeField] private Transform[] patrolPoints;         // Assign waypoints in Inspector
+    [SerializeField] private float patrolSpeed = 2.5f;
+    [SerializeField] private float waitTimeAtPoint = 1f;       // Pause at each patrol point
     private int currentPatrolIndex = 0;
     private float waitTimer = 0f;
     private bool isWaiting = false;
@@ -31,11 +31,11 @@ public class UnhappyPerson : MonoBehaviour
     [Tooltip("Where this NPC should walk to on the field after descending from seats.")]
     public Transform fieldTarget;
     [Tooltip("Speed when walking down to the field.")]
-    public float descentSpeed = 3.5f;
+    [SerializeField] private float descentSpeed = 3.5f;
     [Tooltip("Radius of the circle NPCs form around the player.")]
     public float crowdRadius = 4f;
     [Tooltip("Speed when crowding toward the player on the field.")]
-    public float crowdSpeed = 2f;
+    [SerializeField] private float crowdSpeed = 2f;
     [Tooltip("This NPC's index in the crowd ring (set by Section2Spawner).")]
     public int crowdSlotIndex = 0;
     [Tooltip("Total number of NPCs sharing the crowd ring (set by Section2Spawner).")]
@@ -46,36 +46,36 @@ public class UnhappyPerson : MonoBehaviour
     private bool stadiumActivated = false;
 
     [Header("Combat — Throwing Sadness")]
-    public GameObject sadnessProjectilePrefab;  // Assign SadnessProjectile prefab
-    public Transform throwPoint;                 // Empty child object where projectiles spawn
+    [SerializeField] private GameObject sadnessProjectilePrefab;  // Assign SadnessProjectile prefab
+    [SerializeField] private Transform throwPoint;                 // Empty child object where projectiles spawn
     public float detectionRange = 15f;           // How far they can see the player
     public float attackRange = 12f;              // Range at which they start throwing
-    public float throwCooldown = 2f;             // Time between throws
-    public float throwForce = 6f;                // Lowered so the sadness is easier to see in flight
+    [SerializeField] private float throwCooldown = 2f;             // Time between throws
+    [SerializeField] private float throwForce = 6f;                // Lowered so the sadness is easier to see in flight
     [Tooltip("Height offset above the player's pivot to aim at. " +
              "Player pivot is usually at their feet, so 1.4–1.6 targets the chest.")]
-    public float throwAimOffsetY = 1.5f;
+    [SerializeField] private float throwAimOffsetY = 1.5f;
     private float nextThrowTime = 0f;
 
     [Header("Sadness Trail")]
     [Tooltip("Attach a trail to thrown sadness so it's visible even at speed")]
-    public bool addSadnessTrail = true;
-    public Color sadnessTrailColor = new Color(0.2f, 0.2f, 0.6f, 1f); // Dark blue
-    public float sadnessTrailTime = 0.5f;
-    public float sadnessTrailStartWidth = 0.3f;
-    public float sadnessTrailEndWidth = 0.02f;
+    [SerializeField] private bool addSadnessTrail = true;
+    [SerializeField] private Color sadnessTrailColor = new Color(0.2f, 0.2f, 0.6f, 1f); // Dark blue
+    [SerializeField] private float sadnessTrailTime = 0.5f;
+    [SerializeField] private float sadnessTrailStartWidth = 0.3f;
+    [SerializeField] private float sadnessTrailEndWidth = 0.02f;
 
     [Header("Visuals")]
     public Renderer bodyRenderer;               // To change color when becoming happy
-    public Color unhappyColor = new Color(0.3f, 0.3f, 0.8f);   // Blue/sad
-    public Color veryUnhappyColor = new Color(0.5f, 0.1f, 0.5f); // Purple/very sad
+    [SerializeField] private Color unhappyColor = new Color(0.3f, 0.3f, 0.8f);   // Blue/sad
+    [SerializeField] private Color veryUnhappyColor = new Color(0.5f, 0.1f, 0.5f); // Purple/very sad
     public Color happyColor = new Color(1f, 0.9f, 0.2f);        // Yellow/happy
-    public GameObject happyEffect;              // Particle effect when converted
+    [SerializeField] private GameObject happyEffect;              // Particle effect when converted
 
     [Header("Audio")]
-    public AudioClip sadSound;       // Periodic sad mumbling
-    public AudioClip happySound;     // Plays when converted
-    public AudioClip throwSound;
+    [SerializeField] private AudioClip sadSound;       // Periodic sad mumbling
+    [SerializeField] private AudioClip happySound;     // Plays when converted
+    [SerializeField] private AudioClip throwSound;
 
     [Header("UI Indicator")]
     public GameObject unhappyIndicator;   // Floating sad emoji/icon above head (optional)
@@ -90,10 +90,10 @@ public class UnhappyPerson : MonoBehaviour
 
     void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
+        TryGetComponent(out agent);
         agent.speed = patrolSpeed;
 
-        audioSource = GetComponent<AudioSource>();
+        TryGetComponent(out audioSource);
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
 
@@ -245,7 +245,7 @@ public class UnhappyPerson : MonoBehaviour
     public void ActivateStadiumBehaviour()
     {
         // Cache agent in case Start() hasn't run yet
-        if (agent == null) agent = GetComponent<NavMeshAgent>();
+        if (agent == null) TryGetComponent(out agent);
 
         behaviourMode = BehaviourMode.Stadium;
         stadiumActivated = true;
@@ -362,16 +362,16 @@ public class UnhappyPerson : MonoBehaviour
 
     [Header("Happy Behavior")]
     [Tooltip("Health pickup prefab to spawn when this NPC is converted. Leave empty to skip.")]
-    public GameObject healthDropPrefab;
+    [SerializeField] private GameObject healthDropPrefab;
     [Tooltip("Chance (0–1) that a health pickup drops on conversion. 1 = always, 0.5 = 50%.")]
     [Range(0f, 1f)]
-    public float healthDropChance = 1f;
+    [SerializeField] private float healthDropChance = 1f;
     [Tooltip("Speed at which happy people wander around")]
-    public float happyWanderSpeed = 1.5f;
+    [SerializeField] private float happyWanderSpeed = 1.5f;
     [Tooltip("Radius around current position for happy wandering")]
-    public float happyWanderRadius = 6f;
+    [SerializeField] private float happyWanderRadius = 6f;
     [Tooltip("Seconds between picking new wander destinations")]
-    public float happyWanderInterval = 5f;
+    [SerializeField] private float happyWanderInterval = 5f;
 
     void BecomeHappy()
     {

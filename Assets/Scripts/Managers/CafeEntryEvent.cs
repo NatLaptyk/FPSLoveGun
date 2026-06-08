@@ -14,62 +14,62 @@ public class CafeEntryEvent : MonoBehaviour
     public GameObject npcPrefab;
 
     [Tooltip("Where the NPC appears at the start of the sequence.")]
-    public Transform npcSpawnPoint;
+    [SerializeField] private Transform npcSpawnPoint;
 
     [Tooltip("Position just outside the café door where the NPC pauses.")]
-    public Transform cafeEntranceTarget;
+    [SerializeField] private Transform cafeEntranceTarget;
 
     [Tooltip("Position just inside the café where the NPC walks to after the door opens.")]
-    public Transform cafeInteriorTarget;
+    [SerializeField] private Transform cafeInteriorTarget;
 
     // ── Door ──────────────────────────────────────────────────────────────────
     [Header("Door")]
     [Tooltip("The door GameObject — must have an Animator component on it.")]
-    public GameObject door;
+    [SerializeField] private GameObject door;
 
     [Tooltip("Exact name of the Animator trigger that plays the open animation.")]
-    public string doorOpenTrigger = "Open";
+    [SerializeField] private string doorOpenTrigger = "Open";
 
     [Tooltip("Exact name of the Animator trigger that plays the close animation.")]
-    public string doorCloseTrigger = "Close";
+    [SerializeField] private string doorCloseTrigger = "Close";
 
     [Tooltip("How long to wait after firing the Open trigger before the NPC walks in. " +
              "Match this to the length of your open animation clip.")]
-    public float doorOpenDuration = 0.6f;
+    [SerializeField] private float doorOpenDuration = 0.6f;
 
     [Tooltip("How long to wait after firing the Close trigger before continuing. " +
              "Match this to the length of your close animation clip.")]
-    public float doorCloseDuration = 0.6f;
+    [SerializeField] private float doorCloseDuration = 0.6f;
 
     [Tooltip("How long the NPC waits at the entrance before the door opens.")]
-    public float pauseAtDoor = 0.8f;
+    [SerializeField] private float pauseAtDoor = 0.8f;
 
     [Tooltip("How long the NPC stands inside before the door closes.")]
-    public float pauseInsideBeforeClose = 0.6f;
+    [SerializeField] private float pauseInsideBeforeClose = 0.6f;
 
     private Animator doorAnimator;
 
     // ── Watcher ───────────────────────────────────────────────────────────────
     [Header("Watcher")]
     [Tooltip("WatcherAI prefab that bursts out after the door closes.")]
-    public GameObject watcherPrefab;
+    [SerializeField] private GameObject watcherPrefab;
 
     [Tooltip("Spawn point for the Watcher — place it just outside the café exit.")]
-    public Transform watcherSpawnPoint;
+    [SerializeField] private Transform watcherSpawnPoint;
 
     [Tooltip("Seconds between the door fully closing and the Watcher appearing.")]
-    public float delayBeforeWatcher = 0.4f;
+    [SerializeField] private float delayBeforeWatcher = 0.4f;
 
     // ── Camera ────────────────────────────────────────────────────────────────
     [Header("Camera")]
     [Tooltip("Your FPS movement / look script — disabled during the cutscene.")]
-    public MonoBehaviour playerMovementScript;
+    [SerializeField] private MonoBehaviour playerMovementScript;
 
     [Tooltip("The Transform that handles vertical camera look (Main Camera or pivot).")]
-    public Transform playerCamera;
+    [SerializeField] private Transform playerCamera;
 
     [Tooltip("Seconds the camera takes to pan from the player's view to the NPC.")]
-    public float cameraPanDuration = 1f;
+    [SerializeField] private float cameraPanDuration = 1f;
 
     // ── Events ────────────────────────────────────────────────────────────────
     [Header("Events")]

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class SectionCompletePopup : MonoBehaviour
 {
-    public GameObject sectionCompletePanel;
+    [SerializeField] private GameObject sectionCompletePanel;
 
     void Start()
     {

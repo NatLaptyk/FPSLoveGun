@@ -6,28 +6,28 @@ public class CarSpawner : MonoBehaviour
 {
     [Header("Prefabs")]
     [Tooltip("One or more car prefabs. A random one is chosen each spawn.")]
-    public GameObject[] carPrefabs;
+    [SerializeField] private GameObject[] carPrefabs;
 
     [Header("Path")]
-    public CarPath path;
+    [SerializeField] private CarPath path;
 
     [Header("Timing")]
     [Tooltip("Seconds between each car spawn")]
-    public float spawnInterval = 4f;
+    [SerializeField] private float spawnInterval = 4f;
 
     [Tooltip("Random variation on spawn interval (±)")]
-    public float spawnVariance = 1f;
+    [SerializeField] private float spawnVariance = 1f;
 
     [Header("Speed")]
     [Tooltip("Min speed for spawned cars")]
-    public float minSpeed = 6f;
+    [SerializeField] private float minSpeed = 6f;
 
     [Tooltip("Max speed for spawned cars")]
-    public float maxSpeed = 12f;
+    [SerializeField] private float maxSpeed = 12f;
 
     [Header("Limits")]
     [Tooltip("Max cars alive at once (0 = unlimited)")]
-    public int maxCars = 5;
+    [SerializeField] private int maxCars = 5;
 
     private float nextSpawnTime;
     private int activeCars = 0;

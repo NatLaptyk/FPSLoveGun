@@ -6,31 +6,31 @@ using UnityEngine;
 public class LoveBombThrower : MonoBehaviour
 {
     [Header("Love Bomb")]
-    public GameObject loveBombPrefab;    // Assign LoveBombProjectile prefab
-    public Transform throwPoint;          // Camera transform or a child of camera
-    public float throwForce = 8f;         // Lowered so the bomb is easier to see in flight
-    public float upwardForce = 4f;        // Slight upward arc
+    [SerializeField] private GameObject loveBombPrefab;    // Assign LoveBombProjectile prefab
+    [SerializeField] private Transform throwPoint;          // Camera transform or a child of camera
+    [SerializeField] private float throwForce = 8f;         // Lowered so the bomb is easier to see in flight
+    [SerializeField] private float upwardForce = 4f;        // Slight upward arc
 
     [Header("Visual Trail")]
     [Tooltip("Automatically attach a trail to the bomb for visibility")]
-    public bool addTrail = true;
-    public Color trailColor = new Color(1f, 0.4f, 0.7f, 1f); // Pink
-    public float trailTime = 0.6f;
-    public float trailStartWidth = 0.4f;
-    public float trailEndWidth = 0.05f;
+    [SerializeField] private bool addTrail = true;
+    [SerializeField] private Color trailColor = new Color(1f, 0.4f, 0.7f, 1f); // Pink
+    [SerializeField] private float trailTime = 0.6f;
+    [SerializeField] private float trailStartWidth = 0.4f;
+    [SerializeField] private float trailEndWidth = 0.05f;
 
     [Header("Inventory")]
     public int maxBombs = 3;
     public int currentBombs = 3;
 
     [Header("Audio")]
-    public AudioClip throwSound;
+    [SerializeField] private AudioClip throwSound;
 
     private AudioSource audioSource;
 
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        TryGetComponent(out audioSource);
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
     }

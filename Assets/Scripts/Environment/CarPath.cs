@@ -11,7 +11,7 @@ public class CarPath : MonoBehaviour
 
     [Tooltip("How much to round off corners (0 = sharp 90 degree turn, 0.3 = gentle curve).")]
     [Range(0f, 0.49f)]
-    public float cornerSmoothing = 0.2f;
+    [SerializeField] private float cornerSmoothing = 0.2f;
 
     private float[] segmentLengths;
     private float totalLength;

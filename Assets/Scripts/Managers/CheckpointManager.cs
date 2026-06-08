@@ -18,60 +18,60 @@ public class CheckpointManager : MonoBehaviour
 {
     // ── Player references ──────────────────────────────────────────────────────
     [Header("Player references (auto-found by 'Player' tag if blank)")]
-    public Transform       playerTransform;
+    [SerializeField] private Transform       playerTransform;
     public PlayerHealth    playerHealth;
-    public LoveGun         loveGun;
-    public LoveBombThrower bombThrower;
+    [SerializeField] private LoveGun         loveGun;
+    [SerializeField] private LoveBombThrower bombThrower;
 
     // ── Initial checkpoint ─────────────────────────────────────────────────────
     [Header("Initial checkpoint")]
     [Tooltip("Where the player respawns BEFORE any section has set a checkpoint. " +
              "Leave blank to snapshot the player's start position automatically.")]
-    public Transform initialCheckpoint;
+    [SerializeField] private Transform initialCheckpoint;
 
     // ── Section checkpoint slots ───────────────────────────────────────────────
     [Header("Section checkpoints (assign whichever ones you use)")]
     [Tooltip("Empty GameObject placed at the café entrance.")]
-    public Transform cafeCheckpoint;
+    [SerializeField] private Transform cafeCheckpoint;
     [Tooltip("Empty GameObject placed at the breather entrance.")]
-    public Transform breatherCheckpoint;
+    [SerializeField] private Transform breatherCheckpoint;
     [Tooltip("Empty GameObject placed just inside the stadium entry trigger.")]
-    public Transform stadiumCheckpoint;
+    [SerializeField] private Transform stadiumCheckpoint;
     [Tooltip("Empty GameObject placed where the Heartbreak Bridge ambush begins.")]
-    public Transform ambushCheckpoint;
+    [SerializeField] private Transform ambushCheckpoint;
     [Tooltip("Empty GameObject placed at the FinalBoss arena spawn — usually the same " +
              "Transform CatVisionEvent uses as its teleport destination.")]
-    public Transform bossArenaCheckpoint;
+    [SerializeField] private Transform bossArenaCheckpoint;
 
     // ── Reset values on respawn ────────────────────────────────────────────────
     [Header("Respawn resource refill")]
     [Tooltip("LoveGun magazine ammo to ensure on respawn (current ammo is NEVER reduced).")]
-    public int respawnMagAmmo     = 30;
+    [SerializeField] private int respawnMagAmmo     = 30;
     [Tooltip("LoveGun reserve ammo to ensure on respawn (reserve is NEVER reduced).")]
-    public int respawnReserveAmmo = 60;
+    [SerializeField] private int respawnReserveAmmo = 60;
     [Tooltip("Love bombs to ensure on respawn (bombs are NEVER reduced).")]
-    public int respawnBombs       = 3;
+    [SerializeField] private int respawnBombs       = 3;
 
     // ── UI hooks ───────────────────────────────────────────────────────────────
     [Header("UI")]
     [Tooltip("The Game Over panel — hidden on respawn. Same one your GameManager uses.")]
-    public GameObject losePanel;
+    [SerializeField] private GameObject losePanel;
 
     // ── HUD feedback ───────────────────────────────────────────────────────────
     [Header("Feedback")]
     [Tooltip("Show a brief HUDManager message when a checkpoint is set.")]
-    public bool showCheckpointMessage = true;
+    [SerializeField] private bool showCheckpointMessage = true;
     [Tooltip("Format string for the message. {0} is replaced with the checkpoint label.")]
-    public string checkpointMessageFormat = "Checkpoint reached — {0}";
+    [SerializeField] private string checkpointMessageFormat = "Checkpoint reached — {0}";
     [Tooltip("Show a brief HUDManager message when the player respawns.")]
-    public bool showRespawnMessage = true;
+    [SerializeField] private bool showRespawnMessage = true;
     [Tooltip("Format string for the respawn message. {0} is the checkpoint label.")]
-    public string respawnMessageFormat = "Respawning at {0}…";
+    [SerializeField] private string respawnMessageFormat = "Respawning at {0}…";
 
     // ── Events ─────────────────────────────────────────────────────────────────
     [Header("Events")]
-    public UnityEvent onCheckpointSet;
-    public UnityEvent onRespawn;
+    [SerializeField] private UnityEvent onCheckpointSet;
+    [SerializeField] private UnityEvent onRespawn;
 
     // ── State ──────────────────────────────────────────────────────────────────
     public Transform CurrentCheckpoint { get; private set; }

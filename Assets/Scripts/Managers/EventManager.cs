@@ -8,41 +8,41 @@ using System.Collections;
 public class EventManager : MonoBehaviour
 {
     [Header("Event Settings")]
-    public string eventName = "Scripted Event";
-    public bool hasBeenTriggered = false;   // Prevents re-triggering
-    public bool canRetrigger = false;        // Set true if event can repeat
+    [SerializeField] private string eventName = "Scripted Event";
+    [SerializeField] private bool hasBeenTriggered = false;   // Prevents re-triggering
+    [SerializeField] private bool canRetrigger = false;        // Set true if event can repeat
 
     [Header("Objects to Activate")]
-    public GameObject[] objectsToActivate;   // GameObjects to enable when event triggers
+    [SerializeField] private GameObject[] objectsToActivate;   // GameObjects to enable when event triggers
 
     [Header("Objects to Deactivate")]
-    public GameObject[] objectsToDeactivate; // GameObjects to disable (e.g., close a door behind player)
+    [SerializeField] private GameObject[] objectsToDeactivate; // GameObjects to disable (e.g., close a door behind player)
 
     [Header("NPCs to Spawn/Activate")]
-    public GameObject[] npcsToActivate;      // Pre-placed (disabled) NPCs to enable
+    [SerializeField] private GameObject[] npcsToActivate;      // Pre-placed (disabled) NPCs to enable
 
     [Header("Camera Effects")]
-    public bool doCameraShake = false;
-    public float shakeIntensity = 0.3f;
-    public float shakeDuration = 0.5f;
+    [SerializeField] private bool doCameraShake = false;
+    [SerializeField] private float shakeIntensity = 0.3f;
+    [SerializeField] private float shakeDuration = 0.5f;
 
     [Header("Audio")]
-    public AudioClip eventSound;             // Sound to play when event triggers
-    public AudioClip eventMusic;             // Music to switch to (optional)
+    [SerializeField] private AudioClip eventSound;             // Sound to play when event triggers
+    [SerializeField] private AudioClip eventMusic;             // Music to switch to (optional)
 
     [Header("UI Message")]
-    public string hintMessage = "";          // Message to display on HUD
-    public float messageDuration = 4f;
+    [SerializeField] private string hintMessage = "";          // Message to display on HUD
+    [SerializeField] private float messageDuration = 4f;
 
     [Header("Timing")]
-    public float delayBeforeEvent = 0f;      // Delay after trigger before things happen
-    public float delayBetweenActions = 0.5f; // Stagger NPC activations for dramatic effect
+    [SerializeField] private float delayBeforeEvent = 0f;      // Delay after trigger before things happen
+    [SerializeField] private float delayBetweenActions = 0.5f; // Stagger NPC activations for dramatic effect
 
     private AudioSource audioSource;
 
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        TryGetComponent(out audioSource);
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
     }

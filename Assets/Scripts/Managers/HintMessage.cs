@@ -15,14 +15,14 @@ public class HintMessage : MonoBehaviour
     // ── UI ─────────────────────────────────────────────────────────────────────
     [Header("UI References")]
     [Tooltip("CanvasGroup on the hint panel. Keep the panel INACTIVE in the scene.")]
-    public CanvasGroup hintCanvasGroup;
+    [SerializeField] private CanvasGroup hintCanvasGroup;
 
     [Tooltip("TextMeshPro component for the main message body.")]
-    public TextMeshProUGUI messageText;
+    [SerializeField] private TextMeshProUGUI messageText;
 
     [Tooltip("Optional smaller text that says 'Press Enter to dismiss'. " +
              "Hidden automatically if displayDuration > 0.")]
-    public TextMeshProUGUI dismissPromptText;
+    [SerializeField] private TextMeshProUGUI dismissPromptText;
 
     // ── Content ────────────────────────────────────────────────────────────────
     [Header("Content")]
@@ -36,18 +36,18 @@ public class HintMessage : MonoBehaviour
     [Header("Behaviour")]
     [Tooltip("Seconds before the message auto-dismisses. " +
              "Set to 0 to require the player to press Enter / Space.")]
-    public float displayDuration = 6f;
+    [SerializeField] private float displayDuration = 6f;
 
     [Tooltip("Seconds for the panel to fade in and out.")]
-    public float fadeDuration = 0.4f;
+    [SerializeField] private float fadeDuration = 0.4f;
 
     [Tooltip("If true, this message can only be shown once per session.")]
-    public bool showOnce = true;
+    [SerializeField] private bool showOnce = true;
 
     // ── Events ─────────────────────────────────────────────────────────────────
     [Header("Events")]
     [Tooltip("Fires after the message is dismissed.")]
-    public UnityEngine.Events.UnityEvent onDismissed;
+    [SerializeField] private UnityEngine.Events.UnityEvent onDismissed;
 
     // ── Privates ───────────────────────────────────────────────────────────────
     private bool isShowing  = false;

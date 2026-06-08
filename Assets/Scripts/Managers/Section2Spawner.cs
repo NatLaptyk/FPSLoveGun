@@ -11,52 +11,52 @@ public class Section2Spawner : MonoBehaviour
 {
     [Header("Spawning")]
     [Tooltip("One or more NPC prefabs. A random one is picked for each seat.")]
-    public GameObject[] npcPrefabs;
+    [SerializeField] private GameObject[] npcPrefabs;
 
     [Tooltip("Seat positions in the stadium where NPCs spawn. Reused each wave.")]
-    public Transform[] seatSpawnPoints;
+    [SerializeField] private Transform[] seatSpawnPoints;
 
     [Tooltip("A point on the football field all NPCs walk toward after spawning.")]
-    public Transform fieldTarget;
+    [SerializeField] private Transform fieldTarget;
 
     [Tooltip("Seconds between each NPC spawn within a wave.")]
-    public float spawnInterval = 0.5f;
+    [SerializeField] private float spawnInterval = 0.5f;
 
     [Header("Waves")]
     [Tooltip("Seconds to wait after a wave finishes spawning before the next wave begins. " +
              "Waves do NOT wait to be cleared — they overlap intentionally. " +
              "Waves repeat forever until StopWaves() is called by CatVisionEvent.")]
-    public float timeBetweenWaves = 3f;
+    [SerializeField] private float timeBetweenWaves = 3f;
 
     [Header("Crowd Ring")]
     [Tooltip("Starting radius of the crowd ring — wide and distant.")]
-    public float crowdRadiusStart = 6f;
+    [SerializeField] private float crowdRadiusStart = 6f;
     [Tooltip("Final radius the crowd closes in to.")]
-    public float crowdRadiusEnd = 2f;
+    [SerializeField] private float crowdRadiusEnd = 2f;
     [Tooltip("Seconds it takes to shrink from start radius to end radius.")]
-    public float crowdShrinkDuration = 12f;
+    [SerializeField] private float crowdShrinkDuration = 12f;
 
     [Header("Section Tracking")]
     [Tooltip("Optional — receives all NPCs after the final wave for section-complete tracking.")]
-    public SectionTracker sectionTracker;
+    [SerializeField] private SectionTracker sectionTracker;
 
     [Header("Entry Blockers")]
     [Tooltip("GameObjects that physically block the stadium entrance at game start. " +
              "Call UnlockEntrance() (via the café SectionTracker's onSectionComplete event) " +
              "to remove them once the café section is cleared.")]
-    public GameObject[] entryBlockers;
+    [SerializeField] private GameObject[] entryBlockers;
 
     [Header("Exit Blockers")]
     [Tooltip("GameObjects to activate when the player enters (e.g. an invisible wall or gate mesh " +
              "blocking the stadium entrance). They are deactivated once all waves are cleared.")]
-    public GameObject[] exitBlockers;
+    [SerializeField] private GameObject[] exitBlockers;
 
     [Header("Music")]
     [Tooltip("MusicController for the stadium section. Played the moment the player enters.")]
-    public MusicController stadiumMusic;
+    [SerializeField] private MusicController stadiumMusic;
 
     [Header("Events")]
-    public UnityEngine.Events.UnityEvent onAllWavesComplete;
+    [SerializeField] private UnityEngine.Events.UnityEvent onAllWavesComplete;
 
     private bool hasTriggered  = false;
     private bool wavesActive   = false;   // set false by StopWaves() to end the infinite loop

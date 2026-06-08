@@ -8,10 +8,10 @@ public class ObjectiveMarker : MonoBehaviour
 {
     [Tooltip("The child GameObject that holds the icon (Quad or Sprite). " +
              "Its layer must be set to 'Minimap'.")]
-    public GameObject markerVisual;
+    [SerializeField] private GameObject markerVisual;
 
     [Tooltip("If true the marker is visible when the scene starts.")]
-    public bool activeOnStart = true;
+    [SerializeField] private bool activeOnStart = true;
 
     void Start()
     {

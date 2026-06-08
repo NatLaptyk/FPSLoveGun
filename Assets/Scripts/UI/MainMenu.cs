@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 public class MainMenu : MonoBehaviour
 {
     
-    public string sceneToLoad = "GameScene";
+    [SerializeField] private string sceneToLoad = "GameScene";
 
     public void OnPlayButtonClicked()
     {

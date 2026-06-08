@@ -40,67 +40,67 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
     public int loveNeededToConvert = 10;
     [Tooltip("Chase speed. Should be higher than the Final Boss's runSpeed so Watchers " +
              "can flank the player independently rather than trailing behind the boss.")]
-    public float runSpeed = 12f;
+    [SerializeField] private float runSpeed = 12f;
     [Tooltip("Multiplier applied to love received while stunned.")]
-    public int stunnedLoveMultiplier = 2;
-    public float stunDuration = 3f;
+    [SerializeField] private int stunnedLoveMultiplier = 2;
+    [SerializeField] private float stunDuration = 3f;
 
     [Header("Flight")]
     [Tooltip("Height the Watcher hovers above the ground.")]
-    public float hoverHeight = 3f;
+    [SerializeField] private float hoverHeight = 3f;
     [Tooltip("How quickly the Watcher adjusts its hover height.")]
-    public float hoverSpeed = 3f;
+    [SerializeField] private float hoverSpeed = 3f;
 
     [Header("Detection")]
-    public float aggroRange = 30f;
+    [SerializeField] private float aggroRange = 30f;
 
     [Header("Attack Ranges")]
-    public float biteAttackRange = 4f;
-    public float projectileAttackRange = 20f;
-    public float attackCooldown = 3f;
-    public float attackAnimationLength = 1.5f;
+    [SerializeField] private float biteAttackRange = 4f;
+    [SerializeField] private float projectileAttackRange = 20f;
+    [SerializeField] private float attackCooldown = 3f;
+    [SerializeField] private float attackAnimationLength = 1.5f;
 
     [Header("Projectile Settings")]
-    public GameObject bossProjectilePrefab;
-    public Transform eyeFirePoint;
-    public float projectileForce = 20f;
+    [SerializeField] private GameObject bossProjectilePrefab;
+    [SerializeField] private Transform eyeFirePoint;
+    [SerializeField] private float projectileForce = 20f;
     [Tooltip("How high above the player's pivot to aim.")]
-    public float playerAimOffsetY = 1.5f;
+    [SerializeField] private float playerAimOffsetY = 1.5f;
 
     [Header("Defeat / Saved NPCs")]
     [Tooltip("NPC prefabs and counts to burst out of the boss on defeat.")]
-    public SavedNPCConfig[] savedNPCsToEject;
-    public float ejectForce = 500f;
+    [SerializeField] private SavedNPCConfig[] savedNPCsToEject;
+    [SerializeField] private float ejectForce = 500f;
 
     [Header("Defeat — Pickup Drop")]
     [Tooltip("Ammo pickup prefab. Leave empty to exclude from the drop table.")]
-    public GameObject ammoDropPrefab;
+    [SerializeField] private GameObject ammoDropPrefab;
     [Tooltip("Health pickup prefab. Leave empty to exclude from the drop table.")]
-    public GameObject healthDropPrefab;
+    [SerializeField] private GameObject healthDropPrefab;
     [Tooltip("Love Bomb pickup prefab. Leave empty to exclude from the drop table.")]
-    public GameObject loveBombDropPrefab;
+    [SerializeField] private GameObject loveBombDropPrefab;
     [Tooltip("Relative weight for each drop type (Ammo / Health / LoveBomb). " +
              "Higher = more likely. Values are normalised automatically.")]
-    public float ammoDropWeight    = 2f;
-    public float healthDropWeight  = 1f;
-    public float loveBombDropWeight = 1f;
+    [SerializeField] private float ammoDropWeight    = 2f;
+    [SerializeField] private float healthDropWeight  = 1f;
+    [SerializeField] private float loveBombDropWeight = 1f;
     [Tooltip("Height above the Watcher's position to spawn the drop.")]
-    public float dropHeightOffset = 0.5f;
+    [SerializeField] private float dropHeightOffset = 0.5f;
 
     [Header("References")]
     public Transform player;
 
     [Header("Audio")]
     [Tooltip("Sound played when the Watcher fires a projectile.")]
-    public AudioClip attackSound;
+    [SerializeField] private AudioClip attackSound;
     [Tooltip("Sound played when the Watcher performs a bite attack.")]
-    public AudioClip biteAttackSound;
+    [SerializeField] private AudioClip biteAttackSound;
     [Tooltip("Sound played when the Watcher is hit by love.")]
-    public AudioClip hitSound;
+    [SerializeField] private AudioClip hitSound;
 
     [Range(0f, 1f)]
     [Tooltip("Master volume for all Watcher sound effects.")]
-    public float sfxVolume = 1f;
+    [SerializeField] private float sfxVolume = 1f;
 
     private AudioSource audioSource;
 
@@ -111,7 +111,7 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
 
     [Tooltip("Optional — assign a SectionTracker to auto-register the ejected NPCs " +
              "so the section completes once they are all converted.")]
-    public SectionTracker bossPhaseTracker;
+    [SerializeField] private SectionTracker bossPhaseTracker;
 
     private Animator animator;
     private Collider bossCollider;
@@ -136,9 +136,9 @@ public class WatcherAI : MonoBehaviour, ILovable<bool>
     private void Start()
     {
         CurrentLove = 0;
-        animator     = GetComponent<Animator>();
-        bossCollider = GetComponent<Collider>();
-        audioSource  = GetComponent<AudioSource>();
+        TryGetComponent(out animator);
+        TryGetComponent(out bossCollider);
+        TryGetComponent(out audioSource);
         if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
 
     if (loveBar != null)
